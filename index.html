@@ -219,7 +219,7 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
 // ════════════════════════════════════════
 //  KONFIGURATION
 // ════════════════════════════════════════
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzi8C_bvYMFsIHXKYoXMAhUbnXwYIVGziTpWAzp97c_v-9AyD7sSwkgFNkPlt6y2Wk4/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxc73NeZ4wrD4F9cS0-YVRMwxO7mYPNyNgRYRuw5zo0pCHRvm11tmnzvGhR2Y2MaM-l/exec";
 
 // ════════════════════════════════════════
 //  PRODUKTKATALOG  (index-3 Kategorien, Duplikate bereinigt)
@@ -278,6 +278,11 @@ const CATEGORIES = [
              {plu:"102",name:"Sellerie (Stauden-)"},{plu:"105",name:"Sellerie"},{plu:"107",name:"Sellerie mit Grün"},
              {plu:"95",name:"Steckrüben"},{plu:"9",name:"Zwiebel"},{plu:"74",name:"Zwiebel (Bund)"}]},
 
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxc73NeZ4wrD4F9cS0-YVRMwxO7mYPNyNgRYRuw5zo0pCHRvm11tmnzvGhR2Y2MaM-l/exec";
+
+// Suche im HTML nach dieser Zeile (ca. Zeile 300) und stelle sicher, dass action kleingeschrieben ist:
+const resp = await fetch(`${SCRIPT_URL}?action=getproducts`); 
+  
   {id:"spargel", name:"Spargel, Gurken & Co.", icon:"🌱", color:"#7D8C6A",
    products:[{plu:"50",name:"Bohnen"},{plu:"6",name:"Gurke (Schlangen-)"},{plu:"7",name:"Gurke (Mini-)"},
              {plu:"92",name:"Pilze"},{plu:"73",name:"Radieschen"},{plu:"37",name:"Spargel 1A (weiß)"},
