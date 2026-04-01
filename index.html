@@ -2,107 +2,366 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PLU-Liste</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Hofmarkt Bestellplan</title>
+
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600&display=swap');
 
-  :root {
-    --bg: #F5F0E8;
-    --card: #FFFDF8;
-    --text: #1A1208;
-    --muted: #8A7E6A;
+:root {
+  --bg: #F5F0E8;
+  --card: #FFFDF8;
+  --text: #1A1208;
+  --muted: #8A7E6A;
+  --danger: #C0392B;
+  --success: #2D5016;
+  --warn: #D4830A;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding-bottom: 80px;
+}
+
+/* HEADER */
+header {
+  background: #2D5016;
+  color: white;
+  padding: 16px 16px 12px;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+}
+
+header h1 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.4rem;
+  margin-bottom: 10px;
+}
+
+.header-row2 {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.search-bar {
+  flex: 1;
+  position: relative;
+}
+
+.search-bar input {
+  width: 100%;
+  padding: 10px 12px 10px 35px;
+  border-radius: 10px;
+  border: none;
+  background: rgba(255,255,255,0.2);
+  color: white;
+  font-size: 0.95rem;
+  outline: none;
+}
+
+.search-bar::before {
+  content: '🔍';
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.9rem;
+  opacity: 0.7;
+}
+
+.btn-save-order {
+  background: var(--warn);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 0 #b36e08;
+  transition: all 0.1s;
+}
+
+.btn-save-order:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #b36e08;
+}
+
+/* TABS */
+.tabs {
+  display: flex;
+  background: white;
+  position: sticky;
+  top: 105px;
+  z-index: 150;
+  border-bottom: 1px solid #ddd;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  background: none;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.tab-btn.active {
+  color: var(--success);
+  border-bottom: 3px solid var(--success);
+}
+
+.tab-panel { display: none; padding: 15px; }
+.tab-panel.active { display: block; }
+
+/* KATEGORIEN & ITEMS */
+.category {
+  background: var(--card);
+  border-radius: 15px;
+  margin-bottom: 15px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.cat-header {
+  padding: 12px 15px;
+  color: white;
+  font-weight: 600;
+  display: flex;
+  justify-content: space-between;
+  cursor: pointer;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  padding: 12px 15px;
+  border-bottom: 1px solid #f0f0f0;
+  gap: 10px;
+}
+
+.plu { font-weight: bold; color: var(--muted); width: 35px; }
+.name { flex: 1; font-size: 0.95rem; }
+
+.inputs { display: flex; gap: 8px; }
+
+.qty-input {
+  width: 55px;
+  padding: 8px 4px;
+  border: 1.5px solid #ddd;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 1rem;
+  -moz-appearance: textfield;
+}
+
+.qty-input::-webkit-outer-spin-button,
+.qty-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+.bestellen-input.filled {
+  border-color: var(--warn);
+  background: #FFF8E7;
+  font-weight: bold;
+}
+
+/* LOADING & TOAST */
+#loading {
+  position: fixed; inset: 0; background: white; z-index: 999;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+
+#toast {
+  position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%);
+  background: #333; color: white; padding: 12px 25px; border-radius: 30px;
+  display: none; z-index: 3000; font-weight: 500;
+}
+
+.summary-item {
+  padding: 10px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between;
+}
+</style>
+</head>
+<body>
+
+<div id="loading">
+  <div style="font-size: 2rem; margin-bottom: 10px;">🍏</div>
+  <p>Verbindung zum Hofmarkt-Sheet...</p>
+</div>
+
+<div id="toast"></div>
+
+<header>
+  <h1>🌿 Hofmarkt Bestellplan</h1>
+  <div class="header-row2">
+    <div class="search-bar">
+      <input type="text" placeholder="Artikel oder PLU suchen..." oninput="filterItems(this.value)">
+    </div>
+    <button class="btn-save-order" onclick="saveOrder()" id="btn-save">💾 Speichern</button>
+  </div>
+</header>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab('bestellen')">📋 Bestellen</button>
+  <button class="tab-btn" onclick="switchTab('uebersicht')">📊 Übersicht</button>
+</div>
+
+<div id="tab-bestellen" class="tab-panel active">
+  <div id="main-content"></div>
+</div>
+
+<div id="tab-uebersicht" class="tab-panel">
+  <div style="background: white; border-radius: 15px; padding: 15px;">
+    <h2 style="margin-bottom: 15px; font-family: 'DM Serif Display';">Deine Auswahl</h2>
+    <div id="summary-list">Noch nichts ausgewählt.</div>
+  </div>
+</div>
+
+<script>
+// DEINE GOOGLE URL
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwKsizpH47DvFlJcC2kMgg5mwRrxr30NAEgcwLGBxpYDUcCEaaDe8vZ2LtvwjICrZPv/exec";
+
+// PRODUKTLISTE
+const CATEGORIES = [
+  { id: "obst", name: "Obst", color: "#3A7D11", products: [{plu:"1",name:"Äpfel"},{plu:"4",name:"Birnen"},{plu:"23",name:"Kirschen"}] },
+  { id: "beeren", name: "Beeren", color: "#7B3FA0", products: [{plu:"31",name:"Erdbeeren"},{plu:"33",name:"Himbeeren"}] },
+  { id: "sued", name: "Südfrüchte", color: "#D4830A", products: [{plu:"80",name:"Bananen"},{plu:"12",name:"Orangen"}] },
+  { id: "tomaten", name: "Tomaten & Paprika", color: "#C0392B", products: [{plu:"11",name:"Tomaten"},{plu:"48",name:"Paprika"}] },
+  { id: "salat", name: "Salate", color: "#27AE60", products: [{plu:"42",name:"Kopfsalat"},{plu:"8",name:"Ackersalat"}] },
+  { id: "kohl", name: "Kohl", color: "#1E6F3E", products: [{plu:"71",name:"Blumenkohl"},{plu:"72",name:"Brokkoli"}] },
+  { id: "wurzel", name: "Wurzelgemüse", color: "#B7770D", products: [{plu:"19",name:"Karotten"},{plu:"10",name:"Kartoffel"}] },
+  { id: "spargel", name: "Spargel & Gurken", color: "#7D8C6A", products: [{plu:"6",name:"Gurke"},{plu:"116",name:"Eier 10er"}] },
+  { id: "kraeuter", name: "Kräuter", color: "#5D8233", products: [{plu:"18",name:"Kräuter"}] },
+  { id: "drinks", name: "Säfte", color: "#1A6BA0", products: [{plu:"51",name:"Apfelsaft"}] },
+  { id: "extra", name: "Konfitüre & Nüsse", color: "#903060", products: [{plu:"54",name:"Marmelade"}] },
+  { id: "pfand", name: "Pfand", color: "#555", products: [{plu:"61",name:"Pfand"}] }
+];
+
+function buildUI() {
+  const container = document.getElementById('main-content');
+  container.innerHTML = CATEGORIES.map(cat => `
+    <div class="category" id="cat-${cat.id}">
+      <div class="cat-header" style="background:${cat.color}" onclick="toggleCat('${cat.id}')">
+        <span>${cat.name}</span><span id="icon-${cat.id}">▼</span>
+      </div>
+      <div class="cat-items" id="items-${cat.id}">
+        ${cat.products.map(p => `
+          <div class="item" data-plu="${p.plu}" data-name="${p.name}">
+            <span class="plu">${p.plu}</span>
+            <span class="name">${p.name}</span>
+            <div class="inputs">
+              <input type="number" class="qty-input bestand-input" placeholder="Bst." inputmode="decimal">
+              <input type="number" class="qty-input bestellen-input" placeholder="Best." inputmode="decimal" oninput="checkInput(this)">
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+  document.getElementById('loading').style.display = 'none';
+}
+
+function checkInput(el) {
+  el.classList.toggle('filled', el.value > 0);
+  updateSummary();
+}
+
+function toggleCat(id) {
+  const content = document.getElementById('items-'+id);
+  const icon = document.getElementById('icon-'+id);
+  const isOpen = content.style.display === 'none';
+  content.style.display = isOpen ? 'block' : 'none';
+  icon.textContent = isOpen ? '▼' : '▶';
+}
+
+async function saveOrder() {
+  const btn = document.getElementById('btn-save');
+  const items = [];
+  
+  document.querySelectorAll('.item').forEach(it => {
+    const bst = it.querySelector('.bestand-input').value;
+    const ord = it.querySelector('.bestellen-input').value;
+    if (bst > 0 || ord > 0) {
+      items.push({ plu: it.dataset.plu, name: it.dataset.name, bst: bst || 0, ord: ord || 0 });
+    }
+  });
+
+  if (items.length === 0) { return showToast("Bitte erst etwas eintragen!"); }
+
+  btn.disabled = true;
+  btn.textContent = "⌛ Sende...";
+
+  try {
+    // Senden an Google Apps Script via POST
+    const body = JSON.stringify({ action: "saveOrder", order: { items: items, date: new Date().toLocaleString() } });
+    
+    // Wir nutzen 'no-cors' für Google Apps Script Redirects
+    await fetch(SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors', 
+      cache: 'no-cache',
+      body: body
+    });
+
+    showToast("✅ Erfolgreich im Google Sheet gespeichert!");
+    document.querySelectorAll('.qty-input').forEach(i => { i.value = ''; i.classList.remove('filled'); });
+    updateSummary();
+  } catch (e) {
+    showToast("Fehler! Bitte Internet prüfen.", true);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "💾 Speichern";
   }
+}
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+function updateSummary() {
+  const list = document.getElementById('summary-list');
+  let html = "";
+  document.querySelectorAll('.item').forEach(it => {
+    const ord = it.querySelector('.bestellen-input').value;
+    if (ord > 0) {
+      html += `<div class="summary-item"><span>${it.dataset.name}</span> <b>${ord}x</b></div>`;
+    }
+  });
+  list.innerHTML = html || "Noch nichts ausgewählt.";
+}
 
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    padding-bottom: 40px;
-  }
+function switchTab(t) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-'+t).classList.add('active');
+  document.querySelector(`[onclick="switchTab('${t}')"]`).classList.add('active');
+}
 
-  header {
-    background: #2D5016;
-    color: white;
-    padding: 20px 16px 16px;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.15);
-  }
+function filterItems(q) {
+  q = q.toLowerCase();
+  document.querySelectorAll('.item').forEach(it => {
+    const match = (it.dataset.plu + it.dataset.name).toLowerCase().includes(q);
+    it.style.display = match ? 'flex' : 'none';
+  });
+}
 
-  header h1 {
-    font-family: 'DM Serif Display', serif;
-    font-size: 1.5rem;
-    letter-spacing: -0.02em;
-  }
+function showToast(m, err = false) {
+  const t = document.getElementById('toast');
+  t.textContent = m;
+  t.style.background = err ? '#C0392B' : '#333';
+  t.style.display = 'block';
+  setTimeout(() => t.style.display = 'none', 3500);
+}
 
-  header p { font-size: 0.8rem; opacity: 0.7; margin-top: 2px; }
+buildUI();
+</script>
 
-  .search-bar { margin-top: 10px; position: relative; }
-
-  .search-bar input {
-    width: 100%;
-    padding: 9px 14px 9px 36px;
-    border-radius: 8px;
-    border: none;
-    background: rgba(255,255,255,0.15);
-    color: white;
-    font-size: 0.95rem;
-    font-family: 'DM Sans', sans-serif;
-    outline: none;
-  }
-
-  .search-bar input::placeholder { color: rgba(255,255,255,0.55); }
-  .search-bar::before {
-    content: "🔍";
-    position: absolute;
-    left: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 0.85rem;
-  }
-
-  .main { padding: 12px; }
-
-  .category {
-    margin-bottom: 14px;
-    border-radius: 14px;
-    overflow: hidden;
-    background: var(--card);
-    box-shadow: 0 1px 6px rgba(0,0,0,0.06);
-  }
-
-  .cat-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 14px;
-    cursor: pointer;
-    user-select: none;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  .cat-header-left { display: flex; align-items: center; gap: 10px; }
-  .cat-icon { font-size: 1.3rem; }
-  .cat-name { font-weight: 600; font-size: 0.95rem; }
-
-  .cat-count {
-    font-size: 0.75rem;
-    background: rgba(0,0,0,0.15);
-    padding: 2px 7px;
-    border-radius: 20px;
-    font-weight: 500;
-  }
-
-  .chevron { font-size: 0.7rem; opacity: 0.6; transition: transform 0.2s; }
-  .category.open .chevron { transform: rotate(180deg); }
-
-  .cat-items { display: none; border-top: 1px solid rgba(0,0,0,0.06); }
-  .category.open .cat-items { display: block; }
+</body>
+</html>
+.category.open .cat-items { display: block; }
 
   /* Column headers */
   .col-headers {
