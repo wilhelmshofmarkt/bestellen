@@ -4,105 +4,285 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Hofmarkt Bestellplan</title>
-
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600&display=swap');
-
-:root {
-  --bg: #F5F0E8;
-  --card: #FFFDF8;
-  --text: #1A1208;
-  --muted: #8A7E6A;
-  --danger: #C0392B;
-  --success: #2D5016;
-  --warn: #D4830A;
-}
-
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-body {
-  font-family: 'DM Sans', sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  min-height: 100vh;
-  padding-bottom: 80px;
-}
+:root{--bg:#F5F0E8;--card:#FFFDF8;--text:#1A1208;--muted:#8A7E6A;--danger:#C0392B;--success:#2D5016;--warn:#D4830A}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:70px}
 
 /* HEADER */
-header {
-  background: #2D5016;
-  color: white;
-  padding: 16px 16px 12px;
-  position: sticky;
-  top: 0;
-  z-index: 200;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.2);
-}
+header{background:#2D5016;color:white;padding:14px 14px 10px;position:sticky;top:0;z-index:200;box-shadow:0 2px 12px rgba(0,0,0,.2)}
+header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
+.header-row2{display:flex;gap:8px;margin-top:9px;align-items:center}
+.search-bar{flex:1;position:relative}
+.search-bar input{width:100%;padding:8px 12px 8px 31px;border-radius:8px;border:none;background:rgba(255,255,255,.18);color:white;font-size:.88rem;font-family:'DM Sans',sans-serif;outline:none}
+.search-bar input::placeholder{color:rgba(255,255,255,.5)}
+.search-bar::before{content:"🔍";position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:.8rem}
+.btn-primary{background:var(--warn);color:white;border:none;border-radius:8px;padding:8px 13px;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;white-space:nowrap;box-shadow:0 3px 0 #9c5e06}
+.btn-primary:active{transform:translateY(2px);box-shadow:0 1px 0 #9c5e06}
+.btn-primary:disabled{opacity:.55;cursor:not-allowed}
 
-header h1 {
-  font-family: 'DM Serif Display', serif;
-  font-size: 1.4rem;
-  margin-bottom: 10px;
-}
-
-.header-row2 {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-.search-bar {
-  flex: 1;
-  position: relative;
-}
-
-.search-bar input {
-  width: 100%;
-  padding: 10px 12px 10px 35px;
-  border-radius: 10px;
-  border: none;
-  background: rgba(255,255,255,0.2);
-  color: white;
-  font-size: 0.95rem;
-  outline: none;
-}
-
-.search-bar::before {
-  content: '🔍';
-  position: absolute;
-  left: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 0.9rem;
-  opacity: 0.7;
-}
-
-.btn-save-order {
-  background: var(--warn);
-  color: white;
-  border: none;
-  border-radius: 10px;
-  padding: 10px 16px;
-  font-weight: 600;
-  cursor: pointer;
-  box-shadow: 0 4px 0 #b36e08;
-  transition: all 0.1s;
-}
-
-.btn-save-order:active {
-  transform: translateY(2px);
-  box-shadow: 0 2px 0 #b36e08;
-}
+/* STATUS BAR */
+#status-bar{background:rgba(0,0,0,.25);padding:2px 13px;font-size:.68rem;color:rgba(255,255,255,.75);text-align:right}
 
 /* TABS */
-.tabs {
-  display: flex;
-  background: white;
-  position: sticky;
-  top: 105px;
-  z-index: 150;
-  border-bottom: 1px solid #ddd;
-}
+.tabs{display:flex;background:#fff;border-bottom:2px solid #e8e2d8;position:sticky;top:103px;z-index:150;overflow-x:auto}
+.tab-btn{flex:1;min-width:68px;padding:10px 4px;border:none;background:transparent;font-family:'DM Sans',sans-serif;font-size:.77rem;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s;white-space:nowrap}
+.tab-btn.active{color:#2D5016;border-bottom-color:#2D5016}
+.tab-panel{display:none;padding:10px}
+.tab-panel.active{display:block}
+
+/* CATEGORIES */
+.category{margin-bottom:12px;border-radius:14px;overflow:hidden;background:var(--card);box-shadow:0 1px 6px rgba(0,0,0,.06)}
+.cat-header{display:flex;align-items:center;justify-content:space-between;padding:11px 13px;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent}
+.cat-header-left{display:flex;align-items:center;gap:8px}
+.cat-icon{font-size:1.2rem}.cat-name{font-weight:600;font-size:.91rem}
+.cat-count{font-size:.7rem;background:rgba(255,255,255,.25);padding:2px 7px;border-radius:20px;font-weight:500}
+.chevron{font-size:.65rem;opacity:.6;transition:transform .2s}
+.category.open .chevron{transform:rotate(180deg)}
+.cat-items{display:none;border-top:1px solid rgba(0,0,0,.06)}
+.category.open .cat-items{display:block}
+
+/* COL HEADERS */
+.col-headers{display:flex;align-items:center;padding:4px 12px 3px;background:rgba(0,0,0,.03);border-bottom:1px solid rgba(0,0,0,.05);gap:6px}
+.col-headers span{font-size:.65rem;color:var(--muted);font-weight:700;letter-spacing:.05em;text-transform:uppercase}
+.ch-plu{min-width:30px}.ch-name{flex:1}
+.ch-bestand,.ch-bestellen{width:62px;text-align:center;flex-shrink:0}
+.ch-notiz{flex:1}.ch-actions{width:26px}
+
+/* ITEMS */
+.item{display:flex;flex-direction:column;padding:6px 12px;border-bottom:1px solid rgba(0,0,0,.04);gap:4px}
+.item:last-child{border-bottom:none}.item.hidden{display:none}.category.all-hidden{display:none}
+.item-main{display:flex;align-items:center;gap:5px}
+.item-notiz-row{display:flex;padding-left:35px}
+.plu-num{font-weight:700;font-size:.8rem;color:var(--muted);min-width:30px;text-align:right;flex-shrink:0}
+.plu-name{font-size:.88rem;flex:1}
+.user-badge{font-size:.59rem;background:#e8f5e9;color:#2D5016;border:1px solid #a5d6a7;padding:1px 5px;border-radius:10px;font-weight:600;flex-shrink:0}
+.qty-input{width:62px;flex-shrink:0;padding:5px 4px;border:1.5px solid rgba(0,0,0,.14);border-radius:7px;font-size:.85rem;font-family:'DM Sans',sans-serif;text-align:center;background:#fff;color:var(--text);outline:none;transition:border-color .15s,background .15s;-moz-appearance:textfield}
+.qty-input::-webkit-outer-spin-button,.qty-input::-webkit-inner-spin-button{-webkit-appearance:none}
+.qty-input:focus{border-color:#2D5016}
+.qty-input.filled{background:#FFF8E7;border-color:var(--warn);color:#7A4F00;font-weight:700}
+.notiz-input{flex:1;padding:3px 7px;border:1.5px solid rgba(0,0,0,.1);border-radius:6px;font-size:.77rem;font-family:'DM Sans',sans-serif;background:rgba(0,0,0,.02);color:var(--text);outline:none}
+.notiz-input::placeholder{color:rgba(0,0,0,.22);font-style:italic}
+.notiz-input:focus{border-color:#2D5016;background:#fff}
+.item-actions{width:26px;flex-shrink:0;display:flex;justify-content:flex-end}
+.btn-del{background:none;border:none;color:#ccc;font-size:.88rem;cursor:pointer;padding:2px;transition:color .15s;line-height:1}
+.btn-del:hover{color:var(--danger)}
+.group-sep{height:1px;background:rgba(0,0,0,.07);margin:0 12px}
+
+/* ADD FORM */
+.cat-footer{padding:6px 12px;border-top:1px dashed rgba(0,0,0,.1)}
+.btn-add-product{width:100%;background:transparent;border:1.5px dashed rgba(0,0,0,.17);border-radius:8px;padding:6px 12px;font-size:.79rem;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;text-align:left}
+.btn-add-product:hover{border-color:#2D5016;color:#2D5016}
+.add-form{display:none;padding:10px 12px;background:#f0f7eb;border-top:1px solid #c8e6c9;gap:8px;flex-wrap:wrap;align-items:flex-end}
+.add-form.open{display:flex}
+.add-form label{font-size:.68rem;color:var(--muted);font-weight:600;display:block;margin-bottom:2px}
+.add-form input{padding:6px 9px;border:1.5px solid #c8e6c9;border-radius:7px;font-family:'DM Sans',sans-serif;font-size:.84rem;background:white;outline:none}
+.add-form input:focus{border-color:#2D5016}
+.add-form-name{flex:1;min-width:110px}.add-form-plu{width:76px}
+.btn-add-confirm{background:#2D5016;color:white;border:none;border-radius:8px;padding:7px 13px;font-family:'DM Sans',sans-serif;font-size:.81rem;font-weight:600;cursor:pointer}
+.btn-add-cancel{background:transparent;color:var(--muted);border:1px solid #ccc;border-radius:8px;padding:7px 11px;font-family:'DM Sans',sans-serif;font-size:.81rem;cursor:pointer}
+
+/* OVERVIEW */
+.uebersichten{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.summary-section{flex:1;min-width:250px;border-radius:14px;overflow:hidden;background:var(--card);box-shadow:0 2px 10px rgba(0,0,0,.09)}
+.bestell-section{border:2px solid var(--danger)}.gesamt-section{border:2px solid #2D5016}
+.summary-header{color:white;padding:11px 14px;display:flex;align-items:center;justify-content:space-between}
+.bestell-section .summary-header{background:var(--danger)}.gesamt-section .summary-header{background:#2D5016}
+.summary-header h2{font-family:'DM Serif Display',serif;font-size:.98rem}
+.sum-count{font-size:.73rem;background:rgba(255,255,255,.22);padding:2px 9px;border-radius:20px;font-weight:600}
+.summary-empty{padding:15px 14px;text-align:center;color:var(--muted);font-size:.85rem}
+.summary-cat{border-bottom:1px solid rgba(0,0,0,.06)}.summary-cat:last-child{border-bottom:none}
+.summary-cat-label{padding:5px 13px 3px;font-weight:700;font-size:.74rem;color:white}
+.summary-row{display:flex;align-items:center;flex-wrap:wrap;padding:4px 13px;gap:5px;border-bottom:1px solid rgba(0,0,0,.04)}
+.summary-row:last-child{border-bottom:none}
+.sum-plu{font-size:.74rem;color:var(--muted);font-weight:700;min-width:24px;text-align:right}
+.sum-name{flex:1;font-size:.84rem;min-width:80px}
+.sum-badge-order{background:var(--danger);color:white;font-size:.71rem;font-weight:700;padding:2px 7px;border-radius:20px}
+.sum-badge-qty{background:#2D5016;color:white;font-size:.71rem;font-weight:700;padding:2px 7px;border-radius:20px}
+.sum-notiz{font-size:.71rem;color:var(--muted);font-style:italic;width:100%;padding-left:29px}
+.btn-clear{display:block;margin:10px auto;padding:6px 17px;background:transparent;border:1.5px solid rgba(0,0,0,.16);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.79rem;color:var(--muted);cursor:pointer}
+.btn-clear:hover{background:rgba(0,0,0,.05)}
+
+/* HISTORY */
+.time-controls{display:flex;gap:7px;margin-bottom:11px;flex-wrap:wrap;align-items:center}
+.time-controls input[type=date]{padding:7px 9px;border:1.5px solid #ddd;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.82rem;background:white;outline:none;flex:1;min-width:130px}
+.time-controls input:focus{border-color:#2D5016}
+.btn-load{background:#2D5016;color:white;border:none;border-radius:8px;padding:7px 13px;font-family:'DM Sans',sans-serif;font-size:.81rem;font-weight:600;cursor:pointer;flex-shrink:0}
+.history-entry{background:var(--card);border-radius:12px;margin-bottom:10px;overflow:hidden;box-shadow:0 1px 5px rgba(0,0,0,.07);border:1px solid rgba(0,0,0,.06)}
+.history-entry-header{background:#2D5016;color:white;padding:10px 13px;display:flex;align-items:center;justify-content:space-between;cursor:pointer}
+.hist-date{font-weight:600;font-size:.88rem}.hist-meta{font-size:.72rem;opacity:.75}
+.hist-chev{font-size:.63rem;opacity:.7;transition:transform .2s}
+.history-entry.open .hist-chev{transform:rotate(180deg)}
+.history-body{display:none}.history-entry.open .history-body{display:block}
+.hist-cat-label{padding:5px 13px 3px;font-size:.69rem;font-weight:700;color:white;letter-spacing:.04em;text-transform:uppercase}
+.hist-row{display:flex;padding:4px 13px;gap:7px;align-items:center;border-bottom:1px solid rgba(0,0,0,.04);font-size:.83rem;flex-wrap:wrap}
+.hist-row:last-child{border-bottom:none}
+.hist-plu{min-width:24px;text-align:right;font-weight:700;color:var(--muted);font-size:.74rem;flex-shrink:0}
+.hist-name{flex:1}.hist-bestand{font-size:.74rem;color:var(--muted)}
+.hist-badge{background:var(--warn);color:white;font-size:.7rem;font-weight:700;padding:1px 6px;border-radius:12px}
+.hist-notiz{font-style:italic;color:var(--muted);font-size:.72rem;width:100%;padding-left:31px}
+
+/* AVERAGES */
+.avg-section{background:var(--card);border-radius:12px;overflow:hidden;box-shadow:0 1px 5px rgba(0,0,0,.07);margin-bottom:12px}
+.avg-header{background:#5D8233;color:white;padding:10px 13px;font-family:'DM Serif Display',serif;font-size:.98rem}
+.avg-controls{padding:9px 13px;border-bottom:1px solid rgba(0,0,0,.06)}
+.avg-controls select{padding:6px 9px;border:1.5px solid #ddd;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.81rem;background:white;outline:none}
+.avg-controls select:focus{border-color:#2D5016}
+.avg-cat-label{padding:5px 13px 3px;font-size:.69rem;font-weight:700;color:white;letter-spacing:.04em;text-transform:uppercase}
+.avg-row{display:flex;padding:4px 13px;gap:7px;align-items:center;border-bottom:1px solid rgba(0,0,0,.04);font-size:.83rem}
+.avg-row:last-child{border-bottom:none}
+.avg-plu{min-width:24px;text-align:right;font-weight:700;color:var(--muted);font-size:.74rem}
+.avg-name{flex:1}
+.avg-val{background:#e8f5e9;color:#2D5016;font-size:.74rem;font-weight:700;padding:2px 7px;border-radius:12px}
+.avg-n{font-size:.7rem;color:var(--muted)}
+
+/* LOADING / TOAST */
+#loading{position:fixed;inset:0;background:rgba(245,240,232,.95);z-index:9000;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px}
+.spinner{width:35px;height:35px;border:3px solid #ddd;border-top-color:#2D5016;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+#toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%) translateY(70px);background:#2D5016;color:white;padding:10px 20px;border-radius:20px;font-size:.83rem;font-weight:600;z-index:9999;transition:transform .3s ease;pointer-events:none;white-space:nowrap;max-width:92%;text-align:center}
+#toast.show{transform:translateX(-50%) translateY(0)}
+#toast.error{background:var(--danger)}
+.no-results{text-align:center;padding:36px;color:var(--muted);font-size:.88rem;display:none}
+</style>
+</head>
+<body>
+
+<div id="loading"><div class="spinner"></div><span style="color:var(--muted);font-size:.9rem">Verbinde mit Sheets…</span></div>
+<div id="toast"></div>
+
+<header>
+  <h1>🌿 Hofmarkt Bestellplan</h1>
+  <div class="header-row2">
+    <div class="search-bar">
+      <input type="text" id="search" placeholder="Suchen nach Name oder PLU …" oninput="filterItems(this.value)">
+    </div>
+    <button class="btn-primary" onclick="saveOrder()" id="btn-save">💾 Speichern</button>
+  </div>
+</header>
+<div id="status-bar">⬤ Verbinde …</div>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab('bestellen')">📋 Bestellen</button>
+  <button class="tab-btn" onclick="switchTab('uebersicht')">📊 Übersicht</button>
+  <button class="tab-btn" onclick="switchTab('historie')">📅 Historie</button>
+  <button class="tab-btn" onclick="switchTab('durchschnitt')">📈 Durchschnitt</button>
+</div>
+
+<div id="tab-bestellen" class="tab-panel active">
+  <div id="main"></div>
+  <div class="no-results" id="no-results">Keine Artikel gefunden.</div>
+</div>
+
+<div id="tab-uebersicht" class="tab-panel">
+  <div class="uebersichten">
+    <div class="summary-section bestell-section">
+      <div class="summary-header"><h2>🛒 Zu bestellen</h2><span class="sum-count" id="bestell-count">0</span></div>
+      <div id="bestell-list"></div>
+      <button class="btn-clear" onclick="clearBestellen()">Bestellmengen löschen</button>
+    </div>
+    <div class="summary-section gesamt-section">
+      <div class="summary-header"><h2>📦 Bestandsübersicht</h2><span class="sum-count" id="gesamt-count">0</span></div>
+      <div id="gesamt-list"></div>
+      <button class="btn-clear" onclick="clearBestand()">Bestände löschen</button>
+    </div>
+  </div>
+</div>
+
+<div id="tab-historie" class="tab-panel">
+  <div class="time-controls">
+    <input type="date" id="hist-from">
+    <input type="date" id="hist-to">
+    <button class="btn-load" onclick="loadHistory()">🔄 Laden</button>
+  </div>
+  <div id="history-list"><p style="color:var(--muted);font-size:.86rem">Datumsbereich wählen und auf Laden drücken.</p></div>
+</div>
+
+<div id="tab-durchschnitt" class="tab-panel">
+  <div class="avg-section">
+    <div class="avg-header">📈 Durchschnittliche Bestellmengen</div>
+    <div class="avg-controls">
+      <select id="avg-range" onchange="renderAverages()">
+        <option value="4">Letzte 4 Bestellungen</option>
+        <option value="8" selected>Letzte 8 Bestellungen</option>
+        <option value="12">Letzte 12 Bestellungen</option>
+        <option value="26">Letzte 26 Bestellungen</option>
+        <option value="999">Alle</option>
+      </select>
+    </div>
+    <div id="avg-list"><p style="color:var(--muted);font-size:.86rem;padding:13px">Noch keine Bestellhistorie vorhanden.</p></div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════
+//  KONFIGURATION
+// ════════════════════════════════════════
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwKsizpH47DvFlJcC2kMgg5mwRrxr30NAEgcwLGBxpYDUcCEaaDe8vZ2LtvwjICrZPv/exec";
+
+// ════════════════════════════════════════
+//  PRODUKTKATALOG  (index-3 Kategorien, Duplikate bereinigt)
+// ════════════════════════════════════════
+const CATEGORIES = [
+  {id:"aepfel", name:"Äpfel & Birnen", icon:"🍎", color:"#3A7D11",
+   products:[{plu:"1",name:"Äpfel"},{plu:"2",name:"Äpfel 3 kg"},{plu:"41",name:"Kochäpfel"},{plu:"4",name:"Birnen"}]},
+
+  {id:"beeren", name:"Beeren", icon:"🫐", color:"#7B3FA0",
+   products:[{plu:"23",name:"Brombeeren"},{plu:"31",name:"Erdbeeren"},{plu:"24",name:"Heidelbeeren"},
+             {plu:"33",name:"Himbeeren"},{plu:"43",name:"Himbeeren 500 g"},{plu:"35",name:"Johannisbeeren (rot)"},
+             {plu:"44",name:"Johannisbeeren (schwarz)"},{plu:"38",name:"Sauerkirschen"},{plu:"36",name:"Stachelbeeren"}]},
+
+  {id:"steinobst", name:"Steinobst & Kirschen", icon:"🍑", color:"#C0522A",
+   products:[{plu:"124",name:"Aprikosen"},{plu:"112",name:"Gaishirtle"},{plu:"23",name:"Kirschen"},
+             {plu:"14",name:"Mirabellen"},{plu:"130",name:"Nektarinen"},{plu:"25",name:"Pfirsich"},
+             {plu:"125",name:"Ufo-Pfirsich"},{plu:"5",name:"Zwetschgen"}]},
+
+  {id:"melonen", name:"Melonen", icon:"🍉", color:"#4CAF50",
+   products:[{plu:"126",name:"Netzmelone"},{plu:"128",name:"Wassermelone"}]},
+
+  {id:"sonstobst", name:"Sonstiges Obst", icon:"🍇", color:"#6B8E23",
+   products:[{plu:"109",name:"Quitten"},{plu:"49",name:"Rhabarber"},{plu:"46",name:"Trauben"}]},
+
+  {id:"suedfruchte", name:"Südfrüchte & Exoten", icon:"🍊", color:"#D4830A",
+   products:[{plu:"83",name:"Ananas"},{plu:"78",name:"Avocado"},{plu:"80",name:"Bananen"},
+             {plu:"81",name:"Blutorangen"},{plu:"21",name:"Clementinen"},{plu:"12",name:"Orangen"},
+             {plu:"67",name:"Zitronen"},{plu:"118",name:"Granatapfel"},{plu:"85",name:"Ingwer"},{plu:"82",name:"Kiwi"}]},
+
+  {id:"tomaten", name:"Tomaten & Paprika", icon:"🍅", color:"#C0392B",
+   products:[{plu:"106",name:"Auberginen"},{plu:"48",name:"Paprika"},{plu:"111",name:"Peperoni / Chilli"},
+             {plu:"47",name:"Spitzpaprika"},{plu:"11",name:"Tomaten"},{plu:"113",name:"Tomaten (Koch-)"},
+             {plu:"110",name:"Tomaten Remstal"},{plu:"57",name:"Tomaten San Marzano / Ochsenherz"},
+             {plu:"16",name:"Tomaten Schale 250 g"},{plu:"27",name:"Tomaten Schale 500 g"}]},
+
+  {id:"salate", name:"Salate & Blattgemüse", icon:"🥬", color:"#27AE60",
+   products:[{plu:"8",name:"Ackersalat"},{plu:"65",name:"Chicorée"},{plu:"88",name:"Chinakohl"},
+             {plu:"42",name:"Kopfsalate"},{plu:"122",name:"Kresse"},{plu:"94",name:"Mangold"},
+             {plu:"91",name:"Pak Choi"},{plu:"66",name:"Radicchio"},{plu:"29",name:"Ruccola"},
+             {plu:"123",name:"Schnittsalat"},{plu:"87",name:"Spinat"}]},
+
+  {id:"kohl", name:"Kohl & Kohlgemüse", icon:"🥦", color:"#1E6F3E",
+   products:[{plu:"71",name:"Blumenkohl"},{plu:"72",name:"Brokkoli"},{plu:"77",name:"Grünkohl"},
+             {plu:"119",name:"Kohlrabi"},{plu:"89",name:"Kohlröschen"},{plu:"76",name:"Kraut (rot & weiß)"},
+             {plu:"3",name:"Kürbis"},{plu:"121",name:"Lauch"},{plu:"120",name:"Romanesco"},
+             {plu:"70",name:"Rosenkohl"},{plu:"108",name:"Sauerkraut"},{plu:"60",name:"Spitzkohl"},{plu:"84",name:"Wirsing"}]},
+
+  {id:"wurzel", name:"Wurzel- & Knollengemüse", icon:"🥕", color:"#B7770D",
+   products:[{plu:"100",name:"Fenchel"},{plu:"19",name:"Karotten"},{plu:"75",name:"Karotten (Bund)"},
+             {plu:"97",name:"Urkarotten"},{plu:"129",name:"Urkarotten (Bund)"},{plu:"10",name:"Kartoffel"},
+             {plu:"20",name:"Kartoffel 2,5 kg"},{plu:"26",name:"Kartoffel (neue)"},{plu:"99",name:"Süßkartoffel"},
+             {plu:"56",name:"Knoblauch (getrocknet)"},{plu:"79",name:"Knoblauch (frisch)"},
+             {plu:"98",name:"Mairübchen"},{plu:"69",name:"Pastinaken"},{plu:"68",name:"Petersilienwurzel"},
+             {plu:"90",name:"Rettich (weiß)"},{plu:"96",name:"Rettich (rot)"},{plu:"101",name:"Rettich (schwarz)"},
+             {plu:"30",name:"Rote Bete mit Grün"},{plu:"104",name:"Rote Bete"},
+             {plu:"102",name:"Sellerie (Stauden-)"},{plu:"105",name:"Sellerie"},{plu:"107",name:"Sellerie mit Grün"},
+             {plu:"95",name:"Steckrüben"},{plu:"9",name:"Zwiebel"},{plu:"74",name:"Zwiebel (Bund)"}]},
+
+  {id:"spargel", name:"Spargel, Gurken & Co.", icon:"🌱", color:"#7D8C6A",
+   products:[{plu:"50",name:"Bohnen"},{plu:"6",name:"Gurke (Schlangen-)"},{plu:"7",name:"Gurke (Mini-)"},
+             {plu:"92",name:"Pilze"},{plu:"73",name:"Radieschen"},{plu:"37",name:"Spargel 1A (weiß)"},
+             {plu:"59",name:"Spargel 2A (weiß)"},{plu:"58",name:"Spargel Bund (weiß)"},
+             {plu:"39",name:"Spargel (violett)"},{plu:"40",name:"Spar}
 
 .tab-btn {
   flex: 1;
