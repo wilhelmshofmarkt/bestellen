@@ -193,6 +193,19 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
 .item-avg-hint{font-size:.71rem;color:var(--muted);padding:0 12px 5px 35px;font-style:italic;line-height:1.4}
 .item-avg-hint span{display:inline-block;background:#f5f0e8;border-radius:4px;padding:1px 5px;font-style:normal;font-weight:600;color:#7A5C2E}
 
+/* ── VERGLEICHS-PFEILE & TREND (Übersicht) ── */
+.sum-arrow{font-size:.85rem;font-weight:700;flex-shrink:0;line-height:1}
+.sum-arrow.up2   {color:#1a7a1a}   /* stark über Ø  ↑↑ grün */
+.sum-arrow.up1   {color:#7a9e1a}   /* leicht über Ø ↗ gelbgrün */
+.sum-arrow.even  {color:#aaa}      /* genau Ø       → grau */
+.sum-arrow.down1 {color:#c87a00}   /* leicht unter Ø ↘ orange */
+.sum-arrow.down2 {color:#b22222}   /* stark unter Ø ↓↓ rot */
+.sum-trend{font-size:.68rem;font-weight:700;padding:1px 5px;border-radius:8px;flex-shrink:0;white-space:nowrap}
+.sum-trend.trend-up   {background:#e6f4e6;color:#1a7a1a}
+.sum-trend.trend-down {background:#fdeaea;color:#b22222}
+.sum-trend.trend-flat {background:#f0f0ea;color:#888}
+.sum-avg-note{font-size:.69rem;color:var(--muted);padding:3px 13px 5px;font-style:italic}
+
 /* ── EINKAUFSZETTEL BUTTON ── */
 .btn-print{background:#1A1208;color:white;border:none;border-radius:8px;padding:8px 14px;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;margin:10px 14px 4px;box-shadow:0 3px 0 #000;transition:all .1s}
 .btn-print:active{transform:translateY(2px);box-shadow:0 1px 0 #000}
@@ -471,11 +484,11 @@ const CATEGORIES = [
     {plu:"65",  name:"Chicorée"},
     {plu:"88",  name:"Chinakohl"},
     {plu:"42",  name:"Kopfsalate", infoOnly:true},
-    {plu:"46",  name:"Batavia"},
-    {plu:"46",  name:"Kopfsalat"},
-    {plu:"46",  name:"Eichblatt rot"},
-    {plu:"46",  name:"Eichblatt grün"},
-    {plu:"46",  name:"Endivien"},
+    {plu:"42",  name:"Batavia"},
+    {plu:"42",  name:"Kopfsalat"},
+    {plu:"42",  name:"Eichblatt rot"},
+    {plu:"42",  name:"Eichblatt grün"},
+    {plu:"42",  name:"Endivien"},
     {plu:"122", name:"Kresse"},
     {plu:"94",  name:"Mangold"},
     {plu:"91",  name:"Pak Choi"},
@@ -780,7 +793,61 @@ function buildAvgMap(day) {
 }
 
 // ═══════════════════════════════════════════
-//  BUILD UI
+//  ERWEITERTER DURCHSCHNITT (für Übersicht: Vergleich + Trend)
+// ═══════════════════════════════════════════
+function buildExtAvgMap(day) {
+  // Pool: nach Tag filtern, alle nehmen (nicht auf 4 begrenzen für Trend)
+  let pool = day ? historyData.filter(o => o.weekday === day) : historyData;
+  if (!pool.length) return {};
+
+  const n4 = Math.min(pool.length, 4);
+  const recent4 = pool.slice(0, n4);
+
+  // Für Trend: die 4 davor (5–8)
+  const older4  = pool.slice(n4, n4 + 4);
+
+  const sumUp = (orders, n) => {
+    const acc = {};
+    orders.forEach(o => (o.items || []).forEach(it => {
+      const k = it.catid + '|' + it.name;
+      if (!acc[k]) acc[k] = 0;
+      acc[k] += (it.bestellen || 0);
+    }));
+    const r = {};
+    Object.entries(acc).forEach(([k, v]) => r[k] = v / n);
+    return r;
+  };
+
+  const avg4   = sumUp(recent4, n4);
+  const avgOld = older4.length ? sumUp(older4, older4.length) : null;
+
+  const result = {};
+  Object.entries(avg4).forEach(([k, avgBest]) => {
+    let trend = 'flat';
+    if (avgOld && avgOld[k] !== undefined) {
+      const diff = avgBest - avgOld[k];
+      const base = avgOld[k] || 1;
+      const pct  = diff / base;
+      if      (pct >  0.12) trend = 'up';
+      else if (pct < -0.12) trend = 'down';
+    }
+    result[k] = { avgBestellen: avgBest, trend };
+  });
+  return result;
+}
+
+// Pfeil-Klasse & Symbol basierend auf Abweichung vom Ø
+function getArrow(current, avg) {
+  if (avg === 0) return null;
+  const pct = (current - avg) / avg;
+  if      (pct >=  0.25) return {cls:'up2',   sym:'↑↑'};
+  else if (pct >=  0.08) return {cls:'up1',   sym:'↗'};
+  else if (pct <= -0.25) return {cls:'down2', sym:'↓↓'};
+  else if (pct <= -0.08) return {cls:'down1', sym:'↘'};
+  else                   return {cls:'even',  sym:'→'};
+}
+
+
 // ═══════════════════════════════════════════
 function buildUI() {
   const container = document.getElementById('main');
@@ -957,33 +1024,56 @@ function updateSummary(){
       const bestand = parseFloat(ins[0].value)||0, bestellen = parseFloat(ins[1].value)||0;
       const notiz = it.querySelector('.notiz-input')?.value || '';
       const {plu, name} = it.dataset;
-      if (bestellen > 0) { if (!bM[catid]) bM[catid] = {name:catname,color:catcolor,items:[]}; bM[catid].items.push({plu,name,qty:bestellen,notiz}); bt++; }
-      if (bestand  > 0) { if (!sM[catid]) sM[catid] = {name:catname,color:catcolor,items:[]}; sM[catid].items.push({plu,name,qty:bestand,notiz});  st++; }
+      if (bestellen > 0) { if (!bM[catid]) bM[catid] = {name:catname,color:catcolor,items:[]}; bM[catid].items.push({plu,name,catid,qty:bestellen,notiz}); bt++; }
+      if (bestand  > 0) { if (!sM[catid]) sM[catid] = {name:catname,color:catcolor,items:[]}; sM[catid].items.push({plu,name,catid,qty:bestand,notiz});  st++; }
     });
   });
   document.getElementById('bestell-count').textContent = bt;
   document.getElementById('gesamt-count').textContent  = st;
-  renderSumList('bestell-list', bM, 'order');
-  renderSumList('gesamt-list',  sM, 'qty');
+  const extAvg = buildExtAvgMap(orderDay);
+  renderSumList('bestell-list', bM, 'order', extAvg);
+  renderSumList('gesamt-list',  sM, 'qty',   null);
 }
 
-function renderSumList(id, map, type){
+function renderSumList(id, map, type, extAvg){
   const el = document.getElementById(id);
   if (!Object.keys(map).length) {
     el.innerHTML = `<div class="summary-empty">${type==='order'?'Noch nichts zu bestellen.':'Kein Bestand erfasst.'}</div>`;
     return;
   }
+
+  const dayLabel = orderDay || null;
+  const hasAvg   = extAvg && Object.keys(extAvg).length > 0;
+
   el.innerHTML = Object.values(map).map(cat => `
     <div class="summary-cat">
       <div class="summary-cat-label" style="background:${cat.color}">${cat.name}</div>
-      ${cat.items.map(it => `
+      ${cat.items.map(it => {
+        let arrowHTML = '', trendHTML = '';
+        if (type === 'order' && hasAvg) {
+          const k = it.catid + '|' + it.name;
+          const a = extAvg[k];
+          if (a) {
+            const arrow = getArrow(it.qty, a.avgBestellen);
+            if (arrow) {
+              arrowHTML = `<span class="sum-arrow ${arrow.cls}" title="Ø ${a.avgBestellen.toFixed(1)}">${arrow.sym}</span>`;
+            }
+            if (a.trend === 'up')   trendHTML = `<span class="sum-trend trend-up"  title="Trend der letzten Bestellungen">↑ Trend</span>`;
+            if (a.trend === 'down') trendHTML = `<span class="sum-trend trend-down" title="Trend der letzten Bestellungen">↓ Trend</span>`;
+          }
+        }
+        return `
         <div class="summary-row">
           <span class="sum-plu">${it.plu}</span>
           <span class="sum-name">${it.name}</span>
+          ${arrowHTML}
           <span class="${type==='order'?'sum-badge-order':'sum-badge-qty'}">${it.qty}×</span>
+          ${trendHTML}
           ${it.notiz ? `<span class="sum-notiz">💬 ${it.notiz}</span>` : ''}
-        </div>`).join('')}
-    </div>`).join('');
+        </div>`;
+      }).join('')}
+    </div>`).join('') +
+    (type === 'order' && hasAvg ? `<div class="sum-avg-note">↑↑ >25% über Ø · ↗ leicht über · → Ø · ↘ leicht unter · ↓↓ >25% unter${dayLabel ? ` · Ø aus letzten 4 ${dayLabel}-Bestellungen` : ' · Ø aus letzten 4 Bestellungen'}</div>` : '');
 }
 
 function clearBestellen(){
