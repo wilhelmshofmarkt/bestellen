@@ -732,10 +732,10 @@ function toggleDayChip(btn, scope) {
 
   if (scope === 'hist') {
     histDayFilter = day;
-    applyHistoryFilter();
+    ensureHistory().then(() => applyHistoryFilter());
   } else {
     avgDayFilter = day;
-    renderAverages();
+    ensureHistory().then(() => renderAverages());
   }
 }
 
@@ -1095,8 +1095,8 @@ async function loadHistory(){
 
   if (sheetsOnline) {
     try {
-      const r = await apiGet({action:'getHistory', from, to});
-      historyData = r.history || [];
+      const r = await apiGet({action:'gethistory', from, to});
+      if (r.history) { historyData = r.history; _historyLoaded = true; }
     } catch(e) { showToast('Sheets offline – zeige lokale Daten', true); }
   }
 
@@ -1207,14 +1207,24 @@ function renderAverages(){
 // ═══════════════════════════════════════════
 //  TABS / TOAST
 // ═══════════════════════════════════════════
+let _historyLoaded = false;
+async function ensureHistory() {
+  if (_historyLoaded || historyData.length > 0) return;
+  if (!sheetsOnline) return;
+  try {
+    const r = await apiGet({action:'gethistory', from:'', to:''});
+    if (r.history && r.history.length) { historyData = r.history; _historyLoaded = true; }
+  } catch(e) {}
+}
+
 function switchTab(name){
   const names = ['bestellen','uebersicht','historie','durchschnitt'];
   document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', names[i]===name));
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.getElementById('tab-'+name).classList.add('active');
-  if (name === 'uebersicht')   updateSummary();
+  if (name === 'uebersicht')   { ensureHistory().then(() => updateSummary()); }
   if (name === 'historie')     loadHistory();
-  if (name === 'durchschnitt') renderAverages();
+  if (name === 'durchschnitt') { ensureHistory().then(() => renderAverages()); }
 }
 
 let _tt = null;
