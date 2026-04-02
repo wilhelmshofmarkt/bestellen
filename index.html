@@ -20,15 +20,30 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
 .btn-primary{background:var(--warn);color:white;border:none;border-radius:8px;padding:8px 13px;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;white-space:nowrap;box-shadow:0 3px 0 #9c5e06;transition:all .1s}
 .btn-primary:active{transform:translateY(2px);box-shadow:0 1px 0 #9c5e06}
 .btn-primary:disabled{opacity:.55;cursor:not-allowed}
-
 #status-bar{background:rgba(0,0,0,.25);padding:2px 13px;font-size:.68rem;color:rgba(255,255,255,.75);text-align:right}
 
+/* ── WOCHENTAG-MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:500;display:flex;align-items:flex-end;justify-content:center}
+.modal-overlay.hidden{display:none}
+.modal-sheet{background:var(--card);border-radius:20px 20px 0 0;padding:22px 18px 34px;width:100%;max-width:480px;box-shadow:0 -4px 30px rgba(0,0,0,.18)}
+.modal-sheet h2{font-family:'DM Serif Display',serif;font-size:1.15rem;margin-bottom:5px;color:var(--text)}
+.modal-sheet p{font-size:.82rem;color:var(--muted);margin-bottom:16px}
+.day-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:18px}
+.day-btn{padding:10px 4px;border:2px solid #ddd;border-radius:11px;background:white;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:600;color:var(--muted);cursor:pointer;text-align:center;transition:all .15s;line-height:1.3}
+.day-btn:hover{border-color:#2D5016;color:#2D5016}
+.day-btn.selected{background:#2D5016;border-color:#2D5016;color:white}
+.modal-actions{display:flex;gap:9px}
+.btn-modal-ok{flex:1;background:#2D5016;color:white;border:none;border-radius:10px;padding:12px;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:700;cursor:pointer}
+.btn-modal-cancel{background:transparent;color:var(--muted);border:1.5px solid #ddd;border-radius:10px;padding:12px 16px;font-family:'DM Sans',sans-serif;font-size:.88rem;cursor:pointer}
+
+/* ── TABS ── */
 .tabs{display:flex;background:#fff;border-bottom:2px solid #e8e2d8;position:sticky;top:103px;z-index:150;overflow-x:auto}
 .tab-btn{flex:1;min-width:68px;padding:10px 4px;border:none;background:transparent;font-family:'DM Sans',sans-serif;font-size:.77rem;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s;white-space:nowrap}
 .tab-btn.active{color:#2D5016;border-bottom-color:#2D5016}
 .tab-panel{display:none;padding:10px}
 .tab-panel.active{display:block}
 
+/* ── CATEGORIES ── */
 .category{margin-bottom:12px;border-radius:14px;overflow:hidden;background:var(--card);box-shadow:0 1px 6px rgba(0,0,0,.06)}
 .cat-header{display:flex;align-items:center;justify-content:space-between;padding:11px 13px;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent}
 .cat-header-left{display:flex;align-items:center;gap:8px}
@@ -39,13 +54,14 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
 .cat-items{display:none;border-top:1px solid rgba(0,0,0,.06)}
 .category.open .cat-items{display:block}
 
+/* ── COL HEADERS ── */
 .col-headers{display:flex;align-items:center;padding:4px 12px 3px;background:rgba(0,0,0,.03);border-bottom:1px solid rgba(0,0,0,.05);gap:6px}
 .col-headers span{font-size:.65rem;color:var(--muted);font-weight:700;letter-spacing:.05em;text-transform:uppercase}
 .ch-plu{min-width:30px}.ch-name{flex:1}
 .ch-bestand,.ch-bestellen{width:62px;text-align:center;flex-shrink:0}
 .ch-notiz{flex:1}.ch-actions{width:26px}
 
-/* Normale bestellbare Items */
+/* ── ITEMS ── */
 .item{display:flex;flex-direction:column;padding:6px 12px;border-bottom:1px solid rgba(0,0,0,.04);gap:4px}
 .item:last-child{border-bottom:none}.item.hidden{display:none}.category.all-hidden{display:none}
 .item-main{display:flex;align-items:center;gap:5px}
@@ -53,13 +69,12 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
 .plu-num{font-weight:700;font-size:.8rem;color:var(--muted);min-width:30px;text-align:right;flex-shrink:0}
 .plu-name{font-size:.88rem;flex:1}
 
-/* Info-only Items (Duplikate – nur PLU anzeigen) */
-.item-info{display:flex;align-items:center;padding:4px 12px;border-bottom:1px solid rgba(0,0,0,.03);gap:5px;opacity:.65}
-.item-info:last-child{border-bottom:none}
-.item-info.hidden{display:none}
-.item-info .plu-num{color:var(--muted)}
-.item-info .plu-name{font-size:.82rem;color:var(--muted);font-style:italic}
-.info-tag{font-size:.6rem;background:#f0f0ea;color:var(--muted);border:1px solid #ddd;padding:1px 5px;border-radius:8px;flex-shrink:0}
+/* ── INFO-ONLY (Duplikate / keine Eingabe) ── */
+.item-info{display:flex;align-items:center;padding:5px 12px;border-bottom:1px solid rgba(0,0,0,.03);gap:5px}
+.item-info:last-child{border-bottom:none}.item-info.hidden{display:none}
+.item-info .plu-num{color:var(--muted);opacity:.7}
+.item-info .plu-name{font-size:.86rem;color:var(--text)}
+.info-tag{font-size:.59rem;background:#f0f0ea;color:var(--muted);border:1px solid #ddd;padding:1px 5px;border-radius:8px;flex-shrink:0}
 
 .user-badge{font-size:.59rem;background:#e8f5e9;color:#2D5016;border:1px solid #a5d6a7;padding:1px 5px;border-radius:10px;font-weight:600;flex-shrink:0}
 .qty-input{width:62px;flex-shrink:0;padding:5px 4px;border:1.5px solid rgba(0,0,0,.14);border-radius:7px;font-size:.85rem;font-family:'DM Sans',sans-serif;text-align:center;background:#fff;color:var(--text);outline:none;transition:border-color .15s,background .15s;-moz-appearance:textfield}
@@ -74,6 +89,7 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
 .btn-del:hover{color:var(--danger)}
 .group-sep{height:1px;background:rgba(0,0,0,.07);margin:0 12px}
 
+/* ── ADD FORM ── */
 .cat-footer{padding:6px 12px;border-top:1px dashed rgba(0,0,0,.1)}
 .btn-add-product{width:100%;background:transparent;border:1.5px dashed rgba(0,0,0,.17);border-radius:8px;padding:6px 12px;font-size:.79rem;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;text-align:left}
 .btn-add-product:hover{border-color:#2D5016;color:#2D5016}
@@ -86,6 +102,7 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
 .btn-add-confirm{background:#2D5016;color:white;border:none;border-radius:8px;padding:7px 13px;font-family:'DM Sans',sans-serif;font-size:.81rem;font-weight:600;cursor:pointer}
 .btn-add-cancel{background:transparent;color:var(--muted);border:1px solid #ccc;border-radius:8px;padding:7px 11px;font-family:'DM Sans',sans-serif;font-size:.81rem;cursor:pointer}
 
+/* ── ÜBERSICHT ── */
 .uebersichten{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}
 .summary-section{flex:1;min-width:250px;border-radius:14px;overflow:hidden;background:var(--card);box-shadow:0 2px 10px rgba(0,0,0,.09)}
 .bestell-section{border:2px solid var(--danger)}.gesamt-section{border:2px solid #2D5016}
@@ -94,6 +111,7 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
 .summary-header h2{font-family:'DM Serif Display',serif;font-size:.98rem}
 .sum-count{font-size:.73rem;background:rgba(255,255,255,.22);padding:2px 9px;border-radius:20px;font-weight:600}
 .summary-empty{padding:15px 14px;text-align:center;color:var(--muted);font-size:.85rem}
+.summary-day-badge{display:inline-block;background:var(--warn);color:white;font-size:.72rem;font-weight:700;padding:2px 9px;border-radius:20px;margin:8px 14px 4px}
 .summary-cat{border-bottom:1px solid rgba(0,0,0,.06)}.summary-cat:last-child{border-bottom:none}
 .summary-cat-label{padding:5px 13px 3px;font-weight:700;font-size:.74rem;color:white}
 .summary-row{display:flex;align-items:center;flex-wrap:wrap;padding:4px 13px;gap:5px;border-bottom:1px solid rgba(0,0,0,.04)}
@@ -106,13 +124,24 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
 .btn-clear{display:block;margin:10px auto;padding:6px 17px;background:transparent;border:1.5px solid rgba(0,0,0,.16);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.79rem;color:var(--muted);cursor:pointer}
 .btn-clear:hover{background:rgba(0,0,0,.05)}
 
-.time-controls{display:flex;gap:7px;margin-bottom:11px;flex-wrap:wrap;align-items:center}
-.time-controls input[type=date]{padding:7px 9px;border:1.5px solid #ddd;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.82rem;background:white;outline:none;flex:1;min-width:130px}
-.time-controls input:focus{border-color:#2D5016}
+/* ── FILTER CONTROLS (Historie & Ø) ── */
+.filter-bar{background:var(--card);border-radius:12px;padding:11px 13px;margin-bottom:11px;box-shadow:0 1px 5px rgba(0,0,0,.06)}
+.filter-bar-row{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+.filter-bar-row+.filter-bar-row{margin-top:8px;padding-top:8px;border-top:1px solid rgba(0,0,0,.06)}
+.filter-label{font-size:.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;min-width:42px}
+.filter-bar input[type=date]{padding:7px 9px;border:1.5px solid #ddd;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.82rem;background:white;outline:none;flex:1;min-width:120px}
+.filter-bar input:focus{border-color:#2D5016}
 .btn-load{background:#2D5016;color:white;border:none;border-radius:8px;padding:7px 13px;font-family:'DM Sans',sans-serif;font-size:.81rem;font-weight:600;cursor:pointer;flex-shrink:0}
+.day-filter-chips{display:flex;gap:6px;flex-wrap:wrap;flex:1}
+.day-chip{padding:5px 11px;border:1.5px solid #ddd;border-radius:20px;background:white;font-family:'DM Sans',sans-serif;font-size:.76rem;font-weight:600;color:var(--muted);cursor:pointer;transition:all .15s}
+.day-chip.active{background:#2D5016;border-color:#2D5016;color:white}
+.day-chip.all-chip.active{background:var(--warn);border-color:var(--warn);color:white}
+
+/* ── HISTORY ── */
 .history-entry{background:var(--card);border-radius:12px;margin-bottom:10px;overflow:hidden;box-shadow:0 1px 5px rgba(0,0,0,.07);border:1px solid rgba(0,0,0,.06)}
 .history-entry-header{background:#2D5016;color:white;padding:10px 13px;display:flex;align-items:center;justify-content:space-between;cursor:pointer}
 .hist-date{font-weight:600;font-size:.88rem}.hist-meta{font-size:.72rem;opacity:.75}
+.hist-day-badge{background:rgba(255,255,255,.25);font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:12px;margin-left:7px}
 .hist-chev{font-size:.63rem;opacity:.7;transition:transform .2s}
 .history-entry.open .hist-chev{transform:rotate(180deg)}
 .history-body{display:none}.history-entry.open .history-body{display:block}
@@ -124,11 +153,9 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
 .hist-badge{background:var(--warn);color:white;font-size:.7rem;font-weight:700;padding:1px 6px;border-radius:12px}
 .hist-notiz{font-style:italic;color:var(--muted);font-size:.72rem;width:100%;padding-left:31px}
 
+/* ── DURCHSCHNITT ── */
 .avg-section{background:var(--card);border-radius:12px;overflow:hidden;box-shadow:0 1px 5px rgba(0,0,0,.07);margin-bottom:12px}
-.avg-header{background:#5D8233;color:white;padding:10px 13px;font-family:'DM Serif Display',serif;font-size:.98rem}
-.avg-controls{padding:9px 13px;border-bottom:1px solid rgba(0,0,0,.06)}
-.avg-controls select{padding:6px 9px;border:1.5px solid #ddd;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.81rem;background:white;outline:none}
-.avg-controls select:focus{border-color:#2D5016}
+.avg-header-bar{background:#5D8233;color:white;padding:10px 13px;font-family:'DM Serif Display',serif;font-size:.98rem}
 .avg-cat-label{padding:5px 13px 3px;font-size:.69rem;font-weight:700;color:white;letter-spacing:.04em;text-transform:uppercase}
 .avg-row{display:flex;padding:4px 13px;gap:7px;align-items:center;border-bottom:1px solid rgba(0,0,0,.04);font-size:.83rem}
 .avg-row:last-child{border-bottom:none}
@@ -136,7 +163,11 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
 .avg-name{flex:1}
 .avg-val{background:#e8f5e9;color:#2D5016;font-size:.74rem;font-weight:700;padding:2px 7px;border-radius:12px}
 .avg-n{font-size:.7rem;color:var(--muted)}
+.avg-controls-row{display:flex;align-items:center;gap:10px;padding:9px 13px;border-bottom:1px solid rgba(0,0,0,.06);background:rgba(0,0,0,.02);flex-wrap:wrap}
+.avg-controls-row select{padding:6px 9px;border:1.5px solid #ddd;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.81rem;background:white;outline:none}
+.avg-controls-row select:focus{border-color:#2D5016}
 
+/* ── LOADING / TOAST ── */
 #loading{position:fixed;inset:0;background:rgba(245,240,232,.97);z-index:9000;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px}
 .spinner{width:36px;height:36px;border:3px solid #ddd;border-top-color:#2D5016;border-radius:50%;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -145,11 +176,12 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
 #toast.show{transform:translateX(-50%) translateY(0)}
 #toast.error{background:var(--danger)}
 .no-results{text-align:center;padding:36px;color:var(--muted);font-size:.88rem;display:none}
-.tab-empty{text-align:center;padding:30px 20px;color:var(--muted);font-size:.86rem;line-height:1.6}
+.tab-empty{text-align:center;padding:28px 18px;color:var(--muted);font-size:.86rem;line-height:1.6}
 </style>
 </head>
 <body>
 
+<!-- LOADING -->
 <div id="loading">
   <div style="font-size:2.2rem">🌿</div>
   <div class="spinner"></div>
@@ -157,13 +189,34 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
 </div>
 <div id="toast"></div>
 
+<!-- WOCHENTAG-MODAL -->
+<div class="modal-overlay hidden" id="day-modal">
+  <div class="modal-sheet">
+    <h2>📅 Für welchen Tag?</h2>
+    <p>Bitte wähle den Wochentag, für den diese Bestellung gilt.</p>
+    <div class="day-grid">
+      <button class="day-btn" data-day="Montag"     onclick="selectDay(this)">Mo<br>Montag</button>
+      <button class="day-btn" data-day="Dienstag"   onclick="selectDay(this)">Di<br>Dienstag</button>
+      <button class="day-btn" data-day="Mittwoch"   onclick="selectDay(this)">Mi<br>Mittwoch</button>
+      <button class="day-btn" data-day="Donnerstag" onclick="selectDay(this)">Do<br>Donnerstag</button>
+      <button class="day-btn" data-day="Freitag"    onclick="selectDay(this)">Fr<br>Freitag</button>
+      <button class="day-btn" data-day="Samstag"    onclick="selectDay(this)">Sa<br>Samstag</button>
+      <button class="day-btn" data-day="Sonntag"    onclick="selectDay(this)">So<br>Sonntag</button>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-modal-ok" id="modal-ok-btn" onclick="confirmSave()">💾 Speichern</button>
+      <button class="btn-modal-cancel" onclick="closeModal()">Abbrechen</button>
+    </div>
+  </div>
+</div>
+
 <header>
   <h1>🌿 Hofmarkt Bestellplan</h1>
   <div class="header-row2">
     <div class="search-bar">
       <input type="text" id="search" placeholder="Suchen nach Name oder PLU …" oninput="filterItems(this.value)">
     </div>
-    <button class="btn-primary" onclick="saveOrder()" id="btn-save">💾 Speichern</button>
+    <button class="btn-primary" onclick="openDayModal()" id="btn-save">💾 Speichern</button>
   </div>
 </header>
 <div id="status-bar">⬤ Verbinde …</div>
@@ -196,18 +249,34 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
 </div>
 
 <div id="tab-historie" class="tab-panel">
-  <div class="time-controls">
-    <input type="date" id="hist-from">
-    <input type="date" id="hist-to">
-    <button class="btn-load" onclick="loadHistory()">🔄 Laden</button>
+  <div class="filter-bar">
+    <div class="filter-bar-row">
+      <span class="filter-label">Datum</span>
+      <input type="date" id="hist-from">
+      <input type="date" id="hist-to">
+      <button class="btn-load" onclick="loadHistory()">🔄 Laden</button>
+    </div>
+    <div class="filter-bar-row">
+      <span class="filter-label">Tag</span>
+      <div class="day-filter-chips" id="hist-day-chips">
+        <button class="day-chip all-chip active" data-day="" onclick="toggleDayChip(this,'hist')">Alle</button>
+        <button class="day-chip" data-day="Montag"     onclick="toggleDayChip(this,'hist')">Mo</button>
+        <button class="day-chip" data-day="Dienstag"   onclick="toggleDayChip(this,'hist')">Di</button>
+        <button class="day-chip" data-day="Mittwoch"   onclick="toggleDayChip(this,'hist')">Mi</button>
+        <button class="day-chip" data-day="Donnerstag" onclick="toggleDayChip(this,'hist')">Do</button>
+        <button class="day-chip" data-day="Freitag"    onclick="toggleDayChip(this,'hist')">Fr</button>
+        <button class="day-chip" data-day="Samstag"    onclick="toggleDayChip(this,'hist')">Sa</button>
+        <button class="day-chip" data-day="Sonntag"    onclick="toggleDayChip(this,'hist')">So</button>
+      </div>
+    </div>
   </div>
   <div id="history-list"><div class="tab-empty">Datumsbereich wählen und auf 🔄 Laden drücken.</div></div>
 </div>
 
 <div id="tab-durchschnitt" class="tab-panel">
   <div class="avg-section">
-    <div class="avg-header">📈 Durchschnittliche Bestellmengen</div>
-    <div class="avg-controls">
+    <div class="avg-header-bar">📈 Durchschnittliche Bestellmengen</div>
+    <div class="avg-controls-row">
       <select id="avg-range" onchange="renderAverages()">
         <option value="4">Letzte 4 Bestellungen</option>
         <option value="8" selected>Letzte 8 Bestellungen</option>
@@ -215,23 +284,32 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
         <option value="26">Letzte 26 Bestellungen</option>
         <option value="999">Alle</option>
       </select>
+      <div class="day-filter-chips" id="avg-day-chips">
+        <button class="day-chip all-chip active" data-day="" onclick="toggleDayChip(this,'avg')">Alle Tage</button>
+        <button class="day-chip" data-day="Montag"     onclick="toggleDayChip(this,'avg')">Mo</button>
+        <button class="day-chip" data-day="Dienstag"   onclick="toggleDayChip(this,'avg')">Di</button>
+        <button class="day-chip" data-day="Mittwoch"   onclick="toggleDayChip(this,'avg')">Mi</button>
+        <button class="day-chip" data-day="Donnerstag" onclick="toggleDayChip(this,'avg')">Do</button>
+        <button class="day-chip" data-day="Freitag"    onclick="toggleDayChip(this,'avg')">Fr</button>
+        <button class="day-chip" data-day="Samstag"    onclick="toggleDayChip(this,'avg')">Sa</button>
+        <button class="day-chip" data-day="Sonntag"    onclick="toggleDayChip(this,'avg')">So</button>
+      </div>
     </div>
     <div id="avg-list"><div class="tab-empty">Noch keine Bestellhistorie vorhanden.</div></div>
   </div>
 </div>
 
 <script>
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════
 //  KONFIGURATION
-// ═══════════════════════════════════════════════════
-// WICHTIG: GET-Requests für Lesen, POST no-cors für Schreiben
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyO7qqkWih7ZjlUyqWYnXXxrO6hNX3xpK_CRh3YjY9fvHRYeiwW76a1WqMkdX6NFipr/exec";
+// ═══════════════════════════════════════════
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzseMV5baktlEPOqVSFy1oJdk26HF6BxNO1ujO8qNBjt0qbkZIL1iTM2uBhC87RSq62/exec";
 
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════
 //  PRODUKTKATALOG
-//  orderEntry: true  → Bestand/Bestellen/Notiz-Felder
-//  orderEntry: false → nur PLU-Anzeige (Duplikat-Info)
-// ═══════════════════════════════════════════════════
+//  infoOnly:true  → nur PLU anzeigen, kein Eintragen
+//  noOrder:true   → ganze Kategorie ohne Eingabefelder
+// ═══════════════════════════════════════════
 const CATEGORIES = [
   {id:"aepfel", name:"Äpfel & Birnen", icon:"🍎", color:"#3A7D11", products:[
     {plu:"1",  name:"Äpfel"},
@@ -242,8 +320,10 @@ const CATEGORIES = [
 
   {id:"beeren", name:"Beeren", icon:"🫐", color:"#7B3FA0", products:[
     {plu:"23", name:"Brombeeren"},
+    {plu:"–",  name:"Brombeeren 250 g"},
     {plu:"31", name:"Erdbeeren"},
     {plu:"24", name:"Heidelbeeren"},
+    {plu:"–",  name:"Heidelbeeren 250 g"},
     {plu:"34", name:"Heidelbeeren", infoOnly:true},
     {plu:"33", name:"Himbeeren"},
     {plu:"43", name:"Himbeeren 500 g"},
@@ -288,11 +368,20 @@ const CATEGORIES = [
     {plu:"82",  name:"Kiwi"},
   ]},
 
+  // Tomaten & Paprika: Paprika + Spitzpaprika sind infoOnly (Grundartikel),
+  // dafür werden die Farb-Varianten als echte Artikel eingetragen
   {id:"tomaten", name:"Tomaten & Paprika", icon:"🍅", color:"#C0392B", products:[
     {plu:"106", name:"Auberginen"},
-    {plu:"48",  name:"Paprika"},
+    {plu:"48",  name:"Paprika", infoOnly:true},
+    {plu:"47",  name:"Spitzpaprika", infoOnly:true},
     {plu:"111", name:"Peperoni / Chilli"},
-    {plu:"47",  name:"Spitzpaprika"},
+    {plu:"–",   name:"Paprika rot"},
+    {plu:"–",   name:"Paprika gelb"},
+    {plu:"–",   name:"Paprika orange"},
+    {plu:"–",   name:"Spitzpaprika rot"},
+    {plu:"–",   name:"Spitzpaprika gelb"},
+    {plu:"–",   name:"Spitzpaprika orange"},
+    {plu:"–",   name:"Spitzpaprika mix"},
     {plu:"11",  name:"Tomaten"},
     {plu:"113", name:"Tomaten (Koch-)"},
     {plu:"110", name:"Tomaten Remstal"},
@@ -301,11 +390,17 @@ const CATEGORIES = [
     {plu:"27",  name:"Tomaten Schale 500 g"},
   ]},
 
+  // Salate: Kopfsalate ist infoOnly, neue Sorten werden eingetragen
   {id:"salate", name:"Salate & Blattgemüse", icon:"🥬", color:"#27AE60", products:[
     {plu:"8",   name:"Ackersalat"},
     {plu:"65",  name:"Chicorée"},
     {plu:"88",  name:"Chinakohl"},
-    {plu:"42",  name:"Kopfsalate"},
+    {plu:"42",  name:"Kopfsalate", infoOnly:true},
+    {plu:"46",  name:"Batavia"},
+    {plu:"46",  name:"Kopfsalat"},
+    {plu:"46",  name:"Eichblatt rot"},
+    {plu:"46",  name:"Eichblatt grün"},
+    {plu:"46",  name:"Endivien"},
     {plu:"122", name:"Kresse"},
     {plu:"94",  name:"Mangold"},
     {plu:"91",  name:"Pak Choi"},
@@ -373,10 +468,16 @@ const CATEGORIES = [
     {plu:"17",  name:"Zucchini"},
   ]},
 
+  // Kräuter: "Kräuter" ist infoOnly, neue Sorten werden eingetragen
   {id:"kraeuter", name:"Kräuter & Suppengrün", icon:"🌿", color:"#5D8233", products:[
-    {plu:"28", name:"Dill"},
-    {plu:"18", name:"Kräuter"},
-    {plu:"93", name:"Suppengrün"},
+    {plu:"28",  name:"Dill"},
+    {plu:"18",  name:"Kräuter", infoOnly:true},
+    {plu:"–",   name:"Koriander"},
+    {plu:"–",   name:"Grüne Soße"},
+    {plu:"–",   name:"Schnittlauch"},
+    {plu:"–",   name:"Petersilie glatt"},
+    {plu:"–",   name:"Petersilie krause"},
+    {plu:"93",  name:"Suppengrün"},
   ]},
 
   {id:"eier", name:"Eier", icon:"🥚", color:"#8B6914", products:[
@@ -404,46 +505,38 @@ const CATEGORIES = [
   ]},
 ];
 
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════
 //  STATE
-// ═══════════════════════════════════════════════════
-let userProducts = {};  // catId → [{plu,name,userAdded:true}]
-let historyData  = [];  // [{savedAt, items:[…]}]
-let sheetsOnline = false;
+// ═══════════════════════════════════════════
+let userProducts  = {};
+let historyData   = [];
+let sheetsOnline  = false;
+let selectedDay   = '';   // Wochentag für aktuellen Speichervorgang
+let histDayFilter = '';   // Wochentag-Filter für Historie
+let avgDayFilter  = '';   // Wochentag-Filter für Durchschnitt
 
-// ═══════════════════════════════════════════════════
-//  API
-//  Lesen  → GET (kein CORS-Problem)
-//  Schreiben → POST no-cors (fire-and-forget)
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════
+//  API  (GET für Lesen, POST no-cors für Schreiben)
+// ═══════════════════════════════════════════
 async function apiGet(params) {
   const url = SCRIPT_URL + '?' + new URLSearchParams(params).toString() + '&t=' + Date.now();
   const res = await fetch(url, {cache:'no-cache'});
   if (!res.ok) throw new Error('HTTP ' + res.status);
   return await res.json();
 }
-
 async function apiPost(payload) {
-  // no-cors: kein Lesen der Antwort möglich, aber Daten kommen an
-  await fetch(SCRIPT_URL, {
-    method: 'POST',
-    mode:   'no-cors',
-    body:   JSON.stringify(payload),
-  });
+  await fetch(SCRIPT_URL, {method:'POST', mode:'no-cors', body:JSON.stringify(payload)});
 }
 
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════
 //  INIT
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════
 async function init() {
-  setLoadingMsg('Verbinde mit Google Sheets…');
-
-  // Standard-Datumsbereich für Historie
   document.getElementById('hist-from').value = new Date(Date.now()-30*864e5).toISOString().slice(0,10);
   document.getElementById('hist-to').value   = new Date().toISOString().slice(0,10);
 
   try {
-    setLoadingMsg('Lade Daten aus Google Sheets…');
+    document.getElementById('loading-msg').textContent = 'Lade Daten aus Google Sheets…';
     const d = await apiGet({action:'init'});
     userProducts = d.products || {};
     historyData  = d.history  || [];
@@ -452,37 +545,120 @@ async function init() {
   } catch(e) {
     sheetsOnline = false;
     setStatus(false);
-    setLoadingMsg('Offline-Modus aktiv.\nDaten werden lokal gespeichert.');
-    await new Promise(r => setTimeout(r, 1200));
+    document.getElementById('loading-msg').textContent = 'Offline-Modus aktiv.';
+    await new Promise(r => setTimeout(r, 900));
   }
 
   buildUI();
   document.getElementById('loading').style.display = 'none';
 }
 
-function setLoadingMsg(msg) {
-  document.getElementById('loading-msg').textContent = msg;
-}
-
 function setStatus(online) {
   const b = document.getElementById('status-bar');
-  b.textContent = online ? '⬤ Verbunden mit Google Sheets' : '⬤ Offline – keine Verbindung zu Sheets';
+  b.textContent = online ? '⬤ Verbunden mit Google Sheets' : '⬤ Offline – keine Verbindung';
   b.style.background = online ? 'rgba(45,80,22,.45)' : 'rgba(160,50,0,.35)';
 }
 
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════
+//  WOCHENTAG-MODAL
+// ═══════════════════════════════════════════
+function openDayModal() {
+  // Prüfen ob überhaupt etwas eingetragen ist
+  let hasEntries = false;
+  document.querySelectorAll('#main .item .qty-input').forEach(i => {
+    if (parseFloat(i.value) > 0) hasEntries = true;
+  });
+  document.querySelectorAll('#main .item .notiz-input').forEach(i => {
+    if (i.value.trim()) hasEntries = true;
+  });
+  if (!hasEntries) { showToast('Bitte erst etwas eintragen!', true); return; }
+
+  selectedDay = '';
+  document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('modal-ok-btn').disabled = true;
+  document.getElementById('day-modal').classList.remove('hidden');
+}
+
+function selectDay(btn) {
+  document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  selectedDay = btn.dataset.day;
+  document.getElementById('modal-ok-btn').disabled = false;
+}
+
+function closeModal() {
+  document.getElementById('day-modal').classList.add('hidden');
+  selectedDay = '';
+}
+
+// ═══════════════════════════════════════════
+//  SPEICHERN (nach Tag-Auswahl)
+// ═══════════════════════════════════════════
+async function confirmSave() {
+  if (!selectedDay) return;
+  closeModal();
+
+  const btn = document.getElementById('btn-save');
+  btn.disabled = true; btn.textContent = '⏳ …';
+
+  const items = [];
+  document.querySelectorAll('#main .category').forEach(catEl => {
+    const {catid, catname} = catEl.dataset;
+    catEl.querySelectorAll('.item').forEach(it => {
+      const ins = it.querySelectorAll('.qty-input');
+      if (!ins.length) return;
+      const bestand   = parseFloat(ins[0].value) || 0;
+      const bestellen = parseFloat(ins[1].value) || 0;
+      const notiz     = it.querySelector('.notiz-input')?.value || '';
+      if (bestand || bestellen || notiz) {
+        items.push({catid, catname, plu:it.dataset.plu, name:it.dataset.name, bestand, bestellen, notiz});
+      }
+    });
+  });
+
+  const order = {savedAt: new Date().toISOString(), weekday: selectedDay, items};
+  historyData.unshift(order);
+
+  try {
+    await apiPost({action:'saveOrder', order});
+    showToast(`✅ Gespeichert für ${selectedDay}!`);
+  } catch(e) {
+    showToast('⚠️ Lokal gespeichert – Sheets offline', true);
+  }
+
+  renderAverages();
+  btn.disabled = false; btn.textContent = '💾 Speichern';
+}
+
+// ═══════════════════════════════════════════
+//  TAG-FILTER CHIPS
+// ═══════════════════════════════════════════
+function toggleDayChip(btn, scope) {
+  const day = btn.dataset.day;
+  const container = document.getElementById(scope === 'hist' ? 'hist-day-chips' : 'avg-day-chips');
+  container.querySelectorAll('.day-chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+
+  if (scope === 'hist') {
+    histDayFilter = day;
+    applyHistoryFilter();
+  } else {
+    avgDayFilter = day;
+    renderAverages();
+  }
+}
+
+// ═══════════════════════════════════════════
 //  BUILD UI
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════
 function buildUI() {
   const container = document.getElementById('main');
   container.innerHTML = '';
 
   CATEGORIES.forEach(cat => {
-    const extra = (userProducts[cat.id]||[]).filter(p=>p.userAdded);
-    const allP  = [...cat.products, ...extra.map(p=>({...p, infoOnly:false}))];
-
-    // Anzahl der wirklich bestellbaren Artikel für den Zähler
-    const orderCount = allP.filter(p=>!p.infoOnly).length;
+    const extra = (userProducts[cat.id]||[]).filter(p => p.userAdded);
+    const allP  = [...cat.products, ...extra.map(p => ({...p, infoOnly:false}))];
+    const orderCount = allP.filter(p => !p.infoOnly).length;
 
     const el = document.createElement('div');
     el.className = 'category';
@@ -512,31 +688,21 @@ function buildUI() {
 
     container.appendChild(el);
   });
-
   updateSummary();
 }
 
 function itemHTML(p, cat) {
   const n = esc(p.name);
 
-  // Pfand-Kategorie: reine Anzeige
-  if (cat.noOrder) {
+  if (cat.noOrder || p.infoOnly) {
+    const tag = p.infoOnly ? '<span class="info-tag">nur PLU</span>' : '';
     return `<div class="item-info" data-catid="${cat.id}" data-plu="${p.plu}" data-name="${n}">
       <span class="plu-num">${p.plu}</span>
       <span class="plu-name">${n}</span>
+      ${tag}
     </div>`;
   }
 
-  // Duplikat: nur PLU + Name, kein Eintragen
-  if (p.infoOnly) {
-    return `<div class="item-info" data-catid="${cat.id}" data-plu="${p.plu}" data-name="${n}">
-      <span class="plu-num">${p.plu}</span>
-      <span class="plu-name">${n}</span>
-      <span class="info-tag">nur PLU</span>
-    </div>`;
-  }
-
-  // Normaler Artikel – mit Bestand/Bestellen/Notiz
   return `
     <div class="item" data-catid="${cat.id}" data-plu="${p.plu}" data-name="${n}" data-ua="${!!p.userAdded}">
       <div class="item-main">
@@ -570,140 +736,103 @@ function addFormHTML(id) {
 
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')}
 
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════
 //  INTERACTIONS
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════
 function toggleCat(h){h.closest('.category').classList.toggle('open')}
 
 function toggleAddForm(id){
-  const f=document.getElementById('af-'+id);
+  const f = document.getElementById('af-'+id);
   f.classList.toggle('open');
-  if(f.classList.contains('open')) document.getElementById('an-'+id).focus();
+  if (f.classList.contains('open')) document.getElementById('an-'+id).focus();
 }
 
-function onQty(inp,isBestell){
-  if(isBestell) inp.classList.toggle('filled',(parseFloat(inp.value)||0)>0);
+function onQty(inp, isBestell){
+  if (isBestell) inp.classList.toggle('filled', (parseFloat(inp.value)||0) > 0);
   updateSummary();
 }
 
 function filterItems(q){
-  q=q.toLowerCase().trim(); let any=false;
-  document.querySelectorAll('#main .category').forEach(cat=>{
-    let vis=false;
-    // Normale Items
-    cat.querySelectorAll('.item').forEach(it=>{
-      const ok=!q||it.dataset.name.toLowerCase().includes(q)||it.dataset.plu.toLowerCase().includes(q);
-      it.classList.toggle('hidden',!ok); if(ok) vis=true;
+  q = q.toLowerCase().trim(); let any = false;
+  document.querySelectorAll('#main .category').forEach(cat => {
+    let vis = false;
+    cat.querySelectorAll('.item, .item-info').forEach(it => {
+      const ok = !q || it.dataset.name.toLowerCase().includes(q) || it.dataset.plu.toLowerCase().includes(q);
+      it.classList.toggle('hidden', !ok);
+      if (ok) vis = true;
     });
-    // Info-only Items
-    cat.querySelectorAll('.item-info').forEach(it=>{
-      const ok=!q||it.dataset.name.toLowerCase().includes(q)||it.dataset.plu.toLowerCase().includes(q);
-      it.classList.toggle('hidden',!ok); if(ok) vis=true;
-    });
-    cat.classList.toggle('all-hidden',!vis);
-    if(q&&vis) cat.classList.add('open');
-    if(vis) any=true;
+    cat.classList.toggle('all-hidden', !vis);
+    if (q && vis) cat.classList.add('open');
+    if (vis) any = true;
   });
-  document.getElementById('no-results').style.display=any?'none':'block';
+  document.getElementById('no-results').style.display = any ? 'none' : 'block';
 }
 
-// ═══════════════════════════════════════════════════
-//  SAVE ORDER
-// ═══════════════════════════════════════════════════
-async function saveOrder(){
-  const btn=document.getElementById('btn-save');
-  btn.disabled=true; btn.textContent='⏳ …';
-
-  const items=[];
-  document.querySelectorAll('#main .category').forEach(catEl=>{
-    const {catid,catname}=catEl.dataset;
-    catEl.querySelectorAll('.item').forEach(it=>{
-      const ins=it.querySelectorAll('.qty-input');
-      if(!ins.length) return;
-      const bestand=parseFloat(ins[0].value)||0, bestellen=parseFloat(ins[1].value)||0;
-      const notiz=it.querySelector('.notiz-input')?.value||'';
-      if(bestand||bestellen||notiz) items.push({catid,catname,plu:it.dataset.plu,name:it.dataset.name,bestand,bestellen,notiz});
-    });
-  });
-
-  if(!items.length){showToast('Keine Mengen eingetragen.',true);btn.disabled=false;btn.textContent='💾 Speichern';return}
-
-  const order={savedAt:new Date().toISOString(),items};
-  historyData.unshift(order);
-
-  try {
-    await apiPost({action:'saveOrder', order});
-    showToast('✅ In Google Sheets gespeichert!');
-  } catch(e){
-    showToast('⚠️ Lokal gespeichert – Sheets offline', true);
-  }
-
-  renderAverages();
-  btn.disabled=false; btn.textContent='💾 Speichern';
-}
-
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════
 //  ADD / DELETE USER PRODUCTS
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════
 async function addProduct(catId){
-  const nameEl=document.getElementById('an-'+catId), pluEl=document.getElementById('ap-'+catId);
-  const name=nameEl.value.trim(), plu=pluEl.value.trim()||'–';
-  if(!name){nameEl.focus();return}
-  const prod={plu,name,userAdded:true,addedAt:new Date().toISOString()};
-  if(!userProducts[catId]) userProducts[catId]=[];
+  const nameEl = document.getElementById('an-'+catId), pluEl = document.getElementById('ap-'+catId);
+  const name = nameEl.value.trim(), plu = pluEl.value.trim() || '–';
+  if (!name) { nameEl.focus(); return; }
+  const prod = {plu, name, userAdded:true, addedAt:new Date().toISOString()};
+  if (!userProducts[catId]) userProducts[catId] = [];
   userProducts[catId].push(prod);
   try { await apiPost({action:'saveProduct', catId, product:prod}); } catch(e){}
-  nameEl.value=''; pluEl.value='';
+  nameEl.value = ''; pluEl.value = '';
   toggleAddForm(catId);
   buildUI();
   showToast('✅ Produkt hinzugefügt!');
 }
 
-async function deleteProduct(catId,plu,name){
-  if(!confirm(`"${name}" wirklich löschen?`)) return;
-  if(!userProducts[catId]) return;
-  const idx=userProducts[catId].findIndex(p=>p.userAdded&&p.plu===plu&&p.name===name);
-  if(idx===-1) return;
-  userProducts[catId].splice(idx,1);
+async function deleteProduct(catId, plu, name){
+  if (!confirm(`"${name}" wirklich löschen?`)) return;
+  if (!userProducts[catId]) return;
+  const idx = userProducts[catId].findIndex(p => p.userAdded && p.plu === plu && p.name === name);
+  if (idx === -1) return;
+  userProducts[catId].splice(idx, 1);
   try { await apiPost({action:'deleteProduct', catId, plu, name}); } catch(e){}
   buildUI();
   showToast('🗑 Produkt gelöscht.');
 }
 
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════
 //  ÜBERSICHT / SUMMARY
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════
 function updateSummary(){
-  const bM={},sM={};let bt=0,st=0;
-  document.querySelectorAll('#main .category').forEach(catEl=>{
-    const {catid,catname,catcolor}=catEl.dataset;
-    catEl.querySelectorAll('.item').forEach(it=>{
-      const ins=it.querySelectorAll('.qty-input'); if(!ins.length) return;
-      const bestand=parseFloat(ins[0].value)||0, bestellen=parseFloat(ins[1].value)||0;
-      const notiz=it.querySelector('.notiz-input')?.value||'';
-      const {plu,name}=it.dataset;
-      if(bestellen>0){if(!bM[catid])bM[catid]={name:catname,color:catcolor,items:[]};bM[catid].items.push({plu,name,qty:bestellen,notiz});bt++}
-      if(bestand>0) {if(!sM[catid])sM[catid]={name:catname,color:catcolor,items:[]};sM[catid].items.push({plu,name,qty:bestand,notiz});st++}
+  const bM = {}, sM = {}; let bt = 0, st = 0;
+  document.querySelectorAll('#main .category').forEach(catEl => {
+    const {catid, catname, catcolor} = catEl.dataset;
+    catEl.querySelectorAll('.item').forEach(it => {
+      const ins = it.querySelectorAll('.qty-input'); if (!ins.length) return;
+      const bestand = parseFloat(ins[0].value)||0, bestellen = parseFloat(ins[1].value)||0;
+      const notiz = it.querySelector('.notiz-input')?.value || '';
+      const {plu, name} = it.dataset;
+      if (bestellen > 0) { if (!bM[catid]) bM[catid] = {name:catname,color:catcolor,items:[]}; bM[catid].items.push({plu,name,qty:bestellen,notiz}); bt++; }
+      if (bestand  > 0) { if (!sM[catid]) sM[catid] = {name:catname,color:catcolor,items:[]}; sM[catid].items.push({plu,name,qty:bestand,notiz});  st++; }
     });
   });
-  document.getElementById('bestell-count').textContent=bt;
-  document.getElementById('gesamt-count').textContent=st;
-  renderSumList('bestell-list',bM,'order');
-  renderSumList('gesamt-list',sM,'qty');
+  document.getElementById('bestell-count').textContent = bt;
+  document.getElementById('gesamt-count').textContent  = st;
+  renderSumList('bestell-list', bM, 'order');
+  renderSumList('gesamt-list',  sM, 'qty');
 }
 
-function renderSumList(id,map,type){
-  const el=document.getElementById(id);
-  if(!Object.keys(map).length){el.innerHTML=`<div class="summary-empty">${type==='order'?'Noch nichts zu bestellen.':'Kein Bestand erfasst.'}</div>`;return}
-  el.innerHTML=Object.values(map).map(cat=>`
+function renderSumList(id, map, type){
+  const el = document.getElementById(id);
+  if (!Object.keys(map).length) {
+    el.innerHTML = `<div class="summary-empty">${type==='order'?'Noch nichts zu bestellen.':'Kein Bestand erfasst.'}</div>`;
+    return;
+  }
+  el.innerHTML = Object.values(map).map(cat => `
     <div class="summary-cat">
       <div class="summary-cat-label" style="background:${cat.color}">${cat.name}</div>
-      ${cat.items.map(it=>`
+      ${cat.items.map(it => `
         <div class="summary-row">
           <span class="sum-plu">${it.plu}</span>
           <span class="sum-name">${it.name}</span>
           <span class="${type==='order'?'sum-badge-order':'sum-badge-qty'}">${it.qty}×</span>
-          ${it.notiz?`<span class="sum-notiz">💬 ${it.notiz}</span>`:''}
+          ${it.notiz ? `<span class="sum-notiz">💬 ${it.notiz}</span>` : ''}
         </div>`).join('')}
     </div>`).join('');
 }
@@ -717,60 +846,76 @@ function clearBestand(){
   updateSummary();
 }
 
-// ═══════════════════════════════════════════════════
-//  HISTORY (Datumsfilter)
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════
+//  HISTORY
+// ═══════════════════════════════════════════
 async function loadHistory(){
-  const from=document.getElementById('hist-from').value;
-  const to  =document.getElementById('hist-to').value;
-  const el  =document.getElementById('history-list');
-  el.innerHTML='<div class="tab-empty">⏳ Lade Historie…</div>';
+  const from = document.getElementById('hist-from').value;
+  const to   = document.getElementById('hist-to').value;
+  const el   = document.getElementById('history-list');
+  el.innerHTML = '<div class="tab-empty">⏳ Lade …</div>';
 
-  if(sheetsOnline){
-    try{
-      const r=await apiGet({action:'getHistory', from, to});
-      historyData=r.history||[];
-    }catch(e){showToast('Sheets offline – zeige lokale Daten',true)}
+  if (sheetsOnline) {
+    try {
+      const r = await apiGet({action:'getHistory', from, to});
+      historyData = r.history || [];
+    } catch(e) { showToast('Sheets offline – zeige lokale Daten', true); }
   }
 
-  const filtered=historyData.filter(o=>{
-    if(!o.savedAt) return true;
-    if(from && o.savedAt<from) return false;
-    if(to   && o.savedAt>to+'T23:59:59') return false;
+  // Datum + Tag filtern
+  const filtered = historyData.filter(o => {
+    if (from && o.savedAt < from) return false;
+    if (to   && o.savedAt > to + 'T23:59:59') return false;
+    if (histDayFilter && o.weekday !== histDayFilter) return false;
+    return true;
+  });
+  renderHistory(filtered);
+}
+
+function applyHistoryFilter(){
+  // Nur visuell filtern ohne erneuten Fetch
+  const from = document.getElementById('hist-from').value;
+  const to   = document.getElementById('hist-to').value;
+  const filtered = historyData.filter(o => {
+    if (from && o.savedAt < from) return false;
+    if (to   && o.savedAt > to + 'T23:59:59') return false;
+    if (histDayFilter && o.weekday !== histDayFilter) return false;
     return true;
   });
   renderHistory(filtered);
 }
 
 function renderHistory(orders){
-  const el=document.getElementById('history-list');
-  if(!orders.length){el.innerHTML='<div class="tab-empty">Keine Bestellungen im gewählten Zeitraum.</div>';return}
-  const gc=id=>{const c=CATEGORIES.find(c=>c.id===id);return c?c.color:'#555'};
-  el.innerHTML=orders.map((o,i)=>{
-    const dt=new Date(o.savedAt);
-    const ds=dt.toLocaleDateString('de-DE',{weekday:'short',day:'2-digit',month:'2-digit',year:'numeric'});
-    const ts=dt.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
-    const bi=(o.items||[]).filter(x=>x.bestellen>0);
-    const byCat={};
-    bi.forEach(it=>{if(!byCat[it.catid])byCat[it.catid]={name:it.catname,items:[]};byCat[it.catid].items.push(it)});
+  const el = document.getElementById('history-list');
+  if (!orders.length) { el.innerHTML = '<div class="tab-empty">Keine Bestellungen im gewählten Zeitraum / Tag.</div>'; return; }
+  const gc = id => { const c = CATEGORIES.find(c=>c.id===id); return c ? c.color : '#555'; };
+
+  el.innerHTML = orders.map((o, i) => {
+    const dt = new Date(o.savedAt);
+    const ds = dt.toLocaleDateString('de-DE', {weekday:'short', day:'2-digit', month:'2-digit', year:'numeric'});
+    const ts = dt.toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'});
+    const bi = (o.items||[]).filter(x => x.bestellen > 0);
+    const byCat = {};
+    bi.forEach(it => { if (!byCat[it.catid]) byCat[it.catid]={name:it.catname,items:[]}; byCat[it.catid].items.push(it); });
+    const dayBadge = o.weekday ? `<span class="hist-day-badge">📅 ${o.weekday}</span>` : '';
     return `<div class="history-entry" id="he-${i}">
       <div class="history-entry-header" onclick="document.getElementById('he-${i}').classList.toggle('open')">
         <div>
-          <div class="hist-date">📦 ${ds} · ${ts}</div>
+          <div class="hist-date">📦 ${ds} · ${ts}${dayBadge}</div>
           <div class="hist-meta">${bi.length} Artikel bestellt</div>
         </div>
         <span class="hist-chev">▼</span>
       </div>
       <div class="history-body">
-        ${Object.entries(byCat).map(([id,cat])=>`
+        ${Object.entries(byCat).map(([id, cat]) => `
           <div class="hist-cat-label" style="background:${gc(id)}">${cat.name}</div>
-          ${cat.items.map(it=>`
+          ${cat.items.map(it => `
             <div class="hist-row">
               <span class="hist-plu">${it.plu}</span>
               <span class="hist-name">${it.name}</span>
-              ${it.bestand>0?`<span class="hist-bestand">Bestand: ${it.bestand}</span>`:''}
-              ${it.bestellen>0?`<span class="hist-badge">Bestellen: ${it.bestellen}</span>`:''}
-              ${it.notiz?`<span class="hist-notiz">💬 ${it.notiz}</span>`:''}
+              ${it.bestand  > 0 ? `<span class="hist-bestand">Bestand: ${it.bestand}</span>` : ''}
+              ${it.bestellen > 0 ? `<span class="hist-badge">Bestellen: ${it.bestellen}</span>` : ''}
+              ${it.notiz ? `<span class="hist-notiz">💬 ${it.notiz}</span>` : ''}
             </div>`).join('')}
         `).join('')}
       </div>
@@ -778,35 +923,40 @@ function renderHistory(orders){
   }).join('');
 }
 
-// ═══════════════════════════════════════════════════
-//  DURCHSCHNITT (Anzahl-Auswahl)
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════
+//  DURCHSCHNITT
+// ═══════════════════════════════════════════
 function renderAverages(){
-  const n=parseInt(document.getElementById('avg-range').value);
-  const orders=historyData.slice(0,n);
-  const el=document.getElementById('avg-list');
-  if(!orders.length){el.innerHTML='<div class="tab-empty">Noch keine Bestellhistorie vorhanden.</div>';return}
+  const n = parseInt(document.getElementById('avg-range').value);
+  const el = document.getElementById('avg-list');
 
-  const acc={};
-  orders.forEach(o=>(o.items||[]).filter(x=>x.bestellen>0).forEach(it=>{
-    const k=it.catid+'|'+it.plu+'|'+it.name;
-    if(!acc[k])acc[k]={catid:it.catid,catname:it.catname,plu:it.plu,name:it.name,total:0,count:0};
-    acc[k].total+=it.bestellen; acc[k].count++;
+  // Erst nach Tag filtern, dann auf n begrenzen
+  let pool = historyData;
+  if (avgDayFilter) pool = pool.filter(o => o.weekday === avgDayFilter);
+  const orders = pool.slice(0, n);
+
+  if (!orders.length) { el.innerHTML = '<div class="tab-empty">Noch keine Bestellhistorie vorhanden.</div>'; return; }
+
+  const acc = {};
+  orders.forEach(o => (o.items||[]).filter(x=>x.bestellen>0).forEach(it => {
+    const k = it.catid+'|'+it.plu+'|'+it.name;
+    if (!acc[k]) acc[k] = {catid:it.catid, catname:it.catname, plu:it.plu, name:it.name, total:0, count:0};
+    acc[k].total += it.bestellen; acc[k].count++;
   }));
 
-  if(!Object.keys(acc).length){el.innerHTML='<div class="tab-empty">Keine Daten.</div>';return}
+  if (!Object.keys(acc).length) { el.innerHTML = '<div class="tab-empty">Keine Daten für diesen Filter.</div>'; return; }
 
-  const byCat={};
-  Object.values(acc).forEach(v=>{
-    if(!byCat[v.catid]) byCat[v.catid]={name:v.catname,items:[]};
+  const byCat = {};
+  Object.values(acc).forEach(v => {
+    if (!byCat[v.catid]) byCat[v.catid] = {name:v.catname, items:[]};
     byCat[v.catid].items.push(v);
   });
-  Object.values(byCat).forEach(c=>c.items.sort((a,b)=>(b.total/b.count)-(a.total/a.count)));
-  const gc=id=>{const c=CATEGORIES.find(c=>c.id===id);return c?c.color:'#555'};
+  Object.values(byCat).forEach(c => c.items.sort((a,b) => (b.total/b.count)-(a.total/a.count)));
+  const gc = id => { const c = CATEGORIES.find(c=>c.id===id); return c ? c.color : '#555'; };
 
-  el.innerHTML=Object.entries(byCat).map(([id,cat])=>`
+  el.innerHTML = Object.entries(byCat).map(([id, cat]) => `
     <div class="avg-cat-label" style="background:${gc(id)}">${cat.name}</div>
-    ${cat.items.map(it=>`
+    ${cat.items.map(it => `
       <div class="avg-row">
         <span class="avg-plu">${it.plu}</span>
         <span class="avg-name">${it.name}</span>
@@ -816,24 +966,24 @@ function renderAverages(){
   `).join('');
 }
 
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════
 //  TABS / TOAST
-// ═══════════════════════════════════════════════════
+// ═══════════════════════════════════════════
 function switchTab(name){
-  const names=['bestellen','uebersicht','historie','durchschnitt'];
-  document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',names[i]===name));
-  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  const names = ['bestellen','uebersicht','historie','durchschnitt'];
+  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', names[i]===name));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.getElementById('tab-'+name).classList.add('active');
-  if(name==='uebersicht') updateSummary();
-  if(name==='historie')   loadHistory();
-  if(name==='durchschnitt') renderAverages();
+  if (name === 'uebersicht')   updateSummary();
+  if (name === 'historie')     loadHistory();
+  if (name === 'durchschnitt') renderAverages();
 }
 
-let _tt=null;
-function showToast(msg,err=false){
-  const t=document.getElementById('toast');
-  t.textContent=msg; t.className='show'+(err?' error':'');
-  clearTimeout(_tt); _tt=setTimeout(()=>t.className='',3200);
+let _tt = null;
+function showToast(msg, err=false){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'show' + (err ? ' error' : '');
+  clearTimeout(_tt); _tt = setTimeout(() => t.className = '', 3200);
 }
 
 init();
