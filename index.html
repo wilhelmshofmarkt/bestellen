@@ -10,7 +10,6 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:70px}
 
-/* HEADER */
 header{background:#2D5016;color:white;padding:14px 14px 10px;position:sticky;top:0;z-index:200;box-shadow:0 2px 12px rgba(0,0,0,.2)}
 header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
 .header-row2{display:flex;gap:8px;margin-top:9px;align-items:center}
@@ -18,21 +17,18 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
 .search-bar input{width:100%;padding:8px 12px 8px 31px;border-radius:8px;border:none;background:rgba(255,255,255,.18);color:white;font-size:.88rem;font-family:'DM Sans',sans-serif;outline:none}
 .search-bar input::placeholder{color:rgba(255,255,255,.5)}
 .search-bar::before{content:"🔍";position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:.8rem}
-.btn-primary{background:var(--warn);color:white;border:none;border-radius:8px;padding:8px 13px;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;white-space:nowrap;box-shadow:0 3px 0 #9c5e06}
+.btn-primary{background:var(--warn);color:white;border:none;border-radius:8px;padding:8px 13px;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;white-space:nowrap;box-shadow:0 3px 0 #9c5e06;transition:all .1s}
 .btn-primary:active{transform:translateY(2px);box-shadow:0 1px 0 #9c5e06}
 .btn-primary:disabled{opacity:.55;cursor:not-allowed}
 
-/* STATUS BAR */
 #status-bar{background:rgba(0,0,0,.25);padding:2px 13px;font-size:.68rem;color:rgba(255,255,255,.75);text-align:right}
 
-/* TABS */
 .tabs{display:flex;background:#fff;border-bottom:2px solid #e8e2d8;position:sticky;top:103px;z-index:150;overflow-x:auto}
 .tab-btn{flex:1;min-width:68px;padding:10px 4px;border:none;background:transparent;font-family:'DM Sans',sans-serif;font-size:.77rem;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s;white-space:nowrap}
 .tab-btn.active{color:#2D5016;border-bottom-color:#2D5016}
 .tab-panel{display:none;padding:10px}
 .tab-panel.active{display:block}
 
-/* CATEGORIES */
 .category{margin-bottom:12px;border-radius:14px;overflow:hidden;background:var(--card);box-shadow:0 1px 6px rgba(0,0,0,.06)}
 .cat-header{display:flex;align-items:center;justify-content:space-between;padding:11px 13px;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent}
 .cat-header-left{display:flex;align-items:center;gap:8px}
@@ -43,20 +39,28 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
 .cat-items{display:none;border-top:1px solid rgba(0,0,0,.06)}
 .category.open .cat-items{display:block}
 
-/* COL HEADERS */
 .col-headers{display:flex;align-items:center;padding:4px 12px 3px;background:rgba(0,0,0,.03);border-bottom:1px solid rgba(0,0,0,.05);gap:6px}
 .col-headers span{font-size:.65rem;color:var(--muted);font-weight:700;letter-spacing:.05em;text-transform:uppercase}
 .ch-plu{min-width:30px}.ch-name{flex:1}
 .ch-bestand,.ch-bestellen{width:62px;text-align:center;flex-shrink:0}
 .ch-notiz{flex:1}.ch-actions{width:26px}
 
-/* ITEMS */
+/* Normale bestellbare Items */
 .item{display:flex;flex-direction:column;padding:6px 12px;border-bottom:1px solid rgba(0,0,0,.04);gap:4px}
 .item:last-child{border-bottom:none}.item.hidden{display:none}.category.all-hidden{display:none}
 .item-main{display:flex;align-items:center;gap:5px}
 .item-notiz-row{display:flex;padding-left:35px}
 .plu-num{font-weight:700;font-size:.8rem;color:var(--muted);min-width:30px;text-align:right;flex-shrink:0}
 .plu-name{font-size:.88rem;flex:1}
+
+/* Info-only Items (Duplikate – nur PLU anzeigen) */
+.item-info{display:flex;align-items:center;padding:4px 12px;border-bottom:1px solid rgba(0,0,0,.03);gap:5px;opacity:.65}
+.item-info:last-child{border-bottom:none}
+.item-info.hidden{display:none}
+.item-info .plu-num{color:var(--muted)}
+.item-info .plu-name{font-size:.82rem;color:var(--muted);font-style:italic}
+.info-tag{font-size:.6rem;background:#f0f0ea;color:var(--muted);border:1px solid #ddd;padding:1px 5px;border-radius:8px;flex-shrink:0}
+
 .user-badge{font-size:.59rem;background:#e8f5e9;color:#2D5016;border:1px solid #a5d6a7;padding:1px 5px;border-radius:10px;font-weight:600;flex-shrink:0}
 .qty-input{width:62px;flex-shrink:0;padding:5px 4px;border:1.5px solid rgba(0,0,0,.14);border-radius:7px;font-size:.85rem;font-family:'DM Sans',sans-serif;text-align:center;background:#fff;color:var(--text);outline:none;transition:border-color .15s,background .15s;-moz-appearance:textfield}
 .qty-input::-webkit-outer-spin-button,.qty-input::-webkit-inner-spin-button{-webkit-appearance:none}
@@ -70,7 +74,6 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
 .btn-del:hover{color:var(--danger)}
 .group-sep{height:1px;background:rgba(0,0,0,.07);margin:0 12px}
 
-/* ADD FORM */
 .cat-footer{padding:6px 12px;border-top:1px dashed rgba(0,0,0,.1)}
 .btn-add-product{width:100%;background:transparent;border:1.5px dashed rgba(0,0,0,.17);border-radius:8px;padding:6px 12px;font-size:.79rem;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;text-align:left}
 .btn-add-product:hover{border-color:#2D5016;color:#2D5016}
@@ -83,7 +86,6 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
 .btn-add-confirm{background:#2D5016;color:white;border:none;border-radius:8px;padding:7px 13px;font-family:'DM Sans',sans-serif;font-size:.81rem;font-weight:600;cursor:pointer}
 .btn-add-cancel{background:transparent;color:var(--muted);border:1px solid #ccc;border-radius:8px;padding:7px 11px;font-family:'DM Sans',sans-serif;font-size:.81rem;cursor:pointer}
 
-/* OVERVIEW */
 .uebersichten{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}
 .summary-section{flex:1;min-width:250px;border-radius:14px;overflow:hidden;background:var(--card);box-shadow:0 2px 10px rgba(0,0,0,.09)}
 .bestell-section{border:2px solid var(--danger)}.gesamt-section{border:2px solid #2D5016}
@@ -104,7 +106,6 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
 .btn-clear{display:block;margin:10px auto;padding:6px 17px;background:transparent;border:1.5px solid rgba(0,0,0,.16);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.79rem;color:var(--muted);cursor:pointer}
 .btn-clear:hover{background:rgba(0,0,0,.05)}
 
-/* HISTORY */
 .time-controls{display:flex;gap:7px;margin-bottom:11px;flex-wrap:wrap;align-items:center}
 .time-controls input[type=date]{padding:7px 9px;border:1.5px solid #ddd;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.82rem;background:white;outline:none;flex:1;min-width:130px}
 .time-controls input:focus{border-color:#2D5016}
@@ -123,7 +124,6 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
 .hist-badge{background:var(--warn);color:white;font-size:.7rem;font-weight:700;padding:1px 6px;border-radius:12px}
 .hist-notiz{font-style:italic;color:var(--muted);font-size:.72rem;width:100%;padding-left:31px}
 
-/* AVERAGES */
 .avg-section{background:var(--card);border-radius:12px;overflow:hidden;box-shadow:0 1px 5px rgba(0,0,0,.07);margin-bottom:12px}
 .avg-header{background:#5D8233;color:white;padding:10px 13px;font-family:'DM Serif Display',serif;font-size:.98rem}
 .avg-controls{padding:9px 13px;border-bottom:1px solid rgba(0,0,0,.06)}
@@ -137,19 +137,24 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
 .avg-val{background:#e8f5e9;color:#2D5016;font-size:.74rem;font-weight:700;padding:2px 7px;border-radius:12px}
 .avg-n{font-size:.7rem;color:var(--muted)}
 
-/* LOADING / TOAST */
-#loading{position:fixed;inset:0;background:rgba(245,240,232,.95);z-index:9000;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px}
-.spinner{width:35px;height:35px;border:3px solid #ddd;border-top-color:#2D5016;border-radius:50%;animation:spin .7s linear infinite}
+#loading{position:fixed;inset:0;background:rgba(245,240,232,.97);z-index:9000;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px}
+.spinner{width:36px;height:36px;border:3px solid #ddd;border-top-color:#2D5016;border-radius:50%;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
+#loading p{color:var(--muted);font-size:.88rem;text-align:center;max-width:260px;line-height:1.5}
 #toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%) translateY(70px);background:#2D5016;color:white;padding:10px 20px;border-radius:20px;font-size:.83rem;font-weight:600;z-index:9999;transition:transform .3s ease;pointer-events:none;white-space:nowrap;max-width:92%;text-align:center}
 #toast.show{transform:translateX(-50%) translateY(0)}
 #toast.error{background:var(--danger)}
 .no-results{text-align:center;padding:36px;color:var(--muted);font-size:.88rem;display:none}
+.tab-empty{text-align:center;padding:30px 20px;color:var(--muted);font-size:.86rem;line-height:1.6}
 </style>
 </head>
 <body>
 
-<div id="loading"><div class="spinner"></div><span style="color:var(--muted);font-size:.9rem">Verbinde mit Sheets…</span></div>
+<div id="loading">
+  <div style="font-size:2.2rem">🌿</div>
+  <div class="spinner"></div>
+  <p id="loading-msg">Verbinde mit Google Sheets…</p>
+</div>
 <div id="toast"></div>
 
 <header>
@@ -196,7 +201,7 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
     <input type="date" id="hist-to">
     <button class="btn-load" onclick="loadHistory()">🔄 Laden</button>
   </div>
-  <div id="history-list"><p style="color:var(--muted);font-size:.86rem">Datumsbereich wählen und auf Laden drücken.</p></div>
+  <div id="history-list"><div class="tab-empty">Datumsbereich wählen und auf 🔄 Laden drücken.</div></div>
 </div>
 
 <div id="tab-durchschnitt" class="tab-panel">
@@ -211,1122 +216,627 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
         <option value="999">Alle</option>
       </select>
     </div>
-    <div id="avg-list"><p style="color:var(--muted);font-size:.86rem;padding:13px">Noch keine Bestellhistorie vorhanden.</p></div>
+    <div id="avg-list"><div class="tab-empty">Noch keine Bestellhistorie vorhanden.</div></div>
   </div>
 </div>
 
 <script>
-// ════════════════════════════════════════
+// ═══════════════════════════════════════════════════
 //  KONFIGURATION
-// ════════════════════════════════════════
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxc73NeZ4wrD4F9cS0-YVRMwxO7mYPNyNgRYRuw5zo0pCHRvm11tmnzvGhR2Y2MaM-l/exec";
+// ═══════════════════════════════════════════════════
+// WICHTIG: GET-Requests für Lesen, POST no-cors für Schreiben
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyO7qqkWih7ZjlUyqWYnXXxrO6hNX3xpK_CRh3YjY9fvHRYeiwW76a1WqMkdX6NFipr/exec";
 
-// ════════════════════════════════════════
-//  PRODUKTKATALOG  (index-3 Kategorien, Duplikate bereinigt)
-// ════════════════════════════════════════
+// ═══════════════════════════════════════════════════
+//  PRODUKTKATALOG
+//  orderEntry: true  → Bestand/Bestellen/Notiz-Felder
+//  orderEntry: false → nur PLU-Anzeige (Duplikat-Info)
+// ═══════════════════════════════════════════════════
 const CATEGORIES = [
-  {id:"aepfel", name:"Äpfel & Birnen", icon:"🍎", color:"#3A7D11",
-   products:[{plu:"1",name:"Äpfel"},{plu:"2",name:"Äpfel 3 kg"},{plu:"41",name:"Kochäpfel"},{plu:"4",name:"Birnen"}]},
+  {id:"aepfel", name:"Äpfel & Birnen", icon:"🍎", color:"#3A7D11", products:[
+    {plu:"1",  name:"Äpfel"},
+    {plu:"2",  name:"Äpfel 3 kg"},
+    {plu:"41", name:"Kochäpfel"},
+    {plu:"4",  name:"Birnen"},
+  ]},
 
-  {id:"beeren", name:"Beeren", icon:"🫐", color:"#7B3FA0",
-   products:[{plu:"23",name:"Brombeeren"},{plu:"31",name:"Erdbeeren"},{plu:"24",name:"Heidelbeeren"},
-             {plu:"33",name:"Himbeeren"},{plu:"43",name:"Himbeeren 500 g"},{plu:"35",name:"Johannisbeeren (rot)"},
-             {plu:"44",name:"Johannisbeeren (schwarz)"},{plu:"38",name:"Sauerkirschen"},{plu:"36",name:"Stachelbeeren"}]},
+  {id:"beeren", name:"Beeren", icon:"🫐", color:"#7B3FA0", products:[
+    {plu:"23", name:"Brombeeren"},
+    {plu:"31", name:"Erdbeeren"},
+    {plu:"24", name:"Heidelbeeren"},
+    {plu:"34", name:"Heidelbeeren", infoOnly:true},
+    {plu:"33", name:"Himbeeren"},
+    {plu:"43", name:"Himbeeren 500 g"},
+    {plu:"35", name:"Johannisbeeren (rot)"},
+    {plu:"44", name:"Johannisbeeren (schwarz)"},
+    {plu:"38", name:"Sauerkirschen"},
+    {plu:"45", name:"Sauerkirschen", infoOnly:true},
+    {plu:"36", name:"Stachelbeeren"},
+  ]},
 
-  {id:"steinobst", name:"Steinobst & Kirschen", icon:"🍑", color:"#C0522A",
-   products:[{plu:"124",name:"Aprikosen"},{plu:"112",name:"Gaishirtle"},{plu:"23",name:"Kirschen"},
-             {plu:"14",name:"Mirabellen"},{plu:"130",name:"Nektarinen"},{plu:"25",name:"Pfirsich"},
-             {plu:"125",name:"Ufo-Pfirsich"},{plu:"5",name:"Zwetschgen"}]},
+  {id:"steinobst", name:"Steinobst & Kirschen", icon:"🍑", color:"#C0522A", products:[
+    {plu:"124", name:"Aprikosen"},
+    {plu:"112", name:"Gaishirtle"},
+    {plu:"23",  name:"Kirschen", infoOnly:true},
+    {plu:"14",  name:"Mirabellen"},
+    {plu:"130", name:"Nektarinen"},
+    {plu:"25",  name:"Pfirsich"},
+    {plu:"125", name:"Ufo-Pfirsich"},
+    {plu:"5",   name:"Zwetschgen"},
+    {plu:"15",  name:"Zwetschgen", infoOnly:true},
+  ]},
 
-  {id:"melonen", name:"Melonen", icon:"🍉", color:"#4CAF50",
-   products:[{plu:"126",name:"Netzmelone"},{plu:"128",name:"Wassermelone"}]},
+  {id:"melonen", name:"Melonen & Sonstiges Obst", icon:"🍉", color:"#4CAF50", products:[
+    {plu:"126", name:"Netzmelone"},
+    {plu:"128", name:"Wassermelone"},
+    {plu:"109", name:"Quitten"},
+    {plu:"49",  name:"Rhabarber"},
+    {plu:"46",  name:"Trauben"},
+    {plu:"131", name:"Trauben", infoOnly:true},
+  ]},
 
-  {id:"sonstobst", name:"Sonstiges Obst", icon:"🍇", color:"#6B8E23",
-   products:[{plu:"109",name:"Quitten"},{plu:"49",name:"Rhabarber"},{plu:"46",name:"Trauben"}]},
+  {id:"suedfruchte", name:"Südfrüchte & Exoten", icon:"🍊", color:"#D4830A", products:[
+    {plu:"83",  name:"Ananas"},
+    {plu:"78",  name:"Avocado"},
+    {plu:"80",  name:"Bananen"},
+    {plu:"81",  name:"Blutorangen"},
+    {plu:"21",  name:"Clementinen"},
+    {plu:"12",  name:"Orangen"},
+    {plu:"67",  name:"Zitronen"},
+    {plu:"118", name:"Granatapfel"},
+    {plu:"85",  name:"Ingwer"},
+    {plu:"82",  name:"Kiwi"},
+  ]},
 
-  {id:"suedfruchte", name:"Südfrüchte & Exoten", icon:"🍊", color:"#D4830A",
-   products:[{plu:"83",name:"Ananas"},{plu:"78",name:"Avocado"},{plu:"80",name:"Bananen"},
-             {plu:"81",name:"Blutorangen"},{plu:"21",name:"Clementinen"},{plu:"12",name:"Orangen"},
-             {plu:"67",name:"Zitronen"},{plu:"118",name:"Granatapfel"},{plu:"85",name:"Ingwer"},{plu:"82",name:"Kiwi"}]},
+  {id:"tomaten", name:"Tomaten & Paprika", icon:"🍅", color:"#C0392B", products:[
+    {plu:"106", name:"Auberginen"},
+    {plu:"48",  name:"Paprika"},
+    {plu:"111", name:"Peperoni / Chilli"},
+    {plu:"47",  name:"Spitzpaprika"},
+    {plu:"11",  name:"Tomaten"},
+    {plu:"113", name:"Tomaten (Koch-)"},
+    {plu:"110", name:"Tomaten Remstal"},
+    {plu:"57",  name:"Tomaten San Marzano / Ochsenherz"},
+    {plu:"16",  name:"Tomaten Schale 250 g"},
+    {plu:"27",  name:"Tomaten Schale 500 g"},
+  ]},
 
-  {id:"tomaten", name:"Tomaten & Paprika", icon:"🍅", color:"#C0392B",
-   products:[{plu:"106",name:"Auberginen"},{plu:"48",name:"Paprika"},{plu:"111",name:"Peperoni / Chilli"},
-             {plu:"47",name:"Spitzpaprika"},{plu:"11",name:"Tomaten"},{plu:"113",name:"Tomaten (Koch-)"},
-             {plu:"110",name:"Tomaten Remstal"},{plu:"57",name:"Tomaten San Marzano / Ochsenherz"},
-             {plu:"16",name:"Tomaten Schale 250 g"},{plu:"27",name:"Tomaten Schale 500 g"}]},
+  {id:"salate", name:"Salate & Blattgemüse", icon:"🥬", color:"#27AE60", products:[
+    {plu:"8",   name:"Ackersalat"},
+    {plu:"65",  name:"Chicorée"},
+    {plu:"88",  name:"Chinakohl"},
+    {plu:"42",  name:"Kopfsalate"},
+    {plu:"122", name:"Kresse"},
+    {plu:"94",  name:"Mangold"},
+    {plu:"91",  name:"Pak Choi"},
+    {plu:"66",  name:"Radicchio"},
+    {plu:"29",  name:"Ruccola"},
+    {plu:"123", name:"Schnittsalat"},
+    {plu:"87",  name:"Spinat"},
+  ]},
 
-  {id:"salate", name:"Salate & Blattgemüse", icon:"🥬", color:"#27AE60",
-   products:[{plu:"8",name:"Ackersalat"},{plu:"65",name:"Chicorée"},{plu:"88",name:"Chinakohl"},
-             {plu:"42",name:"Kopfsalate"},{plu:"122",name:"Kresse"},{plu:"94",name:"Mangold"},
-             {plu:"91",name:"Pak Choi"},{plu:"66",name:"Radicchio"},{plu:"29",name:"Ruccola"},
-             {plu:"123",name:"Schnittsalat"},{plu:"87",name:"Spinat"}]},
+  {id:"kohl", name:"Kohl & Kohlgemüse", icon:"🥦", color:"#1E6F3E", products:[
+    {plu:"71",  name:"Blumenkohl"},
+    {plu:"72",  name:"Brokkoli"},
+    {plu:"77",  name:"Grünkohl"},
+    {plu:"119", name:"Kohlrabi"},
+    {plu:"89",  name:"Kohlröschen"},
+    {plu:"76",  name:"Kraut (rot & weiß)"},
+    {plu:"3",   name:"Kürbis"},
+    {plu:"121", name:"Lauch"},
+    {plu:"120", name:"Romanesco"},
+    {plu:"70",  name:"Rosenkohl"},
+    {plu:"108", name:"Sauerkraut"},
+    {plu:"60",  name:"Spitzkohl"},
+    {plu:"84",  name:"Wirsing"},
+  ]},
 
-  {id:"kohl", name:"Kohl & Kohlgemüse", icon:"🥦", color:"#1E6F3E",
-   products:[{plu:"71",name:"Blumenkohl"},{plu:"72",name:"Brokkoli"},{plu:"77",name:"Grünkohl"},
-             {plu:"119",name:"Kohlrabi"},{plu:"89",name:"Kohlröschen"},{plu:"76",name:"Kraut (rot & weiß)"},
-             {plu:"3",name:"Kürbis"},{plu:"121",name:"Lauch"},{plu:"120",name:"Romanesco"},
-             {plu:"70",name:"Rosenkohl"},{plu:"108",name:"Sauerkraut"},{plu:"60",name:"Spitzkohl"},{plu:"84",name:"Wirsing"}]},
+  {id:"wurzel", name:"Wurzel- & Knollengemüse", icon:"🥕", color:"#B7770D", products:[
+    {plu:"100", name:"Fenchel"},
+    {plu:"19",  name:"Karotten"},
+    {plu:"75",  name:"Karotten (Bund)"},
+    {plu:"97",  name:"Urkarotten"},
+    {plu:"129", name:"Urkarotten (Bund)"},
+    {plu:"10",  name:"Kartoffel"},
+    {plu:"20",  name:"Kartoffel 2,5 kg"},
+    {plu:"26",  name:"Kartoffel (neue)"},
+    {plu:"99",  name:"Süßkartoffel"},
+    {plu:"56",  name:"Knoblauch (getrocknet)"},
+    {plu:"79",  name:"Knoblauch (frisch)"},
+    {plu:"98",  name:"Mairübchen"},
+    {plu:"69",  name:"Pastinaken"},
+    {plu:"68",  name:"Petersilienwurzel"},
+    {plu:"90",  name:"Rettich (weiß)"},
+    {plu:"96",  name:"Rettich (rot)"},
+    {plu:"101", name:"Rettich (schwarz)"},
+    {plu:"30",  name:"Rote Bete mit Grün"},
+    {plu:"104", name:"Rote Bete"},
+    {plu:"102", name:"Sellerie (Stauden-)"},
+    {plu:"105", name:"Sellerie"},
+    {plu:"107", name:"Sellerie mit Grün"},
+    {plu:"95",  name:"Steckrüben"},
+    {plu:"9",   name:"Zwiebel"},
+    {plu:"74",  name:"Zwiebel (Bund)"},
+  ]},
 
-  {id:"wurzel", name:"Wurzel- & Knollengemüse", icon:"🥕", color:"#B7770D",
-   products:[{plu:"100",name:"Fenchel"},{plu:"19",name:"Karotten"},{plu:"75",name:"Karotten (Bund)"},
-             {plu:"97",name:"Urkarotten"},{plu:"129",name:"Urkarotten (Bund)"},{plu:"10",name:"Kartoffel"},
-             {plu:"20",name:"Kartoffel 2,5 kg"},{plu:"26",name:"Kartoffel (neue)"},{plu:"99",name:"Süßkartoffel"},
-             {plu:"56",name:"Knoblauch (getrocknet)"},{plu:"79",name:"Knoblauch (frisch)"},
-             {plu:"98",name:"Mairübchen"},{plu:"69",name:"Pastinaken"},{plu:"68",name:"Petersilienwurzel"},
-             {plu:"90",name:"Rettich (weiß)"},{plu:"96",name:"Rettich (rot)"},{plu:"101",name:"Rettich (schwarz)"},
-             {plu:"30",name:"Rote Bete mit Grün"},{plu:"104",name:"Rote Bete"},
-             {plu:"102",name:"Sellerie (Stauden-)"},{plu:"105",name:"Sellerie"},{plu:"107",name:"Sellerie mit Grün"},
-             {plu:"95",name:"Steckrüben"},{plu:"9",name:"Zwiebel"},{plu:"74",name:"Zwiebel (Bund)"}]},
+  {id:"spargel", name:"Spargel, Gurken & Co.", icon:"🌱", color:"#7D8C6A", products:[
+    {plu:"50",  name:"Bohnen"},
+    {plu:"6",   name:"Gurke (Schlangen-)"},
+    {plu:"7",   name:"Gurke (Mini-)"},
+    {plu:"92",  name:"Pilze"},
+    {plu:"73",  name:"Radieschen"},
+    {plu:"37",  name:"Spargel 1A (weiß)"},
+    {plu:"59",  name:"Spargel 2A (weiß)"},
+    {plu:"58",  name:"Spargel Bund (weiß)"},
+    {plu:"39",  name:"Spargel (violett)"},
+    {plu:"40",  name:"Spargel (grün)"},
+    {plu:"17",  name:"Zucchini"},
+  ]},
 
-  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxc73NeZ4wrD4F9cS0-YVRMwxO7mYPNyNgRYRuw5zo0pCHRvm11tmnzvGhR2Y2MaM-l/exec";
+  {id:"kraeuter", name:"Kräuter & Suppengrün", icon:"🌿", color:"#5D8233", products:[
+    {plu:"28", name:"Dill"},
+    {plu:"18", name:"Kräuter"},
+    {plu:"93", name:"Suppengrün"},
+  ]},
 
-// Suche im HTML nach dieser Zeile (ca. Zeile 300) und stelle sicher, dass action kleingeschrieben ist:
-const resp = await fetch(`${SCRIPT_URL}?action=getproducts`); 
-  
-  {id:"spargel", name:"Spargel, Gurken & Co.", icon:"🌱", color:"#7D8C6A",
-   products:[{plu:"50",name:"Bohnen"},{plu:"6",name:"Gurke (Schlangen-)"},{plu:"7",name:"Gurke (Mini-)"},
-             {plu:"92",name:"Pilze"},{plu:"73",name:"Radieschen"},{plu:"37",name:"Spargel 1A (weiß)"},
-             {plu:"59",name:"Spargel 2A (weiß)"},{plu:"58",name:"Spargel Bund (weiß)"},
-             {plu:"39",name:"Spargel (violett)"},{plu:"40",name:"Spar}
+  {id:"eier", name:"Eier", icon:"🥚", color:"#8B6914", products:[
+    {plu:"–",   name:"Eier Karton"},
+    {plu:"115", name:"Eier 1 St."},
+    {plu:"116", name:"Eier 10 St."},
+  ]},
 
-.tab-btn {
-  flex: 1;
-  padding: 12px;
-  border: none;
-  background: none;
-  font-weight: 600;
-  color: var(--muted);
-  cursor: pointer;
-}
+  {id:"saefte", name:"Säfte & Getränke", icon:"🍹", color:"#1A6BA0", products:[
+    {plu:"51",  name:"Apfelsaft"},
+    {plu:"114", name:"Glühwein"},
+    {plu:"52",  name:"Mischsäfte"},
+    {plu:"53",  name:"Saftbox"},
+  ]},
 
-.tab-btn.active {
-  color: var(--success);
-  border-bottom: 3px solid var(--success);
-}
+  {id:"konfituere", name:"Konfitüre & Nüsse", icon:"🍓", color:"#903060", products:[
+    {plu:"54",  name:"Marmelade (kl.)"},
+    {plu:"55",  name:"Marmelade (gr.)"},
+    {plu:"117", name:"Walnüsse"},
+  ]},
 
-.tab-panel { display: none; padding: 15px; }
-.tab-panel.active { display: block; }
-
-/* KATEGORIEN & ITEMS */
-.category {
-  background: var(--card);
-  border-radius: 15px;
-  margin-bottom: 15px;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-}
-
-.cat-header {
-  padding: 12px 15px;
-  color: white;
-  font-weight: 600;
-  display: flex;
-  justify-content: space-between;
-  cursor: pointer;
-}
-
-.item {
-  display: flex;
-  align-items: center;
-  padding: 12px 15px;
-  border-bottom: 1px solid #f0f0f0;
-  gap: 10px;
-}
-
-.plu { font-weight: bold; color: var(--muted); width: 35px; }
-.name { flex: 1; font-size: 0.95rem; }
-
-.inputs { display: flex; gap: 8px; }
-
-.qty-input {
-  width: 55px;
-  padding: 8px 4px;
-  border: 1.5px solid #ddd;
-  border-radius: 8px;
-  text-align: center;
-  font-size: 1rem;
-  -moz-appearance: textfield;
-}
-
-.qty-input::-webkit-outer-spin-button,
-.qty-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-
-.bestellen-input.filled {
-  border-color: var(--warn);
-  background: #FFF8E7;
-  font-weight: bold;
-}
-
-/* LOADING & TOAST */
-#loading {
-  position: fixed; inset: 0; background: white; z-index: 999;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-}
-
-#toast {
-  position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%);
-  background: #333; color: white; padding: 12px 25px; border-radius: 30px;
-  display: none; z-index: 3000; font-weight: 500;
-}
-
-.summary-item {
-  padding: 10px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between;
-}
-</style>
-</head>
-<body>
-
-<div id="loading">
-  <div style="font-size: 2rem; margin-bottom: 10px;">🍏</div>
-  <p>Verbindung zum Hofmarkt-Sheet...</p>
-</div>
-
-<div id="toast"></div>
-
-<header>
-  <h1>🌿 Hofmarkt Bestellplan</h1>
-  <div class="header-row2">
-    <div class="search-bar">
-      <input type="text" placeholder="Artikel oder PLU suchen..." oninput="filterItems(this.value)">
-    </div>
-    <button class="btn-save-order" onclick="saveOrder()" id="btn-save">💾 Speichern</button>
-  </div>
-</header>
-
-<div class="tabs">
-  <button class="tab-btn active" onclick="switchTab('bestellen')">📋 Bestellen</button>
-  <button class="tab-btn" onclick="switchTab('uebersicht')">📊 Übersicht</button>
-</div>
-
-<div id="tab-bestellen" class="tab-panel active">
-  <div id="main-content"></div>
-</div>
-
-<div id="tab-uebersicht" class="tab-panel">
-  <div style="background: white; border-radius: 15px; padding: 15px;">
-    <h2 style="margin-bottom: 15px; font-family: 'DM Serif Display';">Deine Auswahl</h2>
-    <div id="summary-list">Noch nichts ausgewählt.</div>
-  </div>
-</div>
-
-<script>
-// DEINE GOOGLE URL
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwKsizpH47DvFlJcC2kMgg5mwRrxr30NAEgcwLGBxpYDUcCEaaDe8vZ2LtvwjICrZPv/exec";
-
-// PRODUKTLISTE
-const CATEGORIES = [
-  { id: "obst", name: "Obst", color: "#3A7D11", products: [{plu:"1",name:"Äpfel"},{plu:"4",name:"Birnen"},{plu:"23",name:"Kirschen"}] },
-  { id: "beeren", name: "Beeren", color: "#7B3FA0", products: [{plu:"31",name:"Erdbeeren"},{plu:"33",name:"Himbeeren"}] },
-  { id: "sued", name: "Südfrüchte", color: "#D4830A", products: [{plu:"80",name:"Bananen"},{plu:"12",name:"Orangen"}] },
-  { id: "tomaten", name: "Tomaten & Paprika", color: "#C0392B", products: [{plu:"11",name:"Tomaten"},{plu:"48",name:"Paprika"}] },
-  { id: "salat", name: "Salate", color: "#27AE60", products: [{plu:"42",name:"Kopfsalat"},{plu:"8",name:"Ackersalat"}] },
-  { id: "kohl", name: "Kohl", color: "#1E6F3E", products: [{plu:"71",name:"Blumenkohl"},{plu:"72",name:"Brokkoli"}] },
-  { id: "wurzel", name: "Wurzelgemüse", color: "#B7770D", products: [{plu:"19",name:"Karotten"},{plu:"10",name:"Kartoffel"}] },
-  { id: "spargel", name: "Spargel & Gurken", color: "#7D8C6A", products: [{plu:"6",name:"Gurke"},{plu:"116",name:"Eier 10er"}] },
-  { id: "kraeuter", name: "Kräuter", color: "#5D8233", products: [{plu:"18",name:"Kräuter"}] },
-  { id: "drinks", name: "Säfte", color: "#1A6BA0", products: [{plu:"51",name:"Apfelsaft"}] },
-  { id: "extra", name: "Konfitüre & Nüsse", color: "#903060", products: [{plu:"54",name:"Marmelade"}] },
-  { id: "pfand", name: "Pfand", color: "#555", products: [{plu:"61",name:"Pfand"}] }
+  {id:"pfand", name:"Pfand", icon:"💳", color:"#555", noOrder:true, products:[
+    {plu:"61", name:"Pfand 0,15 €"},
+    {plu:"62", name:"Pfand 0,25 €"},
+  ]},
 ];
 
-function buildUI() {
-  const container = document.getElementById('main-content');
-  container.innerHTML = CATEGORIES.map(cat => `
-    <div class="category" id="cat-${cat.id}">
-      <div class="cat-header" style="background:${cat.color}" onclick="toggleCat('${cat.id}')">
-        <span>${cat.name}</span><span id="icon-${cat.id}">▼</span>
-      </div>
-      <div class="cat-items" id="items-${cat.id}">
-        ${cat.products.map(p => `
-          <div class="item" data-plu="${p.plu}" data-name="${p.name}">
-            <span class="plu">${p.plu}</span>
-            <span class="name">${p.name}</span>
-            <div class="inputs">
-              <input type="number" class="qty-input bestand-input" placeholder="Bst." inputmode="decimal">
-              <input type="number" class="qty-input bestellen-input" placeholder="Best." inputmode="decimal" oninput="checkInput(this)">
-            </div>
-          </div>
-        `).join('')}
-      </div>
-    </div>
-  `).join('');
+// ═══════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════
+let userProducts = {};  // catId → [{plu,name,userAdded:true}]
+let historyData  = [];  // [{savedAt, items:[…]}]
+let sheetsOnline = false;
+
+// ═══════════════════════════════════════════════════
+//  API
+//  Lesen  → GET (kein CORS-Problem)
+//  Schreiben → POST no-cors (fire-and-forget)
+// ═══════════════════════════════════════════════════
+async function apiGet(params) {
+  const url = SCRIPT_URL + '?' + new URLSearchParams(params).toString() + '&t=' + Date.now();
+  const res = await fetch(url, {cache:'no-cache'});
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  return await res.json();
+}
+
+async function apiPost(payload) {
+  // no-cors: kein Lesen der Antwort möglich, aber Daten kommen an
+  await fetch(SCRIPT_URL, {
+    method: 'POST',
+    mode:   'no-cors',
+    body:   JSON.stringify(payload),
+  });
+}
+
+// ═══════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════
+async function init() {
+  setLoadingMsg('Verbinde mit Google Sheets…');
+
+  // Standard-Datumsbereich für Historie
+  document.getElementById('hist-from').value = new Date(Date.now()-30*864e5).toISOString().slice(0,10);
+  document.getElementById('hist-to').value   = new Date().toISOString().slice(0,10);
+
+  try {
+    setLoadingMsg('Lade Daten aus Google Sheets…');
+    const d = await apiGet({action:'init'});
+    userProducts = d.products || {};
+    historyData  = d.history  || [];
+    sheetsOnline = true;
+    setStatus(true);
+  } catch(e) {
+    sheetsOnline = false;
+    setStatus(false);
+    setLoadingMsg('Offline-Modus aktiv.\nDaten werden lokal gespeichert.');
+    await new Promise(r => setTimeout(r, 1200));
+  }
+
+  buildUI();
   document.getElementById('loading').style.display = 'none';
 }
 
-function checkInput(el) {
-  el.classList.toggle('filled', el.value > 0);
+function setLoadingMsg(msg) {
+  document.getElementById('loading-msg').textContent = msg;
+}
+
+function setStatus(online) {
+  const b = document.getElementById('status-bar');
+  b.textContent = online ? '⬤ Verbunden mit Google Sheets' : '⬤ Offline – keine Verbindung zu Sheets';
+  b.style.background = online ? 'rgba(45,80,22,.45)' : 'rgba(160,50,0,.35)';
+}
+
+// ═══════════════════════════════════════════════════
+//  BUILD UI
+// ═══════════════════════════════════════════════════
+function buildUI() {
+  const container = document.getElementById('main');
+  container.innerHTML = '';
+
+  CATEGORIES.forEach(cat => {
+    const extra = (userProducts[cat.id]||[]).filter(p=>p.userAdded);
+    const allP  = [...cat.products, ...extra.map(p=>({...p, infoOnly:false}))];
+
+    // Anzahl der wirklich bestellbaren Artikel für den Zähler
+    const orderCount = allP.filter(p=>!p.infoOnly).length;
+
+    const el = document.createElement('div');
+    el.className = 'category';
+    Object.assign(el.dataset, {catid:cat.id, catname:cat.name, catcolor:cat.color});
+
+    el.innerHTML = `
+      <div class="cat-header" onclick="toggleCat(this)" style="background:${cat.color};color:white">
+        <div class="cat-header-left">
+          <span class="cat-icon">${cat.icon}</span>
+          <span class="cat-name">${cat.name}</span>
+          <span class="cat-count" id="cnt-${cat.id}">${orderCount}</span>
+        </div>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="cat-items">
+        ${cat.noOrder ? '' : `
+        <div class="col-headers">
+          <span class="ch-plu"></span><span class="ch-name">Artikel</span>
+          <span class="ch-bestand">Bestand</span>
+          <span class="ch-bestellen">Bestellen</span>
+          <span class="ch-notiz">Notiz</span>
+          <span class="ch-actions"></span>
+        </div>`}
+        ${allP.map(p => itemHTML(p, cat)).join('')}
+        ${cat.noOrder ? '' : addFormHTML(cat.id)}
+      </div>`;
+
+    container.appendChild(el);
+  });
+
   updateSummary();
 }
 
-function toggleCat(id) {
-  const content = document.getElementById('items-'+id);
-  const icon = document.getElementById('icon-'+id);
-  const isOpen = content.style.display === 'none';
-  content.style.display = isOpen ? 'block' : 'none';
-  icon.textContent = isOpen ? '▼' : '▶';
+function itemHTML(p, cat) {
+  const n = esc(p.name);
+
+  // Pfand-Kategorie: reine Anzeige
+  if (cat.noOrder) {
+    return `<div class="item-info" data-catid="${cat.id}" data-plu="${p.plu}" data-name="${n}">
+      <span class="plu-num">${p.plu}</span>
+      <span class="plu-name">${n}</span>
+    </div>`;
+  }
+
+  // Duplikat: nur PLU + Name, kein Eintragen
+  if (p.infoOnly) {
+    return `<div class="item-info" data-catid="${cat.id}" data-plu="${p.plu}" data-name="${n}">
+      <span class="plu-num">${p.plu}</span>
+      <span class="plu-name">${n}</span>
+      <span class="info-tag">nur PLU</span>
+    </div>`;
+  }
+
+  // Normaler Artikel – mit Bestand/Bestellen/Notiz
+  return `
+    <div class="item" data-catid="${cat.id}" data-plu="${p.plu}" data-name="${n}" data-ua="${!!p.userAdded}">
+      <div class="item-main">
+        <span class="plu-num">${p.plu}</span>
+        <span class="plu-name">${n}</span>
+        ${p.userAdded ? '<span class="user-badge">eigenes Produkt</span>' : ''}
+        <div class="item-actions">
+          ${p.userAdded ? `<button class="btn-del" onclick="deleteProduct('${cat.id}','${esc(p.plu)}','${n}')" title="Löschen">✕</button>` : ''}
+        </div>
+        <input class="qty-input" type="number" min="0" placeholder="0" title="Bestand"   inputmode="decimal" oninput="onQty(this,false)">
+        <input class="qty-input" type="number" min="0" placeholder="0" title="Bestellen" inputmode="decimal" oninput="onQty(this,true)">
+      </div>
+      <div class="item-notiz-row">
+        <input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()">
+      </div>
+    </div>`;
 }
 
-async function saveOrder() {
-  const btn = document.getElementById('btn-save');
-  const items = [];
-  
-  document.querySelectorAll('.item').forEach(it => {
-    const bst = it.querySelector('.bestand-input').value;
-    const ord = it.querySelector('.bestellen-input').value;
-    if (bst > 0 || ord > 0) {
-      items.push({ plu: it.dataset.plu, name: it.dataset.name, bst: bst || 0, ord: ord || 0 });
-    }
+function addFormHTML(id) {
+  return `
+    <div class="cat-footer">
+      <button class="btn-add-product" onclick="toggleAddForm('${id}')">+ Produkt hinzufügen</button>
+    </div>
+    <div class="add-form" id="af-${id}">
+      <div><label>Artikelname *</label><input type="text"   class="add-form-name" id="an-${id}" placeholder="z.B. Mango"></div>
+      <div><label>PLU (optional)</label><input type="number" class="add-form-plu"  id="ap-${id}" placeholder="999"></div>
+      <button class="btn-add-confirm" onclick="addProduct('${id}')">Hinzufügen</button>
+      <button class="btn-add-cancel"  onclick="toggleAddForm('${id}')">Abbrechen</button>
+    </div>`;
+}
+
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')}
+
+// ═══════════════════════════════════════════════════
+//  INTERACTIONS
+// ═══════════════════════════════════════════════════
+function toggleCat(h){h.closest('.category').classList.toggle('open')}
+
+function toggleAddForm(id){
+  const f=document.getElementById('af-'+id);
+  f.classList.toggle('open');
+  if(f.classList.contains('open')) document.getElementById('an-'+id).focus();
+}
+
+function onQty(inp,isBestell){
+  if(isBestell) inp.classList.toggle('filled',(parseFloat(inp.value)||0)>0);
+  updateSummary();
+}
+
+function filterItems(q){
+  q=q.toLowerCase().trim(); let any=false;
+  document.querySelectorAll('#main .category').forEach(cat=>{
+    let vis=false;
+    // Normale Items
+    cat.querySelectorAll('.item').forEach(it=>{
+      const ok=!q||it.dataset.name.toLowerCase().includes(q)||it.dataset.plu.toLowerCase().includes(q);
+      it.classList.toggle('hidden',!ok); if(ok) vis=true;
+    });
+    // Info-only Items
+    cat.querySelectorAll('.item-info').forEach(it=>{
+      const ok=!q||it.dataset.name.toLowerCase().includes(q)||it.dataset.plu.toLowerCase().includes(q);
+      it.classList.toggle('hidden',!ok); if(ok) vis=true;
+    });
+    cat.classList.toggle('all-hidden',!vis);
+    if(q&&vis) cat.classList.add('open');
+    if(vis) any=true;
+  });
+  document.getElementById('no-results').style.display=any?'none':'block';
+}
+
+// ═══════════════════════════════════════════════════
+//  SAVE ORDER
+// ═══════════════════════════════════════════════════
+async function saveOrder(){
+  const btn=document.getElementById('btn-save');
+  btn.disabled=true; btn.textContent='⏳ …';
+
+  const items=[];
+  document.querySelectorAll('#main .category').forEach(catEl=>{
+    const {catid,catname}=catEl.dataset;
+    catEl.querySelectorAll('.item').forEach(it=>{
+      const ins=it.querySelectorAll('.qty-input');
+      if(!ins.length) return;
+      const bestand=parseFloat(ins[0].value)||0, bestellen=parseFloat(ins[1].value)||0;
+      const notiz=it.querySelector('.notiz-input')?.value||'';
+      if(bestand||bestellen||notiz) items.push({catid,catname,plu:it.dataset.plu,name:it.dataset.name,bestand,bestellen,notiz});
+    });
   });
 
-  if (items.length === 0) { return showToast("Bitte erst etwas eintragen!"); }
+  if(!items.length){showToast('Keine Mengen eingetragen.',true);btn.disabled=false;btn.textContent='💾 Speichern';return}
 
-  btn.disabled = true;
-  btn.textContent = "⌛ Sende...";
+  const order={savedAt:new Date().toISOString(),items};
+  historyData.unshift(order);
 
   try {
-    // Senden an Google Apps Script via POST
-    const body = JSON.stringify({ action: "saveOrder", order: { items: items, date: new Date().toLocaleString() } });
-    
-    // Wir nutzen 'no-cors' für Google Apps Script Redirects
-    await fetch(SCRIPT_URL, {
-      method: 'POST',
-      mode: 'no-cors', 
-      cache: 'no-cache',
-      body: body
+    await apiPost({action:'saveOrder', order});
+    showToast('✅ In Google Sheets gespeichert!');
+  } catch(e){
+    showToast('⚠️ Lokal gespeichert – Sheets offline', true);
+  }
+
+  renderAverages();
+  btn.disabled=false; btn.textContent='💾 Speichern';
+}
+
+// ═══════════════════════════════════════════════════
+//  ADD / DELETE USER PRODUCTS
+// ═══════════════════════════════════════════════════
+async function addProduct(catId){
+  const nameEl=document.getElementById('an-'+catId), pluEl=document.getElementById('ap-'+catId);
+  const name=nameEl.value.trim(), plu=pluEl.value.trim()||'–';
+  if(!name){nameEl.focus();return}
+  const prod={plu,name,userAdded:true,addedAt:new Date().toISOString()};
+  if(!userProducts[catId]) userProducts[catId]=[];
+  userProducts[catId].push(prod);
+  try { await apiPost({action:'saveProduct', catId, product:prod}); } catch(e){}
+  nameEl.value=''; pluEl.value='';
+  toggleAddForm(catId);
+  buildUI();
+  showToast('✅ Produkt hinzugefügt!');
+}
+
+async function deleteProduct(catId,plu,name){
+  if(!confirm(`"${name}" wirklich löschen?`)) return;
+  if(!userProducts[catId]) return;
+  const idx=userProducts[catId].findIndex(p=>p.userAdded&&p.plu===plu&&p.name===name);
+  if(idx===-1) return;
+  userProducts[catId].splice(idx,1);
+  try { await apiPost({action:'deleteProduct', catId, plu, name}); } catch(e){}
+  buildUI();
+  showToast('🗑 Produkt gelöscht.');
+}
+
+// ═══════════════════════════════════════════════════
+//  ÜBERSICHT / SUMMARY
+// ═══════════════════════════════════════════════════
+function updateSummary(){
+  const bM={},sM={};let bt=0,st=0;
+  document.querySelectorAll('#main .category').forEach(catEl=>{
+    const {catid,catname,catcolor}=catEl.dataset;
+    catEl.querySelectorAll('.item').forEach(it=>{
+      const ins=it.querySelectorAll('.qty-input'); if(!ins.length) return;
+      const bestand=parseFloat(ins[0].value)||0, bestellen=parseFloat(ins[1].value)||0;
+      const notiz=it.querySelector('.notiz-input')?.value||'';
+      const {plu,name}=it.dataset;
+      if(bestellen>0){if(!bM[catid])bM[catid]={name:catname,color:catcolor,items:[]};bM[catid].items.push({plu,name,qty:bestellen,notiz});bt++}
+      if(bestand>0) {if(!sM[catid])sM[catid]={name:catname,color:catcolor,items:[]};sM[catid].items.push({plu,name,qty:bestand,notiz});st++}
     });
-
-    showToast("✅ Erfolgreich im Google Sheet gespeichert!");
-    document.querySelectorAll('.qty-input').forEach(i => { i.value = ''; i.classList.remove('filled'); });
-    updateSummary();
-  } catch (e) {
-    showToast("Fehler! Bitte Internet prüfen.", true);
-  } finally {
-    btn.disabled = false;
-    btn.textContent = "💾 Speichern";
-  }
-}
-
-function updateSummary() {
-  const list = document.getElementById('summary-list');
-  let html = "";
-  document.querySelectorAll('.item').forEach(it => {
-    const ord = it.querySelector('.bestellen-input').value;
-    if (ord > 0) {
-      html += `<div class="summary-item"><span>${it.dataset.name}</span> <b>${ord}x</b></div>`;
-    }
   });
-  list.innerHTML = html || "Noch nichts ausgewählt.";
+  document.getElementById('bestell-count').textContent=bt;
+  document.getElementById('gesamt-count').textContent=st;
+  renderSumList('bestell-list',bM,'order');
+  renderSumList('gesamt-list',sM,'qty');
 }
 
-function switchTab(t) {
-  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('tab-'+t).classList.add('active');
-  document.querySelector(`[onclick="switchTab('${t}')"]`).classList.add('active');
+function renderSumList(id,map,type){
+  const el=document.getElementById(id);
+  if(!Object.keys(map).length){el.innerHTML=`<div class="summary-empty">${type==='order'?'Noch nichts zu bestellen.':'Kein Bestand erfasst.'}</div>`;return}
+  el.innerHTML=Object.values(map).map(cat=>`
+    <div class="summary-cat">
+      <div class="summary-cat-label" style="background:${cat.color}">${cat.name}</div>
+      ${cat.items.map(it=>`
+        <div class="summary-row">
+          <span class="sum-plu">${it.plu}</span>
+          <span class="sum-name">${it.name}</span>
+          <span class="${type==='order'?'sum-badge-order':'sum-badge-qty'}">${it.qty}×</span>
+          ${it.notiz?`<span class="sum-notiz">💬 ${it.notiz}</span>`:''}
+        </div>`).join('')}
+    </div>`).join('');
 }
 
-function filterItems(q) {
-  q = q.toLowerCase();
-  document.querySelectorAll('.item').forEach(it => {
-    const match = (it.dataset.plu + it.dataset.name).toLowerCase().includes(q);
-    it.style.display = match ? 'flex' : 'none';
-  });
+function clearBestellen(){
+  document.querySelectorAll('#main .qty-input[title="Bestellen"]').forEach(i=>{i.value='';i.classList.remove('filled')});
+  updateSummary();
 }
-
-function showToast(m, err = false) {
-  const t = document.getElementById('toast');
-  t.textContent = m;
-  t.style.background = err ? '#C0392B' : '#333';
-  t.style.display = 'block';
-  setTimeout(() => t.style.display = 'none', 3500);
-}
-
-buildUI();
-</script>
-
-</body>
-</html>
-.category.open .cat-items { display: block; }
-
-  /* Column headers */
-  .col-headers {
-    display: flex;
-    align-items: center;
-    padding: 5px 14px 4px;
-    background: rgba(0,0,0,0.03);
-    border-bottom: 1px solid rgba(0,0,0,0.06);
-    gap: 6px;
-  }
-  .col-headers .ch-plu    { min-width: 32px; }
-  .col-headers .ch-name   { flex: 1; font-size: 0.7rem; color: var(--muted); font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
-  .col-headers .ch-bestand,
-  .col-headers .ch-bestellen { width: 62px; font-size: 0.7rem; color: var(--muted); font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; text-align: center; }
-  .col-headers .ch-notiz  { flex: 1; font-size: 0.7rem; color: var(--muted); font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
-
-  .group-sep {
-    height: 1px;
-    background: rgba(0,0,0,0.07);
-    margin: 0 14px;
-  }
-
-  .item {
-    display: flex;
-    flex-direction: column;
-    padding: 7px 14px;
-    border-bottom: 1px solid rgba(0,0,0,0.04);
-    gap: 5px;
-  }
-  .item:last-child { border-bottom: none; }
-
-  .item-main {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .item-notiz-row {
-    display: flex;
-    padding-left: 38px;
-  }
-
-  .notiz-input {
-    flex: 1;
-    padding: 3px 8px;
-    border: 1.5px solid rgba(0,0,0,0.1);
-    border-radius: 6px;
-    font-size: 0.8rem;
-    font-family: 'DM Sans', sans-serif;
-    background: rgba(0,0,0,0.02);
-    color: var(--text);
-    outline: none;
-    transition: border-color 0.15s;
-  }
-  .notiz-input::placeholder { color: rgba(0,0,0,0.22); font-style: italic; }
-  .notiz-input:focus { border-color: #2D5016; background: #fff; }
-
-  .plu-num {
-    font-weight: 700;
-    font-size: 0.85rem;
-    color: var(--muted);
-    min-width: 32px;
-    text-align: right;
-    font-variant-numeric: tabular-nums;
-    flex-shrink: 0;
-  }
-
-  .plu-name { font-size: 0.92rem; color: var(--text); flex: 1; }
-
-  .qty-input {
-    width: 62px;
-    flex-shrink: 0;
-    padding: 4px 5px;
-    border: 1.5px solid rgba(0,0,0,0.15);
-    border-radius: 7px;
-    font-size: 0.88rem;
-    font-family: 'DM Sans', sans-serif;
-    text-align: center;
-    background: #fff;
-    color: var(--text);
-    outline: none;
-    transition: border-color 0.15s, background 0.15s;
-    -moz-appearance: textfield;
-  }
-  .qty-input::-webkit-outer-spin-button,
-  .qty-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-  .qty-input:focus { border-color: #2D5016; }
-  .qty-input.bestellen-filled {
-    background: #FFF8E7;
-    border-color: #D4830A;
-    color: #7A4F00;
-    font-weight: 700;
-  }
-
-  .item.hidden { display: none; }
-  .category.all-hidden { display: none; }
-  .group-sep.hidden { display: none; }
-
-  .no-results {
-    text-align: center;
-    padding: 40px 20px;
-    color: var(--muted);
-    font-size: 0.9rem;
-    display: none;
-  }
-
-  /* ── ÜBERSICHTEN NEBENEINANDER ── */
-  .uebersichten {
-    display: flex;
-    gap: 12px;
-    margin: 8px 12px 24px;
-    align-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  .summary-section {
-    flex: 1;
-    min-width: 260px;
-    border-radius: 14px;
-    overflow: hidden;
-    background: var(--card);
-    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
-  }
-
-  .bestell-section { border: 2px solid #C0392B; }
-  .gesamt-section  { border: 2px solid #2D5016; }
-
-  .summary-header {
-    color: white;
-    padding: 13px 16px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    cursor: pointer;
-    user-select: none;
-  }
-  .bestell-section .summary-header { background: #C0392B; }
-  .gesamt-section  .summary-header { background: #2D5016; }
-
-  .summary-header h2 {
-    font-family: 'DM Serif Display', serif;
-    font-size: 1.05rem;
-  }
-
-  .sum-count {
-    font-size: 0.78rem;
-    background: rgba(255,255,255,0.2);
-    padding: 3px 10px;
-    border-radius: 20px;
-    font-weight: 600;
-  }
-
-  .summary-body { padding: 0; }
-
-  .summary-empty {
-    padding: 20px 16px;
-    text-align: center;
-    color: var(--muted);
-    font-size: 0.88rem;
-  }
-
-  .summary-cat { border-bottom: 1px solid rgba(0,0,0,0.06); }
-  .summary-cat:last-child { border-bottom: none; }
-
-  .summary-cat-label {
-    padding: 7px 14px 5px;
-    font-weight: 600;
-    font-size: 0.78rem;
-    color: white;
-  }
-
-  .summary-row {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    padding: 5px 14px;
-    gap: 6px;
-    border-bottom: 1px solid rgba(0,0,0,0.04);
-  }
-  .summary-row:last-child { border-bottom: none; }
-
-  .sum-plu {
-    font-size: 0.78rem;
-    color: var(--muted);
-    font-weight: 700;
-    min-width: 26px;
-    text-align: right;
-    flex-shrink: 0;
-  }
-
-  .sum-name { flex: 1; font-size: 0.88rem; min-width: 80px; }
-
-  .sum-info {
-    font-size: 0.78rem;
-    color: var(--muted);
-    flex-shrink: 0;
-  }
-
-  .sum-badge-order {
-    background: #C0392B;
-    color: white;
-    font-size: 0.75rem;
-    font-weight: 700;
-    padding: 2px 8px;
-    border-radius: 20px;
-    flex-shrink: 0;
-  }
-
-  .sum-badge-qty {
-    background: #2D5016;
-    color: white;
-    font-size: 0.75rem;
-    font-weight: 700;
-    padding: 2px 8px;
-    border-radius: 20px;
-    flex-shrink: 0;
-  }
-
-  .sum-notiz {
-    font-size: 0.75rem;
-    color: var(--muted);
-    font-style: italic;
-    width: 100%;
-    padding-left: 32px;
-  }
-
-  .btn-clear {
-    display: block;
-    margin: 12px auto;
-    padding: 7px 20px;
-    background: transparent;
-    border: 1.5px solid rgba(0,0,0,0.18);
-    border-radius: 8px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.82rem;
-    color: var(--muted);
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  .btn-clear:hover { background: rgba(0,0,0,0.05); color: var(--text); }
-</style>
-</head>
-<body>
-
-<header>
-  <h1>PLU-Liste</h1>
-  <p>140 Artikel · 15 Kategorien</p>
-  <div class="search-bar">
-    <input type="text" id="search" placeholder="Suchen nach Name oder PLU-Nr. …" oninput="filterItems(this.value)">
-  </div>
-</header>
-
-<div class="main" id="main">
-
-<!-- ÄPFEL & BIRNEN -->
-<div class="category open" data-catname="Äpfel &amp; Birnen" data-catcolor="#3A7D11">
-  <div class="cat-header" onclick="toggleCat(this)" style="background:#3A7D11;color:white;">
-    <div class="cat-header-left"><span class="cat-icon">🍎</span><span class="cat-name">Äpfel &amp; Birnen</span><span class="cat-count">4</span></div>
-    <span class="chevron">▼</span>
-  </div>
-  <div class="cat-items">
-    <div class="col-headers"><span class="ch-plu"></span><span class="ch-name">Artikel</span><span class="ch-bestand">Bestand</span><span class="ch-bestellen">Bestellen</span><span class="ch-notiz">Notiz</span></div>
-    <div class="item"><div class="item-main"><span class="plu-num">1</span><span class="plu-name">Äpfel</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">2</span><span class="plu-name">Äpfel 3 kg</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">41</span><span class="plu-name">Kochäpfel</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="group-sep"></div>
-    <div class="item"><div class="item-main"><span class="plu-num">4</span><span class="plu-name">Birnen</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-  </div>
-</div>
-
-<!-- BEEREN -->
-<div class="category" data-catname="Beeren" data-catcolor="#7B3FA0">
-  <div class="cat-header" onclick="toggleCat(this)" style="background:#7B3FA0;color:white;">
-    <div class="cat-header-left"><span class="cat-icon">🫐</span><span class="cat-name">Beeren</span><span class="cat-count">13</span></div>
-    <span class="chevron">▼</span>
-  </div>
-  <div class="cat-items">
-    <div class="col-headers"><span class="ch-plu"></span><span class="ch-name">Artikel</span><span class="ch-bestand">Bestand</span><span class="ch-bestellen">Bestellen</span><span class="ch-notiz">Notiz</span></div>
-    <div class="item"><div class="item-main"><span class="plu-num">23</span><span class="plu-name">Brombeeren</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="group-sep"></div>
-    <div class="item"><div class="item-main"><span class="plu-num">31</span><span class="plu-name">Erdbeeren</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="group-sep"></div>
-    <div class="item"><div class="item-main"><span class="plu-num">24</span><span class="plu-name">Heidelbeeren</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">34</span><span class="plu-name">Heidelbeeren</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="group-sep"></div>
-    <div class="item"><div class="item-main"><span class="plu-num">33</span><span class="plu-name">Himbeeren</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">43</span><span class="plu-name">Himbeeren 500 g</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="group-sep"></div>
-    <div class="item"><div class="item-main"><span class="plu-num">35</span><span class="plu-name">Johannisbeeren (rot)</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">44</span><span class="plu-name">Johannisbeeren (schwarz)</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="group-sep"></div>
-    <div class="item"><div class="item-main"><span class="plu-num">38</span><span class="plu-name">Sauerkirschen</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">45</span><span class="plu-name">Sauerkirschen</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="group-sep"></div>
-    <div class="item"><div class="item-main"><span class="plu-num">36</span><span class="plu-name">Stachelbeeren</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-  </div>
-</div>
-
-<!-- STEINOBST & KIRSCHEN -->
-<div class="category" data-catname="Steinobst &amp; Kirschen" data-catcolor="#C0522A">
-  <div class="cat-header" onclick="toggleCat(this)" style="background:#C0522A;color:white;">
-    <div class="cat-header-left"><span class="cat-icon">🍑</span><span class="cat-name">Steinobst &amp; Kirschen</span><span class="cat-count">9</span></div>
-    <span class="chevron">▼</span>
-  </div>
-  <div class="cat-items">
-    <div class="col-headers"><span class="ch-plu"></span><span class="ch-name">Artikel</span><span class="ch-bestand">Bestand</span><span class="ch-bestellen">Bestellen</span><span class="ch-notiz">Notiz</span></div>
-    <div class="item"><div class="item-main"><span class="plu-num">124</span><span class="plu-name">Aprikosen</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">112</span><span class="plu-name">Gaishirtle</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">23</span><span class="plu-name">Kirschen</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">14</span><span class="plu-name">Mirabellen</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">130</span><span class="plu-name">Nektarinen</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="group-sep"></div>
-    <div class="item"><div class="item-main"><span class="plu-num">25</span><span class="plu-name">Pfirsich</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">125</span><span class="plu-name">Ufo-Pfirsich</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="group-sep"></div>
-    <div class="item"><div class="item-main"><span class="plu-num">5</span><span class="plu-name">Zwetschgen</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">15</span><span class="plu-name">Zwetschgen</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-  </div>
-</div>
-
-<!-- MELONEN -->
-<div class="category" data-catname="Melonen" data-catcolor="#4CAF50">
-  <div class="cat-header" onclick="toggleCat(this)" style="background:#4CAF50;color:white;">
-    <div class="cat-header-left"><span class="cat-icon">🍉</span><span class="cat-name">Melonen</span><span class="cat-count">3</span></div>
-    <span class="chevron">▼</span>
-  </div>
-  <div class="cat-items">
-    <div class="col-headers"><span class="ch-plu"></span><span class="ch-name">Artikel</span><span class="ch-bestand">Bestand</span><span class="ch-bestellen">Bestellen</span><span class="ch-notiz">Notiz</span></div>
-    <div class="item"><div class="item-main"><span class="plu-num">126</span><span class="plu-name">Netzmelone (ganze)</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">127</span><span class="plu-name">Netzmelone (halbe)</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">128</span><span class="plu-name">Wassermelone</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-  </div>
-</div>
-
-<!-- SONSTIGES OBST -->
-<div class="category" data-catname="Sonstiges Obst" data-catcolor="#6B8E23">
-  <div class="cat-header" onclick="toggleCat(this)" style="background:#6B8E23;color:white;">
-    <div class="cat-header-left"><span class="cat-icon">🍇</span><span class="cat-name">Sonstiges Obst</span><span class="cat-count">4</span></div>
-    <span class="chevron">▼</span>
-  </div>
-  <div class="cat-items">
-    <div class="col-headers"><span class="ch-plu"></span><span class="ch-name">Artikel</span><span class="ch-bestand">Bestand</span><span class="ch-bestellen">Bestellen</span><span class="ch-notiz">Notiz</span></div>
-    <div class="item"><div class="item-main"><span class="plu-num">109</span><span class="plu-name">Quitten</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">49</span><span class="plu-name">Rhabarber</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">46</span><span class="plu-name">Trauben</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">131</span><span class="plu-name">Trauben</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-  </div>
-</div>
-
-<!-- SÜDFRÜCHTE & EXOTEN -->
-<div class="category" data-catname="Südfrüchte &amp; Exoten" data-catcolor="#D4830A">
-  <div class="cat-header" onclick="toggleCat(this)" style="background:#D4830A;color:white;">
-    <div class="cat-header-left"><span class="cat-icon">🍊</span><span class="cat-name">Südfrüchte &amp; Exoten</span><span class="cat-count">10</span></div>
-    <span class="chevron">▼</span>
-  </div>
-  <div class="cat-items">
-    <div class="col-headers"><span class="ch-plu"></span><span class="ch-name">Artikel</span><span class="ch-bestand">Bestand</span><span class="ch-bestellen">Bestellen</span><span class="ch-notiz">Notiz</span></div>
-    <div class="item"><div class="item-main"><span class="plu-num">83</span><span class="plu-name">Ananas</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">78</span><span class="plu-name">Avocado</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">80</span><span class="plu-name">Bananen</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="group-sep"></div>
-    <div class="item"><div class="item-main"><span class="plu-num">81</span><span class="plu-name">Blutorangen</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">21</span><span class="plu-name">Clementinen</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">12</span><span class="plu-name">Orangen</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">67</span><span class="plu-name">Zitronen</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="group-sep"></div>
-    <div class="item"><div class="item-main"><span class="plu-num">118</span><span class="plu-name">Granatapfel</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">85</span><span class="plu-name">Ingwer</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">82</span><span class="plu-name">Kiwi</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-  </div>
-</div>
-
-<!-- TOMATEN & PAPRIKA -->
-<div class="category" data-catname="Tomaten &amp; Paprika" data-catcolor="#C0392B">
-  <div class="cat-header" onclick="toggleCat(this)" style="background:#C0392B;color:white;">
-    <div class="cat-header-left"><span class="cat-icon">🍅</span><span class="cat-name">Tomaten &amp; Paprika</span><span class="cat-count">10</span></div>
-    <span class="chevron">▼</span>
-  </div>
-  <div class="cat-items">
-    <div class="col-headers"><span class="ch-plu"></span><span class="ch-name">Artikel</span><span class="ch-bestand">Bestand</span><span class="ch-bestellen">Bestellen</span><span class="ch-notiz">Notiz</span></div>
-    <div class="item"><div class="item-main"><span class="plu-num">106</span><span class="plu-name">Auberginen</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="group-sep"></div>
-    <div class="item"><div class="item-main"><span class="plu-num">48</span><span class="plu-name">Paprika</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">111</span><span class="plu-name">Peperoni / Chilli</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">47</span><span class="plu-name">Spitzpaprika</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="group-sep"></div>
-    <div class="item"><div class="item-main"><span class="plu-num">11</span><span class="plu-name">Tomaten</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">113</span><span class="plu-name">Tomaten (Koch-)</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">110</span><span class="plu-name">Tomaten Remstal</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">57</span><span class="plu-name">Tomaten San Marzano / Ochsenherz</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">16</span><span class="plu-name">Tomaten Schale 250 g</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">27</span><span class="plu-name">Tomaten Schale 500 g</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-  </div>
-</div>
-
-<!-- SALATE & BLATTGEMÜSE -->
-<div class="category" data-catname="Salate &amp; Blattgemüse" data-catcolor="#27AE60">
-  <div class="cat-header" onclick="toggleCat(this)" style="background:#27AE60;color:white;">
-    <div class="cat-header-left"><span class="cat-icon">🥬</span><span class="cat-name">Salate &amp; Blattgemüse</span><span class="cat-count">11</span></div>
-    <span class="chevron">▼</span>
-  </div>
-  <div class="cat-items">
-    <div class="col-headers"><span class="ch-plu"></span><span class="ch-name">Artikel</span><span class="ch-bestand">Bestand</span><span class="ch-bestellen">Bestellen</span><span class="ch-notiz">Notiz</span></div>
-    <div class="item"><div class="item-main"><span class="plu-num">8</span><span class="plu-name">Ackersalat</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">65</span><span class="plu-name">Chicorée</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">88</span><span class="plu-name">Chinakohl</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">42</span><span class="plu-name">Kopfsalate</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">122</span><span class="plu-name">Kresse</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">94</span><span class="plu-name">Mangold</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">91</span><span class="plu-name">Pak Choi</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">66</span><span class="plu-name">Radicchio</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">29</span><span class="plu-name">Ruccola</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">123</span><span class="plu-name">Schnittsalat</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">87</span><span class="plu-name">Spinat</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-  </div>
-</div>
-
-<!-- KOHL & KOHLGEMÜSE -->
-<div class="category" data-catname="Kohl &amp; Kohlgemüse" data-catcolor="#1E6F3E">
-  <div class="cat-header" onclick="toggleCat(this)" style="background:#1E6F3E;color:white;">
-    <div class="cat-header-left"><span class="cat-icon">🥦</span><span class="cat-name">Kohl &amp; Kohlgemüse</span><span class="cat-count">13</span></div>
-    <span class="chevron">▼</span>
-  </div>
-  <div class="cat-items">
-    <div class="col-headers"><span class="ch-plu"></span><span class="ch-name">Artikel</span><span class="ch-bestand">Bestand</span><span class="ch-bestellen">Bestellen</span><span class="ch-notiz">Notiz</span></div>
-    <div class="item"><div class="item-main"><span class="plu-num">71</span><span class="plu-name">Blumenkohl</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">72</span><span class="plu-name">Brokkoli</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">77</span><span class="plu-name">Grünkohl</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">119</span><span class="plu-name">Kohlrabi</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">89</span><span class="plu-name">Kohlröschen</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">76</span><span class="plu-name">Kraut (rot &amp; weiß)</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">3</span><span class="plu-name">Kürbis</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">121</span><span class="plu-name">Lauch</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">120</span><span class="plu-name">Romanesco</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">70</span><span class="plu-name">Rosenkohl</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">108</span><span class="plu-name">Sauerkraut</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">60</span><span class="plu-name">Spitzkohl</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">84</span><span class="plu-name">Wirsing</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-  </div>
-</div>
-
-<!-- WURZEL- & KNOLLENGEMÜSE -->
-<div class="category" data-catname="Wurzel- &amp; Knollengemüse" data-catcolor="#B7770D">
-  <div class="cat-header" onclick="toggleCat(this)" style="background:#B7770D;color:white;">
-    <div class="cat-header-left"><span class="cat-icon">🥕</span><span class="cat-name">Wurzel- &amp; Knollengemüse</span><span class="cat-count">24</span></div>
-    <span class="chevron">▼</span>
-  </div>
-  <div class="cat-items">
-    <div class="col-headers"><span class="ch-plu"></span><span class="ch-name">Artikel</span><span class="ch-bestand">Bestand</span><span class="ch-bestellen">Bestellen</span><span class="ch-notiz">Notiz</span></div>
-    <div class="item"><div class="item-main"><span class="plu-num">100</span><span class="plu-name">Fenchel</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="group-sep"></div>
-    <div class="item"><div class="item-main"><span class="plu-num">19</span><span class="plu-name">Karotten</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">75</span><span class="plu-name">Karotten (Bund)</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">97</span><span class="plu-name">Urkarotten</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">129</span><span class="plu-name">Urkarotten (Bund)</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="group-sep"></div>
-    <div class="item"><div class="item-main"><span class="plu-num">10</span><span class="plu-name">Kartoffel</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">20</span><span class="plu-name">Kartoffel 2,5 kg</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">26</span><span class="plu-name">Kartoffel (neue)</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">99</span><span class="plu-name">Süßkartoffel</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="group-sep"></div>
-    <div class="item"><div class="item-main"><span class="plu-num">56</span><span class="plu-name">Knoblauch (getrocknet)</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">79</span><span class="plu-name">Knoblauch (frisch)</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="group-sep"></div>
-    <div class="item"><div class="item-main"><span class="plu-num">98</span><span class="plu-name">Mairübchen</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">69</span><span class="plu-name">Pastinaken</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">68</span><span class="plu-name">Petersilienwurzel</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="group-sep"></div>
-    <div class="item"><div class="item-main"><span class="plu-num">90</span><span class="plu-name">Rettich (weiß)</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">96</span><span class="plu-name">Rettich (rot)</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">101</span><span class="plu-name">Rettich (schwarz)</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="group-sep"></div>
-    <div class="item"><div class="item-main"><span class="plu-num">30</span><span class="plu-name">Rote Bete mit Grün</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">104</span><span class="plu-name">Rote Bete</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="group-sep"></div>
-    <div class="item"><div class="item-main"><span class="plu-num">102</span><span class="plu-name">Sellerie (Stauden-)</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">105</span><span class="plu-name">Sellerie</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">107</span><span class="plu-name">Sellerie mit Grün</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="group-sep"></div>
-    <div class="item"><div class="item-main"><span class="plu-num">95</span><span class="plu-name">Steckrüben</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="group-sep"></div>
-    <div class="item"><div class="item-main"><span class="plu-num">9</span><span class="plu-name">Zwiebel</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">74</span><span class="plu-name">Zwiebel (Bund)</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-  </div>
-</div>
-
-<!-- SPARGEL, GURKEN & CO -->
-<div class="category" data-catname="Spargel, Gurken &amp; Co." data-catcolor="#7D8C6A">
-  <div class="cat-header" onclick="toggleCat(this)" style="background:#7D8C6A;color:white;">
-    <div class="cat-header-left"><span class="cat-icon">🌱</span><span class="cat-name">Spargel, Gurken &amp; Co.</span><span class="cat-count">11</span></div>
-    <span class="chevron">▼</span>
-  </div>
-  <div class="cat-items">
-    <div class="col-headers"><span class="ch-plu"></span><span class="ch-name">Artikel</span><span class="ch-bestand">Bestand</span><span class="ch-bestellen">Bestellen</span><span class="ch-notiz">Notiz</span></div>
-    <div class="item"><div class="item-main"><span class="plu-num">50</span><span class="plu-name">Bohnen</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="group-sep"></div>
-    <div class="item"><div class="item-main"><span class="plu-num">6</span><span class="plu-name">Gurke (Schlangen-)</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">7</span><span class="plu-name">Gurke (Mini-)</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="group-sep"></div>
-    <div class="item"><div class="item-main"><span class="plu-num">92</span><span class="plu-name">Pilze</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">73</span><span class="plu-name">Radieschen</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="group-sep"></div>
-    <div class="item"><div class="item-main"><span class="plu-num">37</span><span class="plu-name">Spargel 1A (weiß)</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">59</span><span class="plu-name">Spargel 2A (weiß)</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">58</span><span class="plu-name">Spargel Bund (weiß)</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">39</span><span class="plu-name">Spargel (violett)</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">40</span><span class="plu-name">Spargel (grün)</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="group-sep"></div>
-    <div class="item"><div class="item-main"><span class="plu-num">17</span><span class="plu-name">Zucchini</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-  </div>
-</div>
-
-<!-- KRÄUTER & SUPPENGRÜN -->
-<div class="category" data-catname="Kräuter &amp; Suppengrün" data-catcolor="#5D8233">
-  <div class="cat-header" onclick="toggleCat(this)" style="background:#5D8233;color:white;">
-    <div class="cat-header-left"><span class="cat-icon">🌿</span><span class="cat-name">Kräuter &amp; Suppengrün</span><span class="cat-count">3</span></div>
-    <span class="chevron">▼</span>
-  </div>
-  <div class="cat-items">
-    <div class="col-headers"><span class="ch-plu"></span><span class="ch-name">Artikel</span><span class="ch-bestand">Bestand</span><span class="ch-bestellen">Bestellen</span><span class="ch-notiz">Notiz</span></div>
-    <div class="item"><div class="item-main"><span class="plu-num">28</span><span class="plu-name">Dill</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">18</span><span class="plu-name">Kräuter</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">93</span><span class="plu-name">Suppengrün</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-  </div>
-</div>
-
-<!-- EIER -->
-<div class="category" data-catname="Eier" data-catcolor="#8B6914">
-  <div class="cat-header" onclick="toggleCat(this)" style="background:#8B6914;color:white;">
-    <div class="cat-header-left"><span class="cat-icon">🥚</span><span class="cat-name">Eier</span><span class="cat-count">3</span></div>
-    <span class="chevron">▼</span>
-  </div>
-  <div class="cat-items">
-    <div class="col-headers"><span class="ch-plu"></span><span class="ch-name">Artikel</span><span class="ch-bestand">Bestand</span><span class="ch-bestellen">Bestellen</span><span class="ch-notiz">Notiz</span></div>
-    <div class="item"><div class="item-main"><span class="plu-num">–</span><span class="plu-name">Eier Karton</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">115</span><span class="plu-name">Eier 1 St.</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">116</span><span class="plu-name">Eier 10 St.</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-  </div>
-</div>
-
-<!-- SÄFTE & GETRÄNKE -->
-<div class="category" data-catname="Säfte &amp; Getränke" data-catcolor="#1A6BA0">
-  <div class="cat-header" onclick="toggleCat(this)" style="background:#1A6BA0;color:white;">
-    <div class="cat-header-left"><span class="cat-icon">🍹</span><span class="cat-name">Säfte &amp; Getränke</span><span class="cat-count">4</span></div>
-    <span class="chevron">▼</span>
-  </div>
-  <div class="cat-items">
-    <div class="col-headers"><span class="ch-plu"></span><span class="ch-name">Artikel</span><span class="ch-bestand">Bestand</span><span class="ch-bestellen">Bestellen</span><span class="ch-notiz">Notiz</span></div>
-    <div class="item"><div class="item-main"><span class="plu-num">51</span><span class="plu-name">Apfelsaft</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">114</span><span class="plu-name">Glühwein</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">52</span><span class="plu-name">Mischsäfte</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">53</span><span class="plu-name">Saftbox</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-  </div>
-</div>
-
-<!-- KONFITÜRE & NÜSSE -->
-<div class="category" data-catname="Konfitüre &amp; Nüsse" data-catcolor="#903060">
-  <div class="cat-header" onclick="toggleCat(this)" style="background:#903060;color:white;">
-    <div class="cat-header-left"><span class="cat-icon">🍓</span><span class="cat-name">Konfitüre &amp; Nüsse</span><span class="cat-count">3</span></div>
-    <span class="chevron">▼</span>
-  </div>
-  <div class="cat-items">
-    <div class="col-headers"><span class="ch-plu"></span><span class="ch-name">Artikel</span><span class="ch-bestand">Bestand</span><span class="ch-bestellen">Bestellen</span><span class="ch-notiz">Notiz</span></div>
-    <div class="item"><div class="item-main"><span class="plu-num">54</span><span class="plu-name">Marmelade (kl.)</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">55</span><span class="plu-name">Marmelade (gr.)</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-    <div class="item"><div class="item-main"><span class="plu-num">117</span><span class="plu-name">Walnüsse</span><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestand(this)"><input class="qty-input" type="number" min="0" placeholder="0" oninput="onBestellen(this)"></div><div class="item-notiz-row"><input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()"></div></div>
-  </div>
-</div>
-
-<!-- PFAND (kein Bestand/Bestellen/Notiz) -->
-<div class="category" data-catname="Pfand" data-catcolor="#555" data-no-order="true">
-  <div class="cat-header" onclick="toggleCat(this)" style="background:#555;color:white;">
-    <div class="cat-header-left"><span class="cat-icon">💳</span><span class="cat-name">Pfand</span><span class="cat-count">2</span></div>
-    <span class="chevron">▼</span>
-  </div>
-  <div class="cat-items">
-    <div class="item" style="padding:9px 14px;"><span class="plu-num">61</span><span class="plu-name">Pfand 0,15 €</span></div>
-    <div class="item" style="padding:9px 14px;"><span class="plu-num">62</span><span class="plu-name">Pfand 0,20 €</span></div>
-  </div>
-</div>
-
-<div class="no-results" id="no-results">Keine Ergebnisse gefunden.</div>
-</div>
-
-<!-- ══ ÜBERSICHTEN NEBENEINANDER ══ -->
-<div class="uebersichten">
-
-  <!-- BESTELLÜBERSICHT: Artikel mit Bestellen > 0 -->
-  <div class="summary-section bestell-section">
-    <div class="summary-header" onclick="toggleSection('bestell-body')">
-      <h2>🛒 Bestellübersicht</h2>
-      <span class="sum-count" id="bestell-count">0 Artikel</span>
-    </div>
-    <div id="bestell-body">
-      <div class="summary-empty" id="bestell-empty">Noch keine Bestellmengen eingetragen.</div>
-    </div>
-    <button class="btn-clear" onclick="clearAll()">Alles zurücksetzen</button>
-  </div>
-
-  <!-- GESAMTÜBERSICHT: alle Artikel mit irgendeinem Eintrag -->
-  <div class="summary-section gesamt-section">
-    <div class="summary-header" onclick="toggleSection('gesamt-body')">
-      <h2>📋 Gesamtübersicht</h2>
-      <span class="sum-count" id="gesamt-count">0 Artikel</span>
-    </div>
-    <div id="gesamt-body">
-      <div class="summary-empty" id="gesamt-empty">Noch keine Einträge vorhanden.</div>
-    </div>
-  </div>
-
-</div>
-
-<script>
-function toggleCat(header) {
-  header.closest('.category').classList.toggle('open');
-}
-
-function toggleSection(id) {
-  const el = document.getElementById(id);
-  el.style.display = el.style.display === 'none' ? '' : 'none';
-}
-
-// Each item has: [bestandInput, bestellenInput] as the two .qty-input elements
-function getInputs(item) {
-  const inputs = item.querySelectorAll('.qty-input');
-  return { bestand: inputs[0] || null, bestellen: inputs[1] || null };
-}
-
-function onBestand(inp) {
-  inp.style.borderColor = inp.value !== '' ? '#2D5016' : '';
+function clearBestand(){
+  document.querySelectorAll('#main .qty-input[title="Bestand"]').forEach(i=>i.value='');
   updateSummary();
 }
 
-function onBestellen(inp) {
-  const v = parseInt(inp.value, 10);
-  if (inp.value !== '' && v > 0) {
-    inp.classList.add('bestellen-filled');
-  } else {
-    inp.classList.remove('bestellen-filled');
+// ═══════════════════════════════════════════════════
+//  HISTORY (Datumsfilter)
+// ═══════════════════════════════════════════════════
+async function loadHistory(){
+  const from=document.getElementById('hist-from').value;
+  const to  =document.getElementById('hist-to').value;
+  const el  =document.getElementById('history-list');
+  el.innerHTML='<div class="tab-empty">⏳ Lade Historie…</div>';
+
+  if(sheetsOnline){
+    try{
+      const r=await apiGet({action:'getHistory', from, to});
+      historyData=r.history||[];
+    }catch(e){showToast('Sheets offline – zeige lokale Daten',true)}
   }
-  updateSummary();
-}
 
-function updateSummary() {
-  const bestellGroups = [];
-  const gesamtGroups  = [];
-
-  document.querySelectorAll('.category:not([data-no-order])').forEach(cat => {
-    const catName  = (cat.getAttribute('data-catname') || '').replace(/&amp;/g, '&');
-    const catColor = cat.getAttribute('data-catcolor') || '#555';
-    const bItems = [], gItems = [];
-
-    cat.querySelectorAll('.item').forEach(item => {
-      const inp = getInputs(item);
-      if (!inp.bestand || !inp.bestellen) return;
-
-      const bsdVal = inp.bestand.value;
-      const ordVal = inp.bestellen.value;
-      const notizEl = item.querySelector('.notiz-input');
-      const notiz = notizEl ? notizEl.value.trim() : '';
-      const plu  = item.querySelector('.plu-num').textContent;
-      const name = item.querySelector('.plu-name').textContent;
-
-      const ordNum = ordVal !== '' ? parseInt(ordVal, 10) : null;
-
-      if (ordNum !== null && ordNum > 0) {
-        bItems.push({ plu, name, bestand: bsdVal, bestellen: ordNum, notiz });
-      }
-      if (bsdVal !== '' || ordVal !== '') {
-        gItems.push({ plu, name, bestand: bsdVal, bestellen: ordVal, notiz });
-      }
-    });
-
-    if (bItems.length) bestellGroups.push({ catName, catColor, items: bItems });
-    if (gItems.length)  gesamtGroups.push({ catName, catColor, items: gItems });
+  const filtered=historyData.filter(o=>{
+    if(!o.savedAt) return true;
+    if(from && o.savedAt<from) return false;
+    if(to   && o.savedAt>to+'T23:59:59') return false;
+    return true;
   });
-
-  renderSection('bestell-body', 'bestell-empty', 'bestell-count', bestellGroups, 'bestell');
-  renderSection('gesamt-body',  'gesamt-empty',  'gesamt-count',  gesamtGroups,  'gesamt');
+  renderHistory(filtered);
 }
 
-function renderSection(bodyId, emptyId, countId, groups, mode) {
-  const body    = document.getElementById(bodyId);
-  const emptyEl = document.getElementById(emptyId);
-  const countEl = document.getElementById(countId);
+function renderHistory(orders){
+  const el=document.getElementById('history-list');
+  if(!orders.length){el.innerHTML='<div class="tab-empty">Keine Bestellungen im gewählten Zeitraum.</div>';return}
+  const gc=id=>{const c=CATEGORIES.find(c=>c.id===id);return c?c.color:'#555'};
+  el.innerHTML=orders.map((o,i)=>{
+    const dt=new Date(o.savedAt);
+    const ds=dt.toLocaleDateString('de-DE',{weekday:'short',day:'2-digit',month:'2-digit',year:'numeric'});
+    const ts=dt.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
+    const bi=(o.items||[]).filter(x=>x.bestellen>0);
+    const byCat={};
+    bi.forEach(it=>{if(!byCat[it.catid])byCat[it.catid]={name:it.catname,items:[]};byCat[it.catid].items.push(it)});
+    return `<div class="history-entry" id="he-${i}">
+      <div class="history-entry-header" onclick="document.getElementById('he-${i}').classList.toggle('open')">
+        <div>
+          <div class="hist-date">📦 ${ds} · ${ts}</div>
+          <div class="hist-meta">${bi.length} Artikel bestellt</div>
+        </div>
+        <span class="hist-chev">▼</span>
+      </div>
+      <div class="history-body">
+        ${Object.entries(byCat).map(([id,cat])=>`
+          <div class="hist-cat-label" style="background:${gc(id)}">${cat.name}</div>
+          ${cat.items.map(it=>`
+            <div class="hist-row">
+              <span class="hist-plu">${it.plu}</span>
+              <span class="hist-name">${it.name}</span>
+              ${it.bestand>0?`<span class="hist-bestand">Bestand: ${it.bestand}</span>`:''}
+              ${it.bestellen>0?`<span class="hist-badge">Bestellen: ${it.bestellen}</span>`:''}
+              ${it.notiz?`<span class="hist-notiz">💬 ${it.notiz}</span>`:''}
+            </div>`).join('')}
+        `).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
 
-  body.querySelectorAll('.summary-cat').forEach(el => el.remove());
+// ═══════════════════════════════════════════════════
+//  DURCHSCHNITT (Anzahl-Auswahl)
+// ═══════════════════════════════════════════════════
+function renderAverages(){
+  const n=parseInt(document.getElementById('avg-range').value);
+  const orders=historyData.slice(0,n);
+  const el=document.getElementById('avg-list');
+  if(!orders.length){el.innerHTML='<div class="tab-empty">Noch keine Bestellhistorie vorhanden.</div>';return}
 
-  const total = groups.reduce((s, g) => s + g.items.length, 0);
-  countEl.textContent = total + ' Artikel';
+  const acc={};
+  orders.forEach(o=>(o.items||[]).filter(x=>x.bestellen>0).forEach(it=>{
+    const k=it.catid+'|'+it.plu+'|'+it.name;
+    if(!acc[k])acc[k]={catid:it.catid,catname:it.catname,plu:it.plu,name:it.name,total:0,count:0};
+    acc[k].total+=it.bestellen; acc[k].count++;
+  }));
 
-  if (!groups.length) { emptyEl.style.display = ''; return; }
-  emptyEl.style.display = 'none';
+  if(!Object.keys(acc).length){el.innerHTML='<div class="tab-empty">Keine Daten.</div>';return}
 
-  groups.forEach(g => {
-    const catDiv = document.createElement('div');
-    catDiv.className = 'summary-cat';
-
-    const lbl = document.createElement('div');
-    lbl.className = 'summary-cat-label';
-    lbl.style.background = g.catColor;
-    lbl.textContent = g.catName;
-    catDiv.appendChild(lbl);
-
-    g.items.forEach(it => {
-      const row = document.createElement('div');
-      row.className = 'summary-row';
-
-      if (mode === 'bestell') {
-        // Bestellübersicht: PLU | Name | Bestand (info) | Bestellen-Badge | optional Notiz
-        let html = `<span class="sum-plu">${it.plu}</span><span class="sum-name">${it.name}</span>`;
-        if (it.bestand !== '') html += `<span class="sum-info">Bestand: ${it.bestand}</span>`;
-        html += `<span class="sum-badge-order">${it.bestellen}&times; bestellen</span>`;
-        if (it.notiz) html += `<span class="sum-notiz">📝 ${it.notiz}</span>`;
-        row.innerHTML = html;
-      } else {
-        // Gesamtübersicht: PLU | Name | Bestand | Bestellen | optional Notiz
-        let html = `<span class="sum-plu">${it.plu}</span><span class="sum-name">${it.name}</span>`;
-        const bsdStr = it.bestand !== '' ? `Bst: ${it.bestand}` : 'Bst: –';
-        html += `<span class="sum-info">${bsdStr}</span>`;
-        const ordNum = it.bestellen !== '' ? parseInt(it.bestellen, 10) : 0;
-        if (ordNum > 0) {
-          html += `<span class="sum-badge-qty">${ordNum}&times; bestellen</span>`;
-        } else if (it.bestellen !== '') {
-          html += `<span class="sum-info">Ord: ${it.bestellen}</span>`;
-        }
-        if (it.notiz) html += `<span class="sum-notiz">📝 ${it.notiz}</span>`;
-        row.innerHTML = html;
-      }
-
-      catDiv.appendChild(row);
-    });
-
-    body.appendChild(catDiv);
+  const byCat={};
+  Object.values(acc).forEach(v=>{
+    if(!byCat[v.catid]) byCat[v.catid]={name:v.catname,items:[]};
+    byCat[v.catid].items.push(v);
   });
+  Object.values(byCat).forEach(c=>c.items.sort((a,b)=>(b.total/b.count)-(a.total/a.count)));
+  const gc=id=>{const c=CATEGORIES.find(c=>c.id===id);return c?c.color:'#555'};
+
+  el.innerHTML=Object.entries(byCat).map(([id,cat])=>`
+    <div class="avg-cat-label" style="background:${gc(id)}">${cat.name}</div>
+    ${cat.items.map(it=>`
+      <div class="avg-row">
+        <span class="avg-plu">${it.plu}</span>
+        <span class="avg-name">${it.name}</span>
+        <span class="avg-val">Ø ${(it.total/orders.length).toFixed(1)}</span>
+        <span class="avg-n">(${it.count}× bestellt)</span>
+      </div>`).join('')}
+  `).join('');
 }
 
-function clearAll() {
-  document.querySelectorAll('.qty-input').forEach(inp => {
-    inp.value = '';
-    inp.classList.remove('bestellen-filled');
-    inp.style.borderColor = '';
-  });
-  document.querySelectorAll('.notiz-input').forEach(inp => inp.value = '');
-  updateSummary();
+// ═══════════════════════════════════════════════════
+//  TABS / TOAST
+// ═══════════════════════════════════════════════════
+function switchTab(name){
+  const names=['bestellen','uebersicht','historie','durchschnitt'];
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',names[i]===name));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  if(name==='uebersicht') updateSummary();
+  if(name==='historie')   loadHistory();
+  if(name==='durchschnitt') renderAverages();
 }
 
-function filterItems(query) {
-  query = query.trim().toLowerCase();
-  const cats = document.querySelectorAll('.category');
-  let anyVisible = false;
-
-  cats.forEach(cat => {
-    const items = cat.querySelectorAll('.item');
-    let catVisible = false;
-
-    items.forEach(item => {
-      const nameEl = item.querySelector('.plu-name');
-      const numEl  = item.querySelector('.plu-num');
-      if (!nameEl || !numEl) return;
-      const match = !query || nameEl.textContent.toLowerCase().includes(query) || numEl.textContent.includes(query);
-      item.classList.toggle('hidden', !match);
-      if (match) catVisible = true;
-    });
-
-    cat.querySelectorAll('.group-sep').forEach(sep => {
-      const siblings = Array.from(sep.parentElement.children);
-      const idx = siblings.indexOf(sep);
-      const hasBefore = siblings.slice(0, idx).some(el => el.classList.contains('item') && !el.classList.contains('hidden'));
-      const hasAfter  = siblings.slice(idx + 1).some(el => el.classList.contains('item') && !el.classList.contains('hidden')
-        && !siblings.slice(idx + 1, siblings.indexOf(el)).some(e => e.classList.contains('group-sep')));
-      sep.classList.toggle('hidden', !hasBefore || !hasAfter);
-    });
-
-    cat.classList.toggle('all-hidden', !catVisible);
-    if (catVisible) { anyVisible = true; if (query) cat.classList.add('open'); }
-  });
-
-  document.getElementById('no-results').style.display = (!anyVisible && query) ? 'block' : 'none';
+let _tt=null;
+function showToast(msg,err=false){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='show'+(err?' error':'');
+  clearTimeout(_tt); _tt=setTimeout(()=>t.className='',3200);
 }
+
+init();
 </script>
 </body>
 </html>
