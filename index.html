@@ -178,6 +178,21 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
 .no-results{text-align:center;padding:36px;color:var(--muted);font-size:.88rem;display:none}
 .tab-empty{text-align:center;padding:28px 18px;color:var(--muted);font-size:.86rem;line-height:1.6}
 
+/* ── TAG-AUSWAHL BANNER (Bestellen-Tab) ── */
+#day-banner{background:var(--card);border-radius:14px;margin-bottom:10px;padding:11px 13px;box-shadow:0 1px 6px rgba(0,0,0,.07);border:2px solid transparent;transition:border-color .2s}
+#day-banner.day-selected{border-color:#2D5016}
+.day-banner-label{font-size:.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.day-banner-chips{display:flex;gap:6px;flex-wrap:wrap}
+.day-select-chip{padding:6px 13px;border:2px solid #ddd;border-radius:20px;background:white;font-family:'DM Sans',sans-serif;font-size:.8rem;font-weight:600;color:var(--muted);cursor:pointer;transition:all .15s}
+.day-select-chip:hover{border-color:#2D5016;color:#2D5016}
+.day-select-chip.active{background:#2D5016;border-color:#2D5016;color:white}
+.day-banner-hint{font-size:.72rem;color:var(--warn);margin-top:7px;display:none}
+#day-banner.no-day-yet .day-banner-hint{display:block}
+
+/* ── DURCHSCHNITT-HINWEIS unter Artikeln ── */
+.item-avg-hint{font-size:.71rem;color:var(--muted);padding:0 12px 5px 35px;font-style:italic;line-height:1.4}
+.item-avg-hint span{display:inline-block;background:#f5f0e8;border-radius:4px;padding:1px 5px;font-style:normal;font-weight:600;color:#7A5C2E}
+
 /* ── EINKAUFSZETTEL BUTTON ── */
 .btn-print{background:#1A1208;color:white;border:none;border-radius:8px;padding:8px 14px;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;margin:10px 14px 4px;box-shadow:0 3px 0 #000;transition:all .1s}
 .btn-print:active{transform:translateY(2px);box-shadow:0 1px 0 #000}
@@ -275,6 +290,19 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
 </div>
 
 <div id="tab-bestellen" class="tab-panel active">
+  <div id="day-banner" class="no-day-yet">
+    <div class="day-banner-label">📅 Bestellung für welchen Tag?</div>
+    <div class="day-banner-chips">
+      <button class="day-select-chip" data-day="Montag"     onclick="selectOrderDay(this)">Mo</button>
+      <button class="day-select-chip" data-day="Dienstag"   onclick="selectOrderDay(this)">Di</button>
+      <button class="day-select-chip" data-day="Mittwoch"   onclick="selectOrderDay(this)">Mi</button>
+      <button class="day-select-chip" data-day="Donnerstag" onclick="selectOrderDay(this)">Do</button>
+      <button class="day-select-chip" data-day="Freitag"    onclick="selectOrderDay(this)">Fr</button>
+      <button class="day-select-chip" data-day="Samstag"    onclick="selectOrderDay(this)">Sa</button>
+      <button class="day-select-chip" data-day="Sonntag"    onclick="selectOrderDay(this)">So</button>
+    </div>
+    <div class="day-banner-hint">⚠️ Bitte erst einen Tag auswählen – die Durchschnittswerte passen sich dann an.</div>
+  </div>
   <div id="main"></div>
   <div class="no-results" id="no-results">Keine Artikel gefunden.</div>
 </div>
@@ -443,11 +471,11 @@ const CATEGORIES = [
     {plu:"65",  name:"Chicorée"},
     {plu:"88",  name:"Chinakohl"},
     {plu:"42",  name:"Kopfsalate", infoOnly:true},
-    {plu:"42",  name:"Batavia"},
-    {plu:"42",  name:"Kopfsalat"},
-    {plu:"42",  name:"Eichblatt rot"},
-    {plu:"42",  name:"Eichblatt grün"},
-    {plu:"42",  name:"Endivien"},
+    {plu:"46",  name:"Batavia"},
+    {plu:"46",  name:"Kopfsalat"},
+    {plu:"46",  name:"Eichblatt rot"},
+    {plu:"46",  name:"Eichblatt grün"},
+    {plu:"46",  name:"Endivien"},
     {plu:"122", name:"Kresse"},
     {plu:"94",  name:"Mangold"},
     {plu:"91",  name:"Pak Choi"},
@@ -558,7 +586,8 @@ const CATEGORIES = [
 let userProducts  = {};
 let historyData   = [];
 let sheetsOnline  = false;
-let selectedDay   = '';   // Wochentag für aktuellen Speichervorgang
+let selectedDay   = '';   // Wochentag für aktuellen Speichervorgang (Modal)
+let orderDay      = '';   // Wochentag aus dem Banner oben im Bestellen-Tab
 let histDayFilter = '';   // Wochentag-Filter für Historie
 let avgDayFilter  = '';   // Wochentag-Filter für Durchschnitt
 
@@ -620,9 +649,12 @@ function openDayModal() {
   });
   if (!hasEntries) { showToast('Bitte erst etwas eintragen!', true); return; }
 
-  selectedDay = '';
-  document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('selected'));
-  document.getElementById('modal-ok-btn').disabled = true;
+  // orderDay aus Banner vorbelegen falls gesetzt
+  selectedDay = orderDay || '';
+  document.querySelectorAll('.day-btn').forEach(b => {
+    b.classList.toggle('selected', !!selectedDay && b.dataset.day === selectedDay);
+  });
+  document.getElementById('modal-ok-btn').disabled = !selectedDay;
   document.getElementById('day-modal').classList.remove('hidden');
 }
 
@@ -696,11 +728,64 @@ function toggleDayChip(btn, scope) {
 }
 
 // ═══════════════════════════════════════════
+//  TAG-AUSWAHL IM BESTELLEN-TAB
+// ═══════════════════════════════════════════
+function selectOrderDay(btn) {
+  orderDay = btn.dataset.day;
+  // Banner-Chips
+  document.querySelectorAll('.day-select-chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  const banner = document.getElementById('day-banner');
+  banner.classList.add('day-selected');
+  banner.classList.remove('no-day-yet');
+  // Save-Modal vorbelegen
+  selectedDay = orderDay;
+  document.querySelectorAll('.day-btn').forEach(b => {
+    b.classList.toggle('selected', b.dataset.day === orderDay);
+  });
+  document.getElementById('modal-ok-btn').disabled = false;
+  // Durchschnitte neu rendern
+  buildUI();
+}
+
+// ═══════════════════════════════════════════
+//  DURCHSCHNITT-MAP (letzte 4 Bestellungen, gefiltert nach Tag)
+// ═══════════════════════════════════════════
+function buildAvgMap(day) {
+  // Filtere nach Tag wenn gesetzt, nehme letzte 4
+  let pool = day ? historyData.filter(o => o.weekday === day) : historyData;
+  pool = pool.slice(0, 4);
+  if (!pool.length) return {};
+  const n = pool.length;
+  const acc = {};
+  pool.forEach(o => (o.items || []).forEach(it => {
+    const k = it.catid + '|' + it.name;
+    if (!acc[k]) acc[k] = {sumBestand: 0, sumBestellen: 0, sumGesamt: 0, count: 0};
+    acc[k].sumBestand   += (it.bestand   || 0);
+    acc[k].sumBestellen += (it.bestellen || 0);
+    acc[k].sumGesamt    += (it.bestand   || 0) + (it.bestellen || 0);
+    acc[k].count++;
+  }));
+  // Normiere auf n Bestellungen (nicht nur jene wo Artikel vorkam)
+  const result = {};
+  Object.entries(acc).forEach(([k, v]) => {
+    result[k] = {
+      avgBestand:   v.sumBestand   / n,
+      avgBestellen: v.sumBestellen / n,
+      avgGesamt:    v.sumGesamt    / n,
+      count: v.count
+    };
+  });
+  return result;
+}
+
+// ═══════════════════════════════════════════
 //  BUILD UI
 // ═══════════════════════════════════════════
 function buildUI() {
   const container = document.getElementById('main');
   container.innerHTML = '';
+  const avgMap = buildAvgMap(orderDay);
 
   CATEGORIES.forEach(cat => {
     const extra = (userProducts[cat.id]||[]).filter(p => p.userAdded);
@@ -729,7 +814,7 @@ function buildUI() {
           <span class="ch-notiz">Notiz</span>
           <span class="ch-actions"></span>
         </div>`}
-        ${allP.map(p => itemHTML(p, cat)).join('')}
+        ${allP.map(p => itemHTML(p, cat, avgMap)).join('')}
         ${cat.noOrder ? '' : addFormHTML(cat.id)}
       </div>`;
 
@@ -738,7 +823,7 @@ function buildUI() {
   updateSummary();
 }
 
-function itemHTML(p, cat) {
+function itemHTML(p, cat, avgMap) {
   const n = esc(p.name);
 
   if (cat.noOrder || p.infoOnly) {
@@ -748,6 +833,22 @@ function itemHTML(p, cat) {
       <span class="plu-name">${n}</span>
       ${tag}
     </div>`;
+  }
+
+  // Durchschnitt-Hinweis aufbauen
+  let avgHint = '';
+  if (avgMap) {
+    const k = cat.id + '|' + p.name;
+    const a = avgMap[k];
+    if (a && a.avgGesamt > 0) {
+      const fmt = v => v % 1 === 0 ? String(v) : v.toFixed(1);
+      const parts = [];
+      if (a.avgBestand > 0)   parts.push(`Bestand Ø ${fmt(a.avgBestand)}`);
+      if (a.avgBestellen > 0) parts.push(`Bestellt Ø ${fmt(a.avgBestellen)}`);
+      parts.push(`= Ø ${fmt(a.avgGesamt)} gesamt`);
+      const label = orderDay ? `letzten 4 ${orderDay}-Bestellungen` : 'letzten 4 Bestellungen';
+      avgHint = `<div class="item-avg-hint">Ø ${label}: <span>${parts.join(' · ')}</span></div>`;
+    }
   }
 
   return `
@@ -765,6 +866,7 @@ function itemHTML(p, cat) {
       <div class="item-notiz-row">
         <input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()">
       </div>
+      ${avgHint}
     </div>`;
 }
 
@@ -1062,12 +1164,14 @@ function openPrintOverlay() {
   const dateStr = today.toLocaleDateString('de-DE', {weekday:'long', day:'2-digit', month:'2-digit', year:'numeric'});
   const timeStr = today.toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'});
   const totalItems = Object.values(byCat).reduce((s, c) => s + c.items.length, 0);
+  const dayLine = orderDay ? `<span>📅 Liefertag: <strong>${orderDay}</strong></span>` : '';
 
   // HTML aufbauen
   let html = `
     <div class="pd-title">Einkaufsliste Großmarkt</div>
     <div class="pd-meta">
-      <span>📅 Erstellt: ${dateStr}, ${timeStr} Uhr</span>
+      <span>Erstellt: ${dateStr}, ${timeStr} Uhr</span>
+      ${dayLine}
       <span>📦 ${totalItems} Artikel</span>
     </div>
     <hr class="pd-divider">
