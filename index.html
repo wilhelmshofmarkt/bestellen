@@ -156,15 +156,12 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
 .day-chip.all-chip.active{background:var(--warn);border-color:var(--warn);color:white}
 
 /* HISTORY */
-.history-entry{background:var(--card);border-radius:12px;margin-bottom:10px;overflow:hidden;box-shadow:0 1px 5px rgba(0,0,0,.07);border:1px solid rgba(0,0,0,.06)}
-/* FIX: header grün wenn weekday bekannt, dunkelgrau wenn unbekannt */
+.history-entry{background:var(--card);border-radius:12px;margin-bottom:10px;overflow:hidden;box-shadow:0 1px 5px rgba(0,0,0,.07);border:1px solid rgba(0,0,0,.06);position:relative}
 .history-entry-header{background:#2D5016;color:white;padding:10px 13px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none}
 .history-entry-header.no-weekday{background:#555}
-/* FIX: Wochentag groß, Datum klein darunter */
 .hist-weekday{font-weight:700;font-size:1rem;letter-spacing:.01em}
 .hist-created{font-size:.71rem;opacity:.7;margin-top:1px}
 .hist-meta{font-size:.72rem;opacity:.75;text-align:right}
-/* FIX: Pfeil als echter CSS-Pfeil mit transition */
 .hist-chev{font-size:.75rem;opacity:.8;transition:transform .25s;display:inline-block;flex-shrink:0}
 .history-entry.open .hist-chev{transform:rotate(90deg)}
 .history-body{display:none}.history-entry.open .history-body{display:block}
@@ -175,6 +172,10 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
 .hist-name{flex:1}.hist-bestand{font-size:.74rem;color:var(--muted)}
 .hist-badge{background:var(--warn);color:white;font-size:.7rem;font-weight:700;padding:1px 6px;border-radius:12px}
 .hist-notiz{font-style:italic;color:var(--muted);font-size:.72rem;width:100%;padding-left:31px}
+
+/* LÖSCH-BUTTON IN HISTORY */
+.btn-delete-order{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:7px;color:white;padding:4px 8px;font-size:.8rem;cursor:pointer;flex-shrink:0;transition:background .15s;line-height:1}
+.btn-delete-order:hover{background:rgba(192,57,43,.7);border-color:rgba(192,57,43,.8)}
 
 /* DURCHSCHNITT */
 .avg-section{background:var(--card);border-radius:12px;overflow:hidden;box-shadow:0 1px 5px rgba(0,0,0,.07);margin-bottom:12px}
@@ -371,7 +372,7 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
 </div>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx8mfYKeu6iZUoRdkLJGgM2nkxROLPXnBXbUJV34m0iz1av2nM2jBZ1TTpVWoKGf-i_/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxc73NeZ4wrD4F9cS0-YVRMwxO7mYPNyNgRYRuw5zo0pCHRvm11tmnzvGhR2Y2MaM-l/exec";
 
 const CATEGORIES = [
   {id:"aepfel", name:"Äpfel & Birnen", icon:"🍎", color:"#3A7D11", products:[
@@ -551,15 +552,12 @@ const CATEGORIES = [
 
 // ═══════════════════════════════════════════
 //  STATE
-//  FIX: rawHistory = VOLLSTÄNDIGE unveränderte Liste aus Sheets
-//       historyData = Arbeitskopie (wird bei loadHistory überschrieben)
-//       Alle Filter-Operationen arbeiten auf rawHistory!
 // ═══════════════════════════════════════════
 let userProducts  = {};
-let rawHistory    = [];   // ← immer komplett, wird nie gefiltert überschrieben
+let rawHistory    = [];
 let sheetsOnline  = false;
-let orderDay      = '';   // gewählter Tag im Bestellen-Tab-Banner
-let selectedDay   = '';   // Tag im Modal (Speichern)
+let orderDay      = '';
+let selectedDay   = '';
 let histDayFilter = '';
 let avgDayFilter  = '';
 
@@ -659,8 +657,6 @@ async function confirmSave() {
   });
 
   const order = {savedAt:new Date().toISOString(), weekday:selectedDay, items};
-
-  // FIX: rawHistory aktuell halten
   rawHistory.unshift(order);
 
   try {
@@ -670,7 +666,6 @@ async function confirmSave() {
     showToast('⚠️ Lokal gespeichert – Sheets offline', true);
   }
 
-  // Ggf. Durchschnitt-Tab aktualisieren
   if (document.getElementById('tab-durchschnitt').classList.contains('active')) {
     renderAverages();
   }
@@ -687,17 +682,14 @@ function selectOrderDay(btn) {
   btn.classList.add('active');
   document.getElementById('day-banner').classList.add('day-selected');
   document.getElementById('day-banner-hint').style.display = 'none';
-  // Modal vorbelegen
   selectedDay = orderDay;
   document.querySelectorAll('.day-btn').forEach(b => b.classList.toggle('selected', b.dataset.day===orderDay));
   document.getElementById('modal-ok-btn').disabled = false;
-  // UI neu aufbauen (Durchschnitts-Hints aktualisieren)
   buildUI();
 }
 
 // ═══════════════════════════════════════════
 //  TAG-FILTER CHIPS (Historie & Durchschnitt)
-//  FIX: Beide Scopes arbeiten direkt auf rawHistory
 // ═══════════════════════════════════════════
 function toggleDayChip(btn, scope) {
   const container = document.getElementById(scope==='hist' ? 'hist-day-chips' : 'avg-day-chips');
@@ -706,7 +698,6 @@ function toggleDayChip(btn, scope) {
 
   if (scope === 'hist') {
     histDayFilter = btn.dataset.day;
-    // Filtere rawHistory und rendere – kein neuer Fetch nötig
     renderHistory(getFilteredHistory());
   } else {
     avgDayFilter = btn.dataset.day;
@@ -715,7 +706,7 @@ function toggleDayChip(btn, scope) {
 }
 
 // ═══════════════════════════════════════════
-//  DURCHSCHNITT-MAP (für Item-Hints im Bestellen-Tab)
+//  DURCHSCHNITT-MAP
 // ═══════════════════════════════════════════
 function buildAvgMap(day) {
   let pool = day ? rawHistory.filter(o => o.weekday===day) : rawHistory;
@@ -739,7 +730,6 @@ function buildAvgMap(day) {
 
 // ═══════════════════════════════════════════
 //  VERGLEICH-MAP (für Pfeile in Übersicht)
-//  FIX: Verwendet rawHistory, nicht historyData
 // ═══════════════════════════════════════════
 function buildExtAvgMap(day) {
   let pool = day ? rawHistory.filter(o => o.weekday===day) : rawHistory;
@@ -913,7 +903,7 @@ function filterItems(q){
 }
 
 // ═══════════════════════════════════════════
-//  ADD / DELETE
+//  ADD / DELETE PRODUKTE
 // ═══════════════════════════════════════════
 async function addProduct(catId){
   const ne=document.getElementById('an-'+catId), pe=document.getElementById('ap-'+catId);
@@ -955,7 +945,6 @@ function updateSummary(){
   document.getElementById('bestell-count').textContent=bt;
   document.getElementById('gesamt-count').textContent=st;
 
-  // FIX: extAvg basiert jetzt auf rawHistory
   const extAvg = bt>0 ? buildExtAvgMap(orderDay) : null;
   renderSumList('bestell-list',bM,'order',extAvg);
   renderSumList('gesamt-list',sM,'qty',null);
@@ -1012,9 +1001,7 @@ function clearBestand(){
 }
 
 // ═══════════════════════════════════════════
-//  HISTORY
-//  FIX: loadHistory mergt neues Ergebnis in rawHistory statt zu ersetzen
-//  FIX: Tag-Filter arbeitet immer auf rawHistory
+//  HISTORY – LADEN & FILTERN
 // ═══════════════════════════════════════════
 function getFilteredHistory() {
   const from = document.getElementById('hist-from').value;
@@ -1035,11 +1022,8 @@ async function loadHistory(){
 
   if(sheetsOnline){
     try{
-      // FIX: hole ALLE Einträge im Datumsbereich (ohne Wochentag-Filter auf Server-Seite!)
-      // Wochentag-Filter passiert immer client-seitig
       const r = await apiGet({action:'gethistory', from, to});
       if(r.history && Array.isArray(r.history)){
-        // FIX: rawHistory wird ERSETZT (nicht gefiltert), da wir vollständigen Zeitraum holen
         rawHistory = r.history;
       }
     }catch(e){ showToast('Sheets offline – zeige lokale Daten', true); }
@@ -1049,9 +1033,7 @@ async function loadHistory(){
 }
 
 // ═══════════════════════════════════════════
-//  FIX: Datum-Display komplett überarbeitet
-//  → Wochentag groß (das IST die Kerninfo)
-//  → savedAt klein darunter ("Erstellt am …")
+//  HISTORY – RENDERN (mit Lösch-Button)
 // ═══════════════════════════════════════════
 function renderHistory(orders){
   const el = document.getElementById('history-list');
@@ -1066,17 +1048,21 @@ function renderHistory(orders){
     const byCat = {};
     bi.forEach(it => { if(!byCat[it.catid])byCat[it.catid]={name:it.catname,items:[]}; byCat[it.catid].items.push(it); });
 
-    // FIX: Wochentag als Hauptinfo, Erstelldatum sekundär
     const weekdayText = o.weekday ? `📅 Liefertag: ${o.weekday}` : '📦 Kein Liefertag angegeben';
     const headerCls   = o.weekday ? '' : ' no-weekday';
+    // savedAt als data-Attribut sicher kodiert (base64) um Sonderzeichen im onclick zu vermeiden
+    const safeId = 'he-' + i;
 
-    return `<div class="history-entry" id="he-${i}">
-      <div class="history-entry-header${headerCls}" onclick="toggleHistEntry('he-${i}')">
+    return `<div class="history-entry" id="${safeId}">
+      <div class="history-entry-header${headerCls}" onclick="toggleHistEntry('${safeId}')">
         <div>
           <div class="hist-weekday">${weekdayText}</div>
           <div class="hist-created">Erstellt: ${ds}, ${ts} Uhr · ${bi.length} Artikel</div>
         </div>
-        <span class="hist-chev">▶</span>
+        <div style="display:flex;align-items:center;gap:8px">
+          <button class="btn-delete-order" onclick="event.stopPropagation();confirmDeleteOrder('${safeId}','${encodeURIComponent(o.savedAt)}')" title="Eintrag löschen">🗑️</button>
+          <span class="hist-chev">▶</span>
+        </div>
       </div>
       <div class="history-body">
         ${Object.entries(byCat).map(([id,cat]) => `
@@ -1095,21 +1081,44 @@ function renderHistory(orders){
   }).join('');
 }
 
-// FIX: separater Toggle für History-Einträge (onclick auf Element ID)
 function toggleHistEntry(id) {
   const el = document.getElementById(id);
   if(el) el.classList.toggle('open');
 }
 
 // ═══════════════════════════════════════════
+//  HISTORY – EINTRAG LÖSCHEN
+// ═══════════════════════════════════════════
+function confirmDeleteOrder(entryId, encodedSavedAt) {
+  if (!confirm('Möchtest du diese Bestellung wirklich unwiderruflich aus der Historie löschen?')) return;
+
+  const savedAt = decodeURIComponent(encodedSavedAt);
+
+  // Optimistic UI: sofort aus rawHistory entfernen und neu rendern
+  rawHistory = rawHistory.filter(o => o.savedAt !== savedAt);
+  renderHistory(getFilteredHistory());
+  renderAverages();
+
+  // API-Call zum Löschen im Sheet
+  fetch(SCRIPT_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    body: JSON.stringify({ action: 'deleteorder', savedAt: savedAt })
+  }).then(() => {
+    showToast('🗑️ Bestellung gelöscht');
+  }).catch(err => {
+    console.error('Löschfehler:', err);
+    showToast('Fehler beim Löschen', true);
+  });
+}
+
+// ═══════════════════════════════════════════
 //  DURCHSCHNITT
-//  FIX: Basiert auf rawHistory, korrekte Filterlogik
 // ═══════════════════════════════════════════
 function renderAverages(){
   const n  = parseInt(document.getElementById('avg-range').value);
   const el = document.getElementById('avg-list');
 
-  // FIX: Erst Tag filtern auf rawHistory, dann begrenzen
   let pool = avgDayFilter ? rawHistory.filter(o => o.weekday===avgDayFilter) : rawHistory;
   const orders = pool.slice(0, n);
 
