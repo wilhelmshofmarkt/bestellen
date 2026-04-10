@@ -22,7 +22,14 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
 .btn-primary{background:var(--warn);color:white;border:none;border-radius:8px;padding:8px 13px;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;white-space:nowrap;box-shadow:0 3px 0 #9c5e06;transition:all .1s}
 .btn-primary:active{transform:translateY(2px);box-shadow:0 1px 0 #9c5e06}
 .btn-primary:disabled{opacity:.55;cursor:not-allowed}
+.btn-primary.edit-mode{background:#1A6BA0;box-shadow:0 3px 0 #0f4d78}
+.btn-primary.edit-mode:active{box-shadow:0 1px 0 #0f4d78}
 #status-bar{background:rgba(0,0,0,.25);padding:2px 13px;font-size:.68rem;color:rgba(255,255,255,.75);text-align:right}
+
+/* EDIT MODE BANNER */
+#edit-mode-banner{display:none;background:#1A6BA0;color:white;padding:8px 14px;font-size:.8rem;font-weight:600;align-items:center;justify-content:space-between;gap:8px}
+#edit-mode-banner.visible{display:flex}
+.btn-cancel-edit{background:rgba(255,255,255,.2);color:white;border:1.5px solid rgba(255,255,255,.4);border-radius:7px;padding:4px 10px;font-family:'DM Sans',sans-serif;font-size:.77rem;cursor:pointer}
 
 /* MODAL */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:500;display:flex;align-items:flex-end;justify-content:center}
@@ -84,6 +91,7 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
 .qty-input::-webkit-outer-spin-button,.qty-input::-webkit-inner-spin-button{-webkit-appearance:none}
 .qty-input:focus{border-color:#2D5016}
 .qty-input.filled{background:#FFF8E7;border-color:var(--warn);color:#7A4F00;font-weight:700}
+.qty-input.filled-bestand{background:#EEF8E6;border-color:#2D5016;color:#1a4008;font-weight:700}
 .notiz-input{flex:1;padding:3px 7px;border:1.5px solid rgba(0,0,0,.1);border-radius:6px;font-size:.77rem;font-family:'DM Sans',sans-serif;background:rgba(0,0,0,.02);color:var(--text);outline:none}
 .notiz-input::placeholder{color:rgba(0,0,0,.22);font-style:italic}
 .notiz-input:focus{border-color:#2D5016;background:#fff}
@@ -159,14 +167,12 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
 
 /* HISTORY */
 .history-entry{background:var(--card);border-radius:12px;margin-bottom:10px;overflow:hidden;box-shadow:0 1px 5px rgba(0,0,0,.07);border:1px solid rgba(0,0,0,.06)}
-/* FIX: header grün wenn weekday bekannt, dunkelgrau wenn unbekannt */
+.history-entry.deleted{display:none}
 .history-entry-header{background:#2D5016;color:white;padding:10px 13px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none}
 .history-entry-header.no-weekday{background:#555}
-/* FIX: Wochentag groß, Datum klein darunter */
 .hist-weekday{font-weight:700;font-size:1rem;letter-spacing:.01em}
 .hist-created{font-size:.71rem;opacity:.7;margin-top:1px}
 .hist-meta{font-size:.72rem;opacity:.75;text-align:right}
-/* FIX: Pfeil als echter CSS-Pfeil mit transition */
 .hist-chev{font-size:.75rem;opacity:.8;transition:transform .25s;display:inline-block;flex-shrink:0}
 .history-entry.open .hist-chev{transform:rotate(90deg)}
 .history-body{display:none}.history-entry.open .history-body{display:block}
@@ -177,6 +183,13 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
 .hist-name{flex:1}.hist-bestand{font-size:.74rem;color:var(--muted)}
 .hist-badge{background:var(--warn);color:white;font-size:.7rem;font-weight:700;padding:1px 6px;border-radius:12px}
 .hist-notiz{font-style:italic;color:var(--muted);font-size:.72rem;width:100%;padding-left:31px}
+.hist-edited-badge{display:inline-block;font-size:.64rem;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:8px;padding:1px 7px;margin-top:3px;font-style:italic;opacity:.85}
+/* History action buttons */
+.hist-actions{display:flex;gap:7px;padding:10px 13px;border-top:1px solid rgba(0,0,0,.07);background:rgba(0,0,0,.02)}
+.btn-hist-edit{background:#1A6BA0;color:white;border:none;border-radius:8px;padding:7px 14px;font-family:'DM Sans',sans-serif;font-size:.79rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px}
+.btn-hist-edit:hover{background:#155a8a}
+.btn-hist-delete{background:transparent;color:var(--danger);border:1.5px solid var(--danger);border-radius:8px;padding:7px 12px;font-family:'DM Sans',sans-serif;font-size:.79rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px}
+.btn-hist-delete:hover{background:#fdeaea}
 
 /* DURCHSCHNITT */
 .avg-section{background:var(--card);border-radius:12px;overflow:hidden;box-shadow:0 1px 5px rgba(0,0,0,.07);margin-bottom:12px}
@@ -226,10 +239,14 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
 @keyframes spin{to{transform:rotate(360deg)}}
 #loading p{color:var(--muted);font-size:.88rem;text-align:center;max-width:260px;line-height:1.5}
 #toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%) translateY(70px);background:#2D5016;color:white;padding:10px 20px;border-radius:20px;font-size:.83rem;font-weight:600;z-index:9999;transition:transform .3s ease;pointer-events:none;white-space:nowrap;max-width:92%;text-align:center}
-#toast.show{transform:translateX(-50%) translateY(0)}
+#toast.show{transform:translateX(-50%) translateY(0);pointer-events:auto}
 #toast.error{background:var(--danger)}
+#toast .undo-btn{background:rgba(255,255,255,.25);border:1.5px solid rgba(255,255,255,.5);border-radius:10px;color:white;font-family:'DM Sans',sans-serif;font-size:.8rem;font-weight:700;padding:3px 10px;cursor:pointer;margin-left:10px;vertical-align:middle}
 .no-results{text-align:center;padding:36px;color:var(--muted);font-size:.88rem;display:none}
 .tab-empty{text-align:center;padding:28px 18px;color:var(--muted);font-size:.86rem;line-height:1.6}
+
+/* sticky tabs shift when edit banner visible */
+.edit-active .tabs{top:131px}
 </style>
 </head>
 <body>
@@ -275,10 +292,15 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
     <div class="search-bar">
       <input type="text" id="search" placeholder="Suchen nach Name oder PLU …" oninput="filterItems(this.value)">
     </div>
-    <button class="btn-primary" onclick="openDayModal()" id="btn-save">💾 Speichern</button>
+    <button class="btn-primary" onclick="handleSaveBtn()" id="btn-save">💾 Speichern</button>
   </div>
 </header>
 <div id="status-bar">⬤ Verbinde …</div>
+<div id="edit-mode-banner">
+  <span id="edit-mode-label">✏️ Bearbeitung: …</span>
+  <span style="font-size:.7rem;opacity:.75">Tag ändern? Chip unten wählen.</span>
+  <button class="btn-cancel-edit" onclick="cancelEditMode()">✕ Abbrechen</button>
+</div>
 
 <div class="tabs">
   <button class="tab-btn active" onclick="switchTab('bestellen')">📋 Bestellen</button>
@@ -553,17 +575,50 @@ const CATEGORIES = [
 
 // ═══════════════════════════════════════════
 //  STATE
-//  FIX: rawHistory = VOLLSTÄNDIGE unveränderte Liste aus Sheets
-//       historyData = Arbeitskopie (wird bei loadHistory überschrieben)
-//       Alle Filter-Operationen arbeiten auf rawHistory!
 // ═══════════════════════════════════════════
 let userProducts  = {};
-let rawHistory    = [];   // ← immer komplett, wird nie gefiltert überschrieben
+let rawHistory    = [];   // komplette, ungefilterte Liste
 let sheetsOnline  = false;
 let orderDay      = '';   // gewählter Tag im Bestellen-Tab-Banner
-let selectedDay   = '';   // Tag im Modal (Speichern)
+let selectedDay   = '';   // Tag im Modal
 let histDayFilter = '';
 let avgDayFilter  = '';
+
+// Edit-Mode-State
+let editMode       = false;
+let editIndex      = null;
+
+// Offline-Sync-Queue: Aktionen die während Offline gesammelt werden
+const SYNC_QUEUE_KEY = 'hofmarkt_sync_queue';
+
+function getSyncQueue() {
+  try { return JSON.parse(localStorage.getItem(SYNC_QUEUE_KEY) || '[]'); } catch(e) { return []; }
+}
+function saveSyncQueue(q) {
+  try { localStorage.setItem(SYNC_QUEUE_KEY, JSON.stringify(q)); } catch(e) {}
+}
+function enqueueSyncAction(payload) {
+  const q = getSyncQueue();
+  q.push({...payload, _queuedAt: new Date().toISOString()});
+  saveSyncQueue(q);
+}
+async function flushSyncQueue() {
+  const q = getSyncQueue();
+  if (!q.length) return;
+  const failed = [];
+  for (const item of q) {
+    try {
+      const {_queuedAt, ...payload} = item;
+      await apiPost(payload);
+    } catch(e) {
+      failed.push(item);
+    }
+  }
+  saveSyncQueue(failed);
+  if (q.length > failed.length) {
+    showToast(`☁️ ${q.length - failed.length} offline-Aktion(en) synchronisiert.`);
+  }
+}
 
 // ═══════════════════════════════════════════
 //  API
@@ -575,7 +630,18 @@ async function apiGet(params) {
   return await res.json();
 }
 async function apiPost(payload) {
-  await fetch(SCRIPT_URL, {method:'POST', mode:'no-cors', body:JSON.stringify(payload)});
+  try {
+    await fetch(SCRIPT_URL, {method:'POST', mode:'no-cors', body:JSON.stringify(payload)});
+    sheetsOnline = true;
+  } catch(e) {
+    sheetsOnline = false;
+    // Offline: in Queue einreihen damit beim nächsten Start synchronisiert wird
+    const syncActions = ['saveorder','updateorder','deleteorder'];
+    if (syncActions.includes((payload.action||'').toLowerCase())) {
+      enqueueSyncAction(payload);
+    }
+    throw e; // damit der Aufrufer den Fehler weiterhin anzeigen kann
+  }
 }
 
 // ═══════════════════════════════════════════
@@ -592,6 +658,8 @@ async function init() {
     rawHistory   = d.history  || [];
     sheetsOnline = true;
     setStatus(true);
+    // Offline-Queue senden falls vorhanden
+    await flushSyncQueue();
   } catch(e) {
     sheetsOnline = false;
     setStatus(false);
@@ -610,16 +678,126 @@ function setStatus(ok) {
 }
 
 // ═══════════════════════════════════════════
-//  MODAL
+//  EDIT MODE
 // ═══════════════════════════════════════════
+function enterEditMode(histIdx) {
+  const order = rawHistory[histIdx];
+  if (!order) return;
+
+  editMode  = true;
+  editIndex = histIdx;
+
+  // UI: Banner anzeigen, Speichern-Button anpassen
+  const banner = document.getElementById('edit-mode-banner');
+  const dt   = new Date(order.savedAt);
+  const ds   = dt.toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'});
+  document.getElementById('edit-mode-label').textContent =
+    `✏️ Bearbeitung: ${order.weekday || 'Unbekannter Tag'} (${ds})`;
+  banner.classList.add('visible');
+  document.body.classList.add('edit-active');
+
+  const btn = document.getElementById('btn-save');
+  btn.textContent = '💾 Änderungen speichern';
+  btn.classList.add('edit-mode');
+
+  // Tag-Banner vorbelegen
+  orderDay = order.weekday || '';
+  selectedDay = orderDay;
+  document.querySelectorAll('.day-select-chip').forEach(c => {
+    c.classList.toggle('active', !!orderDay && c.dataset.day === orderDay);
+  });
+  if (orderDay) {
+    document.getElementById('day-banner').classList.add('day-selected');
+    document.getElementById('day-banner-hint').style.display = 'none';
+    document.querySelectorAll('.day-btn').forEach(b =>
+      b.classList.toggle('selected', b.dataset.day === orderDay));
+    document.getElementById('modal-ok-btn').disabled = false;
+  }
+
+  // Felder befüllen: erst UI bauen, dann Werte eintragen
+  buildUI();
+
+  // Werte aus dem Eintrag in die Inputs laden
+  (order.items || []).forEach(it => {
+    const itemEl = findItemElement(it.catid, it.plu, it.name);
+    if (!itemEl) return;
+    const ins = itemEl.querySelectorAll('.qty-input');
+    if (ins.length >= 2) {
+      if (it.bestand > 0) {
+        ins[0].value = it.bestand;
+        ins[0].classList.add('filled-bestand');
+      }
+      if (it.bestellen > 0) {
+        ins[1].value = it.bestellen;
+        ins[1].classList.add('filled');
+      }
+    }
+    const notizEl = itemEl.querySelector('.notiz-input');
+    if (notizEl && it.notiz) notizEl.value = it.notiz;
+    // Kategorie aufklappen wenn Wert vorhanden
+    if (it.bestand > 0 || it.bestellen > 0 || it.notiz) {
+      itemEl.closest('.category')?.classList.add('open');
+    }
+  });
+
+  updateSummary();
+  switchTab('bestellen');
+  showToast(`✏️ Bearbeitung gestartet für ${order.weekday || 'Eintrag'}`);
+}
+
+function cancelEditMode() {
+  editMode  = false;
+  editIndex = null;
+  document.getElementById('edit-mode-banner').classList.remove('visible');
+  document.body.classList.remove('edit-active');
+  const btn = document.getElementById('btn-save');
+  btn.textContent = '💾 Speichern';
+  btn.classList.remove('edit-mode');
+  buildUI(); // felder leeren
+  showToast('Bearbeitung abgebrochen.');
+}
+
+// ═══════════════════════════════════════════
+//  Helper: Item-Element anhand catid/plu/name finden
+// ═══════════════════════════════════════════
+function findItemElement(catid, plu, name) {
+  // Suche anhand catid + name (plu kann doppelt sein)
+  let found = null;
+  document.querySelectorAll('#main .category').forEach(catEl => {
+    if (catEl.dataset.catid !== catid) return;
+    catEl.querySelectorAll('.item').forEach(it => {
+      if (it.dataset.name === name) found = it;
+    });
+  });
+  return found;
+}
+
+// ═══════════════════════════════════════════
+//  MODAL & SPEICHERN
+// ═══════════════════════════════════════════
+function handleSaveBtn() {
+  if (editMode) {
+    // Im Edit-Modus: direkt speichern ohne Modal (Tag bereits bekannt)
+    confirmSave();
+  } else {
+    openDayModal();
+  }
+}
+
 function openDayModal() {
+  // Prüfen: gibt es irgendeinen Wert (Bestand ODER Bestellen)?
   let has = false;
-  document.querySelectorAll('#main .item .qty-input').forEach(i => { if (parseFloat(i.value)>0) has=true; });
-  document.querySelectorAll('#main .item .notiz-input').forEach(i => { if (i.value.trim()) has=true; });
+  document.querySelectorAll('#main .item .qty-input').forEach(i => {
+    if (parseFloat(i.value) > 0) has = true;
+  });
+  document.querySelectorAll('#main .item .notiz-input').forEach(i => {
+    if (i.value.trim()) has = true;
+  });
   if (!has) { showToast('Bitte erst etwas eintragen!', true); return; }
 
   selectedDay = orderDay || '';
-  document.querySelectorAll('.day-btn').forEach(b => b.classList.toggle('selected', !!selectedDay && b.dataset.day===selectedDay));
+  document.querySelectorAll('.day-btn').forEach(b =>
+    b.classList.toggle('selected', !!selectedDay && b.dataset.day === selectedDay));
   document.getElementById('modal-ok-btn').disabled = !selectedDay;
   document.getElementById('day-modal').classList.remove('hidden');
 }
@@ -636,14 +814,18 @@ function closeModal() {
 }
 
 // ═══════════════════════════════════════════
-//  SPEICHERN
+//  SPEICHERN (neu + überschreiben)
 // ═══════════════════════════════════════════
 async function confirmSave() {
-  if (!selectedDay) return;
+  // Im Edit-Modus: Tag aus editIndex-Eintrag behalten (selectedDay ggf. überschrieben via Banner)
+  const day = editMode ? (orderDay || rawHistory[editIndex]?.weekday || '') : selectedDay;
+  if (!day && !editMode) return;
+
   closeModal();
 
   const btn = document.getElementById('btn-save');
-  btn.disabled = true; btn.textContent = '⏳ …';
+  btn.disabled = true;
+  btn.textContent = '⏳ …';
 
   const items = [];
   document.querySelectorAll('#main .category').forEach(catEl => {
@@ -651,33 +833,128 @@ async function confirmSave() {
     catEl.querySelectorAll('.item').forEach(it => {
       const ins = it.querySelectorAll('.qty-input');
       if (!ins.length) return;
-      const bestand   = parseFloat(ins[0].value)||0;
-      const bestellen = parseFloat(ins[1].value)||0;
+      const bestand   = parseFloat(ins[0].value) || 0;
+      const bestellen = parseFloat(ins[1].value) || 0;
       const notiz     = it.querySelector('.notiz-input')?.value || '';
-      if (bestand||bestellen||notiz) {
+      if (bestand || bestellen || notiz) {
         items.push({catid, catname, plu:it.dataset.plu, name:it.dataset.name, bestand, bestellen, notiz});
       }
     });
   });
 
-  const order = {savedAt:new Date().toISOString(), weekday:selectedDay, items};
-
-  // FIX: rawHistory aktuell halten
-  rawHistory.unshift(order);
-
-  try {
-    await apiPost({action:'saveOrder', order});
-    showToast(`✅ Gespeichert für ${selectedDay}!`);
-  } catch(e) {
-    showToast('⚠️ Lokal gespeichert – Sheets offline', true);
+  if (!items.length) {
+    showToast('Bitte erst etwas eintragen!', true);
+    btn.disabled = false;
+    btn.textContent = editMode ? '💾 Änderungen speichern' : '💾 Speichern';
+    return;
   }
 
-  // Ggf. Durchschnitt-Tab aktualisieren
+  if (editMode) {
+    // ── ÜBERSCHREIBEN ──
+    const orig = rawHistory[editIndex];
+    const updatedOrder = {
+      ...orig,
+      weekday: day || orig.weekday,
+      items,
+      hasBestand:   items.some(i => i.bestand  > 0),
+      hasBestellen: items.some(i => i.bestellen > 0),
+      editedAt: new Date().toISOString()
+    };
+    rawHistory[editIndex] = updatedOrder;
+
+    try {
+      await apiPost({action:'updateOrder', index: editIndex, order: updatedOrder});
+      showToast(`✅ Eintrag aktualisiert (${updatedOrder.weekday})!`);
+    } catch(e) {
+      showToast('⚠️ Lokal aktualisiert – Sheets offline', true);
+    }
+
+    // Edit-Modus beenden
+    editMode  = false;
+    editIndex = null;
+    document.getElementById('edit-mode-banner').classList.remove('visible');
+    document.body.classList.remove('edit-active');
+    btn.textContent = '💾 Speichern';
+    btn.classList.remove('edit-mode');
+
+  } else {
+    // ── NEU ANLEGEN ──
+    // hasBestand-Flag damit das Apps Script auch reine Bestand-Einträge korrekt speichert
+    const hasBestand  = items.some(i => i.bestand  > 0);
+    const hasBestellen = items.some(i => i.bestellen > 0);
+    const order = {
+      savedAt: new Date().toISOString(),
+      weekday: day,
+      hasBestand,
+      hasBestellen,
+      items
+    };
+    rawHistory.unshift(order);
+
+    try {
+      await apiPost({action:'saveOrder', order});
+      showToast(`✅ Gespeichert für ${day}!`);
+    } catch(e) {
+      showToast('⚠️ Lokal gespeichert – Sheets offline', true);
+    }
+  }
+
+  // Durchschnitt-Tab ggf. aktualisieren
   if (document.getElementById('tab-durchschnitt').classList.contains('active')) {
     renderAverages();
   }
 
-  btn.disabled = false; btn.textContent = '💾 Speichern';
+  buildUI();
+  btn.disabled = false;
+  btn.textContent = '💾 Speichern';
+}
+
+// ═══════════════════════════════════════════
+//  SOFT-DELETE mit Undo-Toast (kein confirm)
+// ═══════════════════════════════════════════
+let _undoTimer = null;
+let _pendingDelete = null; // {histIdx, order}
+
+async function deleteHistoryEntry(histIdx) {
+  const order = rawHistory[histIdx];
+  if (!order) return;
+
+  // Sofort in der UI ausblenden
+  rawHistory[histIdx] = {...order, deleted: true};
+  renderHistory(getFilteredHistory());
+
+  // Alten Pending-Delete ohne Undo abschließen
+  if (_pendingDelete !== null) {
+    clearTimeout(_undoTimer);
+    await _commitDelete(_pendingDelete);
+  }
+
+  _pendingDelete = {histIdx, order};
+
+  // Undo-Toast für 5 Sekunden
+  showUndoToast('🗑 Eintrag gelöscht.', async () => {
+    // Undo: Eintrag wiederherstellen
+    clearTimeout(_undoTimer);
+    if (_pendingDelete) {
+      rawHistory[_pendingDelete.histIdx] = _pendingDelete.order;
+      _pendingDelete = null;
+    }
+    renderHistory(getFilteredHistory());
+    showToast('↩️ Gelöschen rückgängig gemacht.');
+  });
+
+  _undoTimer = setTimeout(async () => {
+    if (_pendingDelete) {
+      await _commitDelete(_pendingDelete);
+      _pendingDelete = null;
+    }
+  }, 5000);
+}
+
+async function _commitDelete({histIdx, order}) {
+  try {
+    await apiPost({action:'deleteOrder', savedAt: order.savedAt});
+  } catch(e) {}
 }
 
 // ═══════════════════════════════════════════
@@ -691,7 +968,8 @@ function selectOrderDay(btn) {
   document.getElementById('day-banner-hint').style.display = 'none';
   // Modal vorbelegen
   selectedDay = orderDay;
-  document.querySelectorAll('.day-btn').forEach(b => b.classList.toggle('selected', b.dataset.day===orderDay));
+  document.querySelectorAll('.day-btn').forEach(b =>
+    b.classList.toggle('selected', b.dataset.day === orderDay));
   document.getElementById('modal-ok-btn').disabled = false;
   // UI neu aufbauen (Durchschnitts-Hints aktualisieren)
   buildUI();
@@ -699,7 +977,6 @@ function selectOrderDay(btn) {
 
 // ═══════════════════════════════════════════
 //  TAG-FILTER CHIPS (Historie & Durchschnitt)
-//  FIX: Beide Scopes arbeiten direkt auf rawHistory
 // ═══════════════════════════════════════════
 function toggleDayChip(btn, scope) {
   const container = document.getElementById(scope==='hist' ? 'hist-day-chips' : 'avg-day-chips');
@@ -708,7 +985,6 @@ function toggleDayChip(btn, scope) {
 
   if (scope === 'hist') {
     histDayFilter = btn.dataset.day;
-    // Filtere rawHistory und rendere – kein neuer Fetch nötig
     renderHistory(getFilteredHistory());
   } else {
     avgDayFilter = btn.dataset.day;
@@ -717,10 +993,10 @@ function toggleDayChip(btn, scope) {
 }
 
 // ═══════════════════════════════════════════
-//  DURCHSCHNITT-MAP (für Item-Hints im Bestellen-Tab)
+//  DURCHSCHNITT-MAP (für Item-Hints)
 // ═══════════════════════════════════════════
 function buildAvgMap(day) {
-  let pool = day ? rawHistory.filter(o => o.weekday===day) : rawHistory;
+  let pool = day ? rawHistory.filter(o => !o.deleted && o.weekday===day) : rawHistory.filter(o => !o.deleted);
   pool = pool.slice(0, 4);
   if (!pool.length) return {};
   const n = pool.length;
@@ -741,10 +1017,11 @@ function buildAvgMap(day) {
 
 // ═══════════════════════════════════════════
 //  VERGLEICH-MAP (für Pfeile in Übersicht)
-//  FIX: Verwendet rawHistory, nicht historyData
 // ═══════════════════════════════════════════
 function buildExtAvgMap(day) {
-  let pool = day ? rawHistory.filter(o => o.weekday===day) : rawHistory;
+  let pool = day
+    ? rawHistory.filter(o => !o.deleted && o.weekday===day)
+    : rawHistory.filter(o => !o.deleted);
   if (!pool.length) return {};
   const n4   = Math.min(pool.length, 4);
   const r4   = pool.slice(0, n4);
@@ -768,7 +1045,7 @@ function buildExtAvgMap(day) {
   const res = {};
   Object.entries(avg4).forEach(([k, avgBest]) => {
     let trend = 'flat';
-    if (avgOld && avgOld[k]!=null) {
+    if (avgOld && avgOld[k] != null) {
       const pct = (avgBest - avgOld[k]) / (avgOld[k]||1);
       if      (pct >  0.12) trend = 'up';
       else if (pct < -0.12) trend = 'down';
@@ -896,10 +1173,17 @@ function toggleAddForm(id){
   f.classList.toggle('open');
   if(f.classList.contains('open')) document.getElementById('an-'+id).focus();
 }
-function onQty(inp,isBestell){
-  if(isBestell) inp.classList.toggle('filled',(parseFloat(inp.value)||0)>0);
+
+function onQty(inp, isBestell) {
+  const val = parseFloat(inp.value) || 0;
+  if (isBestell) {
+    inp.classList.toggle('filled', val > 0);
+  } else {
+    inp.classList.toggle('filled-bestand', val > 0);
+  }
   updateSummary();
 }
+
 function filterItems(q){
   q=q.toLowerCase().trim();let any=false;
   document.querySelectorAll('#main .category').forEach(cat=>{
@@ -915,7 +1199,7 @@ function filterItems(q){
 }
 
 // ═══════════════════════════════════════════
-//  ADD / DELETE
+//  ADD / DELETE PRODUKT
 // ═══════════════════════════════════════════
 async function addProduct(catId){
   const ne=document.getElementById('an-'+catId), pe=document.getElementById('ap-'+catId);
@@ -957,7 +1241,6 @@ function updateSummary(){
   document.getElementById('bestell-count').textContent=bt;
   document.getElementById('gesamt-count').textContent=st;
 
-  // FIX: extAvg basiert jetzt auf rawHistory
   const extAvg = bt>0 ? buildExtAvgMap(orderDay) : null;
   renderSumList('bestell-list',bM,'order',extAvg);
   renderSumList('gesamt-list',sM,'qty',null);
@@ -1009,22 +1292,21 @@ function clearBestellen(){
   updateSummary();
 }
 function clearBestand(){
-  document.querySelectorAll('#main .qty-input[title="Bestand"]').forEach(i=>i.value='');
+  document.querySelectorAll('#main .qty-input[title="Bestand"]').forEach(i=>{i.value='';i.classList.remove('filled-bestand')});
   updateSummary();
 }
 
 // ═══════════════════════════════════════════
 //  HISTORY
-//  FIX: loadHistory mergt neues Ergebnis in rawHistory statt zu ersetzen
-//  FIX: Tag-Filter arbeitet immer auf rawHistory
 // ═══════════════════════════════════════════
 function getFilteredHistory() {
   const from = document.getElementById('hist-from').value;
   const to   = document.getElementById('hist-to').value;
   return rawHistory.filter(o => {
-    if(from && o.savedAt < from) return false;
-    if(to   && o.savedAt > to+'T23:59:59') return false;
-    if(histDayFilter && o.weekday !== histDayFilter) return false;
+    if (o.deleted) return false;  // soft-deleted ausblenden
+    if (from && o.savedAt < from) return false;
+    if (to   && o.savedAt > to+'T23:59:59') return false;
+    if (histDayFilter && o.weekday !== histDayFilter) return false;
     return true;
   });
 }
@@ -1037,11 +1319,8 @@ async function loadHistory(){
 
   if(sheetsOnline){
     try{
-      // FIX: hole ALLE Einträge im Datumsbereich (ohne Wochentag-Filter auf Server-Seite!)
-      // Wochentag-Filter passiert immer client-seitig
       const r = await apiGet({action:'gethistory', from, to});
       if(r.history && Array.isArray(r.history)){
-        // FIX: rawHistory wird ERSETZT (nicht gefiltert), da wir vollständigen Zeitraum holen
         rawHistory = r.history;
       }
     }catch(e){ showToast('Sheets offline – zeige lokale Daten', true); }
@@ -1050,33 +1329,56 @@ async function loadHistory(){
   renderHistory(getFilteredHistory());
 }
 
-// ═══════════════════════════════════════════
-//  FIX: Datum-Display komplett überarbeitet
-//  → Wochentag groß (das IST die Kerninfo)
-//  → savedAt klein darunter ("Erstellt am …")
-// ═══════════════════════════════════════════
 function renderHistory(orders){
   const el = document.getElementById('history-list');
-  if(!orders.length){el.innerHTML='<div class="tab-empty">Keine Bestellungen im gewählten Zeitraum / Tag.</div>';return;}
+  if(!orders.length){
+    el.innerHTML='<div class="tab-empty">Keine Bestellungen im gewählten Zeitraum / Tag.</div>';
+    return;
+  }
   const gc = id => { const c=CATEGORIES.find(c=>c.id===id); return c?c.color:'#555'; };
 
-  el.innerHTML = orders.map((o,i) => {
+  // Wir müssen den echten Index in rawHistory kennen (für Edit/Delete)
+  el.innerHTML = orders.map(o => {
+    // Echten Index in rawHistory ermitteln
+    const histIdx = rawHistory.indexOf(o);
+
     const dt  = new Date(o.savedAt);
     const ds  = dt.toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'});
     const ts  = dt.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
-    const bi  = (o.items||[]).filter(x => x.bestellen>0);
+    // Alle Items (auch reine Bestand-Einträge)
+    const allItems = (o.items||[]).filter(x => x.bestand > 0 || x.bestellen > 0 || x.notiz);
+    const bi  = (o.items||[]).filter(x => x.bestellen > 0);
     const byCat = {};
-    bi.forEach(it => { if(!byCat[it.catid])byCat[it.catid]={name:it.catname,items:[]}; byCat[it.catid].items.push(it); });
+    allItems.forEach(it => {
+      if(!byCat[it.catid])byCat[it.catid]={name:it.catname,items:[]};
+      byCat[it.catid].items.push(it);
+    });
 
-    // FIX: Wochentag als Hauptinfo, Erstelldatum sekundär
     const weekdayText = o.weekday ? `📅 Liefertag: ${o.weekday}` : '📦 Kein Liefertag angegeben';
     const headerCls   = o.weekday ? '' : ' no-weekday';
+    const domId = `he-${histIdx}`;
 
-    return `<div class="history-entry" id="he-${i}">
-      <div class="history-entry-header${headerCls}" onclick="toggleHistEntry('he-${i}')">
+    // editedAt-Badge
+    let editedBadge = '';
+    if (o.editedAt) {
+      const edt = new Date(o.editedAt);
+      const eds = edt.toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'});
+      const ets = edt.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
+      editedBadge = `<span class="hist-edited-badge">✏️ bearbeitet ${eds}, ${ets} Uhr</span>`;
+    }
+
+    // Bestand-count
+    const bestandCount = allItems.filter(x => x.bestand > 0).length;
+    const metaParts = [];
+    if (bi.length > 0) metaParts.push(`${bi.length} Bestell-Artikel`);
+    if (bestandCount > 0) metaParts.push(`${bestandCount} Bestand`);
+
+    return `<div class="history-entry" id="${domId}">
+      <div class="history-entry-header${headerCls}" onclick="toggleHistEntry('${domId}')">
         <div>
           <div class="hist-weekday">${weekdayText}</div>
-          <div class="hist-created">Erstellt: ${ds}, ${ts} Uhr · ${bi.length} Artikel</div>
+          <div class="hist-created">Erstellt: ${ds}, ${ts} Uhr · ${metaParts.join(' · ')}</div>
+          ${editedBadge}
         </div>
         <span class="hist-chev">▶</span>
       </div>
@@ -1087,17 +1389,20 @@ function renderHistory(orders){
             <div class="hist-row">
               <span class="hist-plu">${it.plu}</span>
               <span class="hist-name">${it.name}</span>
-              ${it.bestand>0  ? `<span class="hist-bestand">Bestand: ${it.bestand}</span>`   : ''}
-              ${it.bestellen>0? `<span class="hist-badge">Bestellen: ${it.bestellen}</span>` : ''}
-              ${it.notiz      ? `<span class="hist-notiz">💬 ${it.notiz}</span>`              : ''}
+              ${it.bestand  > 0 ? `<span class="hist-bestand">Bestand: ${it.bestand}</span>`   : ''}
+              ${it.bestellen> 0 ? `<span class="hist-badge">Bestellen: ${it.bestellen}</span>` : ''}
+              ${it.notiz        ? `<span class="hist-notiz">💬 ${it.notiz}</span>`              : ''}
             </div>`).join('')}
         `).join('')}
+        <div class="hist-actions">
+          <button class="btn-hist-edit" onclick="enterEditMode(${histIdx})">✏️ Bearbeiten</button>
+          <button class="btn-hist-delete" onclick="deleteHistoryEntry(${histIdx})">🗑 Löschen</button>
+        </div>
       </div>
     </div>`;
   }).join('');
 }
 
-// FIX: separater Toggle für History-Einträge (onclick auf Element ID)
 function toggleHistEntry(id) {
   const el = document.getElementById(id);
   if(el) el.classList.toggle('open');
@@ -1105,14 +1410,14 @@ function toggleHistEntry(id) {
 
 // ═══════════════════════════════════════════
 //  DURCHSCHNITT
-//  FIX: Basiert auf rawHistory, korrekte Filterlogik
 // ═══════════════════════════════════════════
 function renderAverages(){
   const n  = parseInt(document.getElementById('avg-range').value);
   const el = document.getElementById('avg-list');
 
-  // FIX: Erst Tag filtern auf rawHistory, dann begrenzen
-  let pool = avgDayFilter ? rawHistory.filter(o => o.weekday===avgDayFilter) : rawHistory;
+  let pool = avgDayFilter
+    ? rawHistory.filter(o => !o.deleted && o.weekday===avgDayFilter)
+    : rawHistory.filter(o => !o.deleted);
   const orders = pool.slice(0, n);
 
   if(!orders.length){el.innerHTML='<div class="tab-empty">Noch keine Bestellhistorie vorhanden.</div>';return;}
@@ -1200,10 +1505,25 @@ function switchTab(name){
 }
 
 let _tt=null;
-function showToast(msg,err=false){
+function showToast(msg, err=false){
   const t=document.getElementById('toast');
   t.textContent=msg; t.className='show'+(err?' error':'');
   clearTimeout(_tt);_tt=setTimeout(()=>t.className='',3200);
+}
+function showUndoToast(msg, onUndo) {
+  const t = document.getElementById('toast');
+  t.innerHTML = '';
+  const span = document.createElement('span');
+  span.textContent = msg;
+  const btn = document.createElement('button');
+  btn.className = 'undo-btn';
+  btn.textContent = 'Rückgängig';
+  btn.onclick = () => { t.className=''; onUndo(); };
+  t.appendChild(span);
+  t.appendChild(btn);
+  t.className = 'show';
+  clearTimeout(_tt);
+  _tt = setTimeout(() => { t.className=''; t.textContent=''; }, 5200);
 }
 
 init();
