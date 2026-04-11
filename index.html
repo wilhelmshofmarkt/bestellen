@@ -247,6 +247,22 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
 
 /* sticky tabs shift when edit banner visible */
 .edit-active .tabs{top:131px}
+/* LIEFERANT-SELECT */
+.item-supplier-row{display:flex;align-items:center;gap:6px;padding:2px 0 2px 35px;flex-wrap:wrap}
+.supplier-select{flex:1;min-width:140px;max-width:220px;padding:4px 7px;border:1.5px solid rgba(0,0,0,.12);border-radius:7px;font-family:'DM Sans',sans-serif;font-size:.78rem;background:#fff;color:var(--text);outline:none;cursor:pointer}
+.supplier-select:focus{border-color:#2D5016}
+.supplier-select.has-value{border-color:#2D5016;background:#f0f7eb;color:#1E5010;font-weight:600}
+.btn-add-supplier{background:transparent;border:1.5px dashed rgba(0,0,0,.18);border-radius:7px;padding:4px 8px;font-family:'DM Sans',sans-serif;font-size:.73rem;color:var(--muted);cursor:pointer;white-space:nowrap;flex-shrink:0}
+.btn-add-supplier:hover{border-color:#2D5016;color:#2D5016}
+/* Supplier-Inline-Add */
+.supplier-add-inline{display:none;align-items:center;gap:5px;flex-wrap:wrap;padding:4px 0 2px 35px}
+.supplier-add-inline.open{display:flex}
+.supplier-add-inline input{padding:4px 8px;border:1.5px solid #c8e6c9;border-radius:7px;font-family:'DM Sans',sans-serif;font-size:.8rem;width:160px;outline:none}
+.supplier-add-inline input:focus{border-color:#2D5016}
+.btn-sup-ok{background:#2D5016;color:white;border:none;border-radius:7px;padding:4px 10px;font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:600;cursor:pointer}
+.btn-sup-cancel{background:transparent;color:var(--muted);border:1px solid #ccc;border-radius:7px;padding:4px 8px;font-family:'DM Sans',sans-serif;font-size:.78rem;cursor:pointer}
+/* print supplier section header */
+.pd-supplier-title{font-family:'DM Serif Display',serif;font-size:1.25rem;margin:22px 0 8px;padding-bottom:5px;border-bottom:2.5px solid currentColor}
 </style>
 </head>
 <body>
@@ -395,7 +411,7 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
 </div>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwehpClCkz1k9Tbnxagy1_UGfnOVSzgcAJX3LdNC6RCE-fRYenbWIUZBNb5Ngvlhw3P/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxgNu5_JCAy2PxwLNFiFCFMkJRBbc8yu4gyF9EeGvRA8doqDkcqF3sHHnPRCG58nwiv/exec";
 
 const CATEGORIES = [
   {id:"aepfel", name:"Äpfel & Birnen", icon:"🍎", color:"#3A7D11", products:[
@@ -588,6 +604,18 @@ let avgDayFilter  = '';
 let editMode       = false;
 let editIndex      = null;
 
+// ── LIEFERANTEN ──────────────────────────────
+const DEFAULT_SUPPLIERS = [
+  'Gärtnerei Bauer','Sonnenland Schmid','Rebhorn','Tsiorvas','Haap',
+  'Kiemle','Kärcher','Merz','Clauss','Felger','Bauerle','Neber',
+  'Lang','Schäffer','Binder'
+];
+let customSuppliers = [];   // vom Nutzer hinzugefügte Lieferanten (aus Sheets)
+let supplierChoices = {};   // { "catid|name" : "Lieferantenname" } – letzte Wahl
+function allSuppliers() {
+  return [...DEFAULT_SUPPLIERS, ...customSuppliers.filter(s => !DEFAULT_SUPPLIERS.includes(s))];
+}
+
 // Offline-Sync-Queue: Aktionen die während Offline gesammelt werden
 const SYNC_QUEUE_KEY = 'hofmarkt_sync_queue';
 
@@ -654,8 +682,10 @@ async function init() {
   try {
     document.getElementById('loading-msg').textContent = 'Lade Daten aus Google Sheets…';
     const d = await apiGet({action:'init'});
-    userProducts = d.products || {};
-    rawHistory   = d.history  || [];
+    userProducts    = d.products        || {};
+    rawHistory      = d.history         || [];
+    customSuppliers = d.customSuppliers || [];
+    supplierChoices = d.supplierChoices || {};
     sheetsOnline = true;
     setStatus(true);
     // Offline-Queue senden falls vorhanden
@@ -734,6 +764,11 @@ function enterEditMode(histIdx) {
     }
     const notizEl = itemEl.querySelector('.notiz-input');
     if (notizEl && it.notiz) notizEl.value = it.notiz;
+    // Lieferant wiederherstellen
+    if (it.supplier) {
+      const sel = itemEl.querySelector('.supplier-select');
+      if (sel) { sel.value = it.supplier; sel.classList.toggle('has-value', !!it.supplier); }
+    }
     // Kategorie aufklappen wenn Wert vorhanden
     if (it.bestand > 0 || it.bestellen > 0 || it.notiz) {
       itemEl.closest('.category')?.classList.add('open');
@@ -836,8 +871,9 @@ async function confirmSave() {
       const bestand   = parseFloat(ins[0].value) || 0;
       const bestellen = parseFloat(ins[1].value) || 0;
       const notiz     = it.querySelector('.notiz-input')?.value || '';
+      const supplier  = getItemSupplier(it);
       if (bestand || bestellen || notiz) {
-        items.push({catid, catname, plu:it.dataset.plu, name:it.dataset.name, bestand, bestellen, notiz});
+        items.push({catid, catname, plu:it.dataset.plu, name:it.dataset.name, bestand, bestellen, notiz, supplier});
       }
     });
   });
@@ -1134,6 +1170,14 @@ function itemHTML(p, cat, avgMap) {
     }
   }
 
+  const supKey = cat.id+'|'+p.name;
+  const lastSup = supplierChoices[supKey] || '';
+  const supOptions = allSuppliers().map(s =>
+    `<option value="${esc(s)}"${s===lastSup?' selected':''}>${esc(s)}</option>`
+  ).join('');
+  // Eindeutige ID für inline-add
+  const safeKey = (cat.id+'__'+p.name).replace(/[^a-zA-Z0-9]/g,'_');
+
   return `
     <div class="item" data-catid="${cat.id}" data-plu="${p.plu}" data-name="${n}" data-ua="${!!p.userAdded}">
       <div class="item-main">
@@ -1145,6 +1189,19 @@ function itemHTML(p, cat, avgMap) {
         </div>
         <input class="qty-input" type="number" min="0" placeholder="0" title="Bestand"   inputmode="decimal" oninput="onQty(this,false)">
         <input class="qty-input" type="number" min="0" placeholder="0" title="Bestellen" inputmode="decimal" oninput="onQty(this,true)">
+      </div>
+      <div class="item-supplier-row">
+        <select class="supplier-select${lastSup?' has-value':''}"
+                onchange="onSupplierChange(this,'${cat.id}','${n}','${safeKey}')">
+          <option value="">— Lieferant —</option>
+          ${supOptions}
+        </select>
+        <button class="btn-add-supplier" onclick="toggleSupplierAdd('${safeKey}')">+ Neu</button>
+      </div>
+      <div class="supplier-add-inline" id="sai-${safeKey}">
+        <input type="text" id="sai-inp-${safeKey}" placeholder="Lieferant …">
+        <button class="btn-sup-ok" onclick="addSupplier('${safeKey}','${cat.id}','${n}')">OK</button>
+        <button class="btn-sup-cancel" onclick="toggleSupplierAdd('${safeKey}')">✕</button>
       </div>
       <div class="item-notiz-row">
         <input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()">
@@ -1172,6 +1229,47 @@ function toggleAddForm(id){
   const f=document.getElementById('af-'+id);
   f.classList.toggle('open');
   if(f.classList.contains('open')) document.getElementById('an-'+id).focus();
+}
+
+// ─── LIEFERANTEN-FUNKTIONEN ───────────────────
+function onSupplierChange(sel, catid, name, safeKey) {
+  const val = sel.value;
+  sel.classList.toggle('has-value', !!val);
+  if (!val) return;
+  const k = catid+'|'+name;
+  supplierChoices[k] = val;
+  // Letzte Wahl ins Backend persistieren
+  apiPost({action:'saveSupplierChoice', key: k, supplier: val}).catch(()=>{});
+  updateSummary();
+}
+
+function toggleSupplierAdd(safeKey) {
+  const el = document.getElementById('sai-'+safeKey);
+  el.classList.toggle('open');
+  if (el.classList.contains('open')) document.getElementById('sai-inp-'+safeKey).focus();
+}
+
+async function addSupplier(safeKey, catid, name) {
+  const inp = document.getElementById('sai-inp-'+safeKey);
+  const val = inp.value.trim();
+  if (!val) { inp.focus(); return; }
+  if (!customSuppliers.includes(val) && !DEFAULT_SUPPLIERS.includes(val)) {
+    customSuppliers.push(val);
+    try { await apiPost({action:'saveCustomSupplier', name: val}); } catch(e) {}
+  }
+  // Direkt als Auswahl setzen
+  const k = catid+'|'+name;
+  supplierChoices[k] = val;
+  try { await apiPost({action:'saveSupplierChoice', key: k, supplier: val}); } catch(e) {}
+  inp.value = '';
+  toggleSupplierAdd(safeKey);
+  buildUI();  // Dropdown neu bauen mit neuem Lieferanten vorausgewählt
+  showToast(`✅ Lieferant "${val}" hinzugefügt & gewählt.`);
+}
+
+// Lieferant für ein Item aus dem DOM auslesen
+function getItemSupplier(itemEl) {
+  return itemEl.querySelector('.supplier-select')?.value || '';
 }
 
 function onQty(inp, isBestell) {
@@ -1391,6 +1489,7 @@ function renderHistory(orders){
               <span class="hist-name">${it.name}</span>
               ${it.bestand  > 0 ? `<span class="hist-bestand">Bestand: ${it.bestand}</span>`   : ''}
               ${it.bestellen> 0 ? `<span class="hist-badge">Bestellen: ${it.bestellen}</span>` : ''}
+              ${it.supplier     ? `<span class="info-tag">🏪 ${it.supplier}</span>`            : ''}
               ${it.notiz        ? `<span class="hist-notiz">💬 ${it.notiz}</span>`              : ''}
             </div>`).join('')}
         `).join('')}
@@ -1452,42 +1551,80 @@ function renderAverages(){
 }
 
 // ═══════════════════════════════════════════
-//  PRINT
+//  PRINT – gruppiert nach Lieferant
 // ═══════════════════════════════════════════
 function openPrintOverlay(){
-  const byCat={};
+  // Alle Items mit Bestellmenge sammeln
+  const allItems = [];
   document.querySelectorAll('#main .category').forEach(catEl=>{
-    const {catid,catname}=catEl.dataset;
+    const {catname} = catEl.dataset;
     catEl.querySelectorAll('.item').forEach(it=>{
-      const ins=it.querySelectorAll('.qty-input');if(!ins.length)return;
-      const best=parseFloat(ins[1].value)||0;if(best<=0)return;
-      const notiz=it.querySelector('.notiz-input')?.value||'';
-      if(!byCat[catid])byCat[catid]={name:catname,items:[]};
-      byCat[catid].items.push({plu:it.dataset.plu,name:it.dataset.name,qty:best,notiz});
+      const ins = it.querySelectorAll('.qty-input');
+      if (!ins.length) return;
+      const best = parseFloat(ins[1].value)||0;
+      if (best <= 0) return;
+      const notiz    = it.querySelector('.notiz-input')?.value || '';
+      const supplier = getItemSupplier(it) || '— Kein Lieferant —';
+      allItems.push({
+        plu: it.dataset.plu,
+        name: it.dataset.name,
+        catname,
+        qty: best,
+        notiz,
+        supplier
+      });
     });
   });
-  if(!Object.keys(byCat).length){showToast('Keine Bestellmengen eingetragen!',true);return;}
-  const today=new Date();
-  const ds=today.toLocaleDateString('de-DE',{weekday:'long',day:'2-digit',month:'2-digit',year:'numeric'});
-  const ts=today.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
-  const total=Object.values(byCat).reduce((s,c)=>s+c.items.length,0);
-  const dayLine=orderDay?`<span>📅 Liefertag: <strong>${orderDay}</strong></span>`:'';
-  let html=`<div class="pd-title">Einkaufsliste Großmarkt</div>
-    <div class="pd-meta"><span>Erstellt: ${ds}, ${ts} Uhr</span>${dayLine}<span>📦 ${total} Artikel</span></div>
+
+  if (!allItems.length) { showToast('Keine Bestellmengen eingetragen!', true); return; }
+
+  // Nach Lieferant gruppieren, innerhalb alphabetisch nach Name
+  const bySupplier = {};
+  allItems.forEach(it => {
+    if (!bySupplier[it.supplier]) bySupplier[it.supplier] = [];
+    bySupplier[it.supplier].push(it);
+  });
+  // Lieferanten sortieren: bekannte Lieferanten in Reihenfolge der Liste, dann eigene, dann kein Lieferant
+  const knownOrder = allSuppliers();
+  const sortedSuppliers = Object.keys(bySupplier).sort((a,b) => {
+    const ia = knownOrder.indexOf(a);
+    const ib = knownOrder.indexOf(b);
+    if (ia === -1 && ib === -1) return a.localeCompare(b, 'de');
+    if (ia === -1) return 1;
+    if (ib === -1) return -1;
+    return ia - ib;
+  });
+
+  const today = new Date();
+  const ds = today.toLocaleDateString('de-DE',{weekday:'long',day:'2-digit',month:'2-digit',year:'numeric'});
+  const ts = today.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
+  const total = allItems.length;
+  const dayLine = orderDay ? `<span>📅 Liefertag: <strong>${orderDay}</strong></span>` : '';
+
+  let html = `<div class="pd-title">Einkaufsliste Großmarkt</div>
+    <div class="pd-meta">
+      <span>Erstellt: ${ds}, ${ts} Uhr</span>${dayLine}<span>📦 ${total} Artikel</span>
+    </div>
     <hr class="pd-divider">`;
-  Object.values(byCat).forEach(cat=>{
-    html+=`<div class="pd-cat-title">${cat.name}</div>`;
-    cat.items.forEach(it=>{
-      html+=`<div class="pd-item">
+
+  // Lieferantenfarben – einfache Palette für den Druck
+  const supColors = ['#2D5016','#C0392B','#1A6BA0','#7B3FA0','#D4830A','#1E6F3E','#8B6914','#555','#903060','#4CAF50','#C0522A','#5D8233','#B7770D','#7D8C6A','#3A7D11'];
+  sortedSuppliers.forEach((sup, idx) => {
+    const color = supColors[idx % supColors.length];
+    const items = bySupplier[sup].sort((a,b) => a.name.localeCompare(b.name,'de'));
+    html += `<div class="pd-supplier-title" style="color:${color};border-color:${color}">🏪 ${sup}</div>`;
+    items.forEach(it => {
+      html += `<div class="pd-item">
         <div class="pd-check"></div>
-        <span class="pd-name">${it.name}${it.plu&&it.plu!=='–'?` <small style="color:#999;font-size:.75em">PLU ${it.plu}</small>`:''}  </span>
+        <span class="pd-name">${it.name}${it.plu&&it.plu!=='–'?` <small style="color:#999;font-size:.75em">PLU ${it.plu}</small>`:''} <small style="color:#777;font-size:.72em">${it.catname}</small></span>
         <span class="pd-qty">${it.qty} ×</span>
         ${it.notiz?`<span class="pd-notiz">💬 ${it.notiz}</span>`:''}
       </div>`;
     });
   });
-  html+=`<div class="pd-notes-section"><div class="pd-notes-label">Notizen</div><div class="pd-notes-lines">${'<div class="pd-notes-line"></div>'.repeat(4)}</div></div>`;
-  document.getElementById('print-doc').innerHTML=html;
+
+  html += `<div class="pd-notes-section"><div class="pd-notes-label">Notizen</div><div class="pd-notes-lines">${'<div class="pd-notes-line"></div>'.repeat(4)}</div></div>`;
+  document.getElementById('print-doc').innerHTML = html;
   document.getElementById('print-overlay').classList.add('visible');
 }
 
