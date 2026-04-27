@@ -688,9 +688,15 @@ async function flushSyncQueue() {
 // ═══════════════════════════════════════════
 async function apiGet(params) {
   const url = SCRIPT_URL + '?' + new URLSearchParams(params).toString() + '&t=' + Date.now();
-  const res = await fetch(url, {cache:'no-cache'});
-  if (!res.ok) throw new Error('HTTP ' + res.status);
-  return await res.json();
+  const res = await fetch(url, {cache:'no-cache', redirect:'follow'});
+  // Google Apps Script kann 302-Redirects liefern die fetch automatisch folgt;
+  // die finale Response ist dann ok:true aber manchmal text/html bei Fehlern
+  const text = await res.text();
+  try {
+    return JSON.parse(text);
+  } catch(e) {
+    throw new Error('Keine JSON-Antwort vom Server (möglicherweise falsche Script-URL oder nicht deployed)');
+  }
 }
 async function apiPost(payload) {
   try {
@@ -721,32 +727,40 @@ async function init() {
   try {
     document.getElementById('loading-msg').textContent = 'Lade Daten aus Google Sheets…';
     const d = await apiGet({action:'init'});
+    if (d.error) throw new Error(d.error);
     userProducts    = d.products        || {};
     rawHistory      = d.history         || [];
     customSuppliers = d.customSuppliers || [];
     supplierChoices = d.supplierChoices || {};
     sheetsOnline = true;
     setStatus(true);
-    // Offline-Queue senden falls vorhanden
     await flushSyncQueue();
   } catch(e) {
     sheetsOnline = false;
     setStatus(false);
-    document.getElementById('loading-msg').textContent = 'Offline-Modus aktiv.';
-    await new Promise(r => setTimeout(r, 900));
+    console.error('Init-Fehler:', e.message);
+    document.getElementById('loading-msg').textContent = 'Offline-Modus – ' + e.message;
+    await new Promise(r => setTimeout(r, 1200));
   }
 
   buildUI();
   // Autosave wiederherstellen falls vorhanden
   const snap = restoreAutosave();
   if(snap && snap.items && snap.items.length > 0) {
-    setTimeout(() => {
-      const t = new Date(snap.savedAt).toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
-      if(confirm(`💾 Nicht gespeicherter Entwurf vom ${t} Uhr gefunden (${snap.items.length} Artikel). Wiederherstellen?`)) {
-        applySnapshot(snap);
-        showToast('↩️ Entwurf wiederhergestellt.');
-      }
-    }, 400);
+    const dismissedAt = localStorage.getItem('hofmarkt_autosave_dismissed');
+    const snapTime = new Date(snap.savedAt).getTime();
+    // Nur fragen wenn der Snap neuer ist als das letzte Ablehnen
+    if (!dismissedAt || snapTime > parseInt(dismissedAt)) {
+      setTimeout(() => {
+        if(confirm(`💾 Nicht gespeicherter Entwurf vom ${new Date(snap.savedAt).toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})} Uhr gefunden (${snap.items.length} Artikel). Wiederherstellen?`)) {
+          applySnapshot(snap);
+          showToast('↩️ Entwurf wiederhergestellt.');
+        } else {
+          // Merken dass User abgelehnt hat – nicht nochmal fragen für diesen Snap
+          localStorage.setItem('hofmarkt_autosave_dismissed', snapTime.toString());
+        }
+      }, 400);
+    }
   }
   document.getElementById('loading').style.display = 'none';
 }
@@ -1039,6 +1053,7 @@ async function confirmSave() {
       await apiPost({action:'saveOrder', order});
       showToast(`✅ Gespeichert für ${day}!`);
       localStorage.removeItem(AUTOSAVE_KEY);
+      localStorage.removeItem('hofmarkt_autosave_dismissed');
     } catch(e) {
       showToast('⚠️ Lokal gespeichert – Sheets offline', true);
     }
