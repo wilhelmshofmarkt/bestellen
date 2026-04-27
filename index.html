@@ -269,6 +269,7 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
 .btn-load-template:hover{background:#2D5016;color:white}
 .btn-hist-duplicate{background:transparent;color:#1A6BA0;border:1.5px solid #1A6BA0;border-radius:8px;padding:7px 12px;font-family:'DM Sans',sans-serif;font-size:.79rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px}
 .btn-hist-duplicate:hover{background:#e3f0fa}
+.btn-import-bestand{display:block;margin:6px 14px 4px;padding:8px 14px;background:transparent;color:#2D5016;border:1.5px solid #2D5016;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;text-align:center}
 #autosave-indicator{font-size:.65rem;color:rgba(255,255,255,.6);padding:1px 13px;text-align:right;background:rgba(0,0,0,.12)}
 .template-list{max-height:260px;overflow-y:auto;margin-bottom:14px;display:flex;flex-direction:column;gap:6px}
 .template-item{padding:10px 12px;border:2px solid #ddd;border-radius:10px;background:white;cursor:pointer;text-align:left;font-family:'DM Sans',sans-serif;transition:all .15s;width:100%}
@@ -376,13 +377,17 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
     <div class="summary-section bestell-section">
       <div class="summary-header"><h2>🛒 Zu bestellen</h2><span class="sum-count" id="bestell-count">0</span></div>
       <div id="bestell-list"></div>
-      <button class="btn-print" onclick="openPrintOverlay()">🖨️ Einkaufszettel</button>
+      <button class="btn-print" onclick="shareList('bestellen')">📤 Einkaufszettel teilen</button>
       <button class="btn-clear" onclick="clearBestellen()">Bestellmengen löschen</button>
     </div>
     <div class="summary-section gesamt-section">
       <div class="summary-header"><h2>📦 Bestandsübersicht</h2><span class="sum-count" id="gesamt-count">0</span></div>
       <div id="gesamt-list"></div>
-      <button class="btn-print" onclick="openPrintOverlay('bestand')" style="background:#2D5016;box-shadow:0 3px 0 #1a3a0a">🖨️ Bestandsliste</button>
+      <button class="btn-print" onclick="shareList('bestand')" style="background:#2D5016;box-shadow:0 3px 0 #1a3a0a">💾 Bestand exportieren (.json)</button>
+      <label class="btn-import-bestand">
+        📥 Bestand importieren (.json)
+        <input type="file" accept=".json" style="display:none" onchange="importBestand(this)">
+      </label>
       <button class="btn-clear" onclick="clearBestand()">Bestände löschen</button>
     </div>
   </div>
@@ -1694,16 +1699,16 @@ function renderAverages(){
 }
 
 // ═══════════════════════════════════════════
-//  PRINT – gruppiert nach Lieferant
+//  TEILEN – Text über Web Share API
 // ═══════════════════════════════════════════
-function openPrintOverlay(mode){
+async function shareList(mode) {
   mode = mode || 'bestellen';
   const isBest = mode === 'bestellen';
 
   // Items sammeln
   const allItems = [];
   document.querySelectorAll('#main .category').forEach(catEl=>{
-    const {catname} = catEl.dataset;
+    const {catname, catid} = catEl.dataset;
     catEl.querySelectorAll('.item').forEach(it=>{
       const ins = it.querySelectorAll('.qty-input');
       if (!ins.length) return;
@@ -1712,15 +1717,8 @@ function openPrintOverlay(mode){
       const qty = isBest ? bestellen : bestand;
       if (qty <= 0) return;
       const notiz    = it.querySelector('.notiz-input')?.value || '';
-      const supplier = getItemSupplier(it) || '— Kein Lieferant —';
-      allItems.push({
-        plu: it.dataset.plu,
-        name: it.dataset.name,
-        catname,
-        qty,
-        notiz,
-        supplier
-      });
+      const supplier = getItemSupplier(it) || '';
+      allItems.push({ plu: it.dataset.plu, name: it.dataset.name, catname, catid, qty, notiz, supplier, bestand, bestellen });
     });
   });
 
@@ -1732,91 +1730,116 @@ function openPrintOverlay(mode){
   const today = new Date();
   const ds = today.toLocaleDateString('de-DE',{weekday:'long',day:'2-digit',month:'2-digit',year:'numeric'});
   const ts = today.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
-  const total = allItems.length;
-  const dayLine = orderDay ? `<span>📅 Liefertag: <strong>${orderDay}</strong></span>` : '';
+  const dayLine = orderDay ? ` · Liefertag: ${orderDay}` : '';
 
   if (isBest) {
-    // ── BESTELLEN: gruppiert nach Lieferant (bisherige Logik) ──
+    // Einkaufszettel: nach Lieferant gruppiert, als Text
     const bySupplier = {};
     allItems.forEach(it => {
-      if (!bySupplier[it.supplier]) bySupplier[it.supplier] = [];
-      bySupplier[it.supplier].push(it);
+      const sup = it.supplier || '— Kein Lieferant —';
+      if (!bySupplier[sup]) bySupplier[sup] = [];
+      bySupplier[sup].push(it);
     });
     const knownOrder = allSuppliers();
-    const sortedSuppliers = Object.keys(bySupplier).sort((a,b) => {
-      const ia = knownOrder.indexOf(a);
-      const ib = knownOrder.indexOf(b);
-      if (ia === -1 && ib === -1) return a.localeCompare(b, 'de');
-      if (ia === -1) return 1;
-      if (ib === -1) return -1;
-      return ia - ib;
+    const sortedSup = Object.keys(bySupplier).sort((a,b) => {
+      const ia=knownOrder.indexOf(a), ib=knownOrder.indexOf(b);
+      if(ia===-1&&ib===-1) return a.localeCompare(b,'de');
+      if(ia===-1) return 1; if(ib===-1) return -1;
+      return ia-ib;
     });
-
-    let html = `<div class="pd-title">Einkaufsliste Großmarkt</div>
-      <div class="pd-meta">
-        <span>Erstellt: ${ds}, ${ts} Uhr</span>${dayLine}<span>📦 ${total} Artikel</span>
-      </div>
-      <hr class="pd-divider">`;
-
-    const supColors = ['#2D5016','#C0392B','#1A6BA0','#7B3FA0','#D4830A','#1E6F3E','#8B6914','#555','#903060','#4CAF50','#C0522A','#5D8233','#B7770D','#7D8C6A','#3A7D11'];
-    sortedSuppliers.forEach((sup, idx) => {
-      const color = supColors[idx % supColors.length];
-      const items = bySupplier[sup].sort((a,b) => a.name.localeCompare(b.name,'de'));
-      html += `<div class="pd-supplier-title" style="color:${color};border-color:${color}">🏪 ${sup}</div>`;
-      items.forEach(it => {
-        html += `<div class="pd-item">
-          <div class="pd-check"></div>
-          <span class="pd-name">${it.name}${it.plu&&it.plu!=='–'?` <small style="color:#999;font-size:.75em">PLU ${it.plu}</small>`:''} <small style="color:#777;font-size:.72em">${it.catname}</small></span>
-          <span class="pd-qty">${it.qty} ×</span>
-          ${it.notiz?`<span class="pd-notiz">💬 ${it.notiz}</span>`:''}
-        </div>`;
+    let text = `🌿 Einkaufsliste Großmarkt\n${ds}, ${ts} Uhr${dayLine}\n${'─'.repeat(32)}\n`;
+    sortedSup.forEach(sup => {
+      text += `\n🏪 ${sup}\n`;
+      bySupplier[sup].sort((a,b)=>a.name.localeCompare(b.name,'de')).forEach(it => {
+        text += `  • ${it.name}${it.plu&&it.plu!=='–'?' (PLU '+it.plu+')':''}: ${it.qty}×`;
+        if(it.notiz) text += `  💬 ${it.notiz}`;
+        text += '\n';
       });
     });
-    html += `<div class="pd-notes-section"><div class="pd-notes-label">Notizen</div><div class="pd-notes-lines">${'<div class="pd-notes-line"></div>'.repeat(4)}</div></div>`;
-    document.getElementById('print-doc').innerHTML = html;
+    text += `\n${'─'.repeat(32)}\n📦 ${allItems.length} Artikel gesamt`;
+
+    if (navigator.share) {
+      await navigator.share({ title: 'Einkaufsliste Großmarkt', text });
+    } else {
+      await navigator.clipboard.writeText(text);
+      showToast('📋 In Zwischenablage kopiert!');
+    }
 
   } else {
-    // ── BESTAND: gruppiert nach Kategorie ──
+    // Bestand: immer als JSON-Datei downloaden (zuverlässig auf Android & iOS)
     const byCat = {};
     allItems.forEach(it => {
       if (!byCat[it.catname]) byCat[it.catname] = [];
       byCat[it.catname].push(it);
     });
-    // Kategoriereihenfolge aus CATEGORIES
-    const catOrder = CATEGORIES.map(c => c.name);
-    const sortedCats = Object.keys(byCat).sort((a,b) => {
-      const ia = catOrder.indexOf(a), ib = catOrder.indexOf(b);
-      if (ia===-1 && ib===-1) return a.localeCompare(b,'de');
-      if (ia===-1) return 1; if (ib===-1) return -1;
-      return ia - ib;
-    });
-    const catColors = {};
-    CATEGORIES.forEach(c => catColors[c.name] = c.color);
 
-    let html = `<div class="pd-title">Bestandsliste</div>
-      <div class="pd-meta">
-        <span>Erstellt: ${ds}, ${ts} Uhr</span>${dayLine}<span>📦 ${total} Artikel</span>
-      </div>
-      <hr class="pd-divider">`;
-
-    sortedCats.forEach(catname => {
-      const color = catColors[catname] || '#555';
-      const items = byCat[catname].sort((a,b) => a.name.localeCompare(b.name,'de'));
-      html += `<div class="pd-supplier-title" style="color:${color};border-color:${color}">${catname}</div>`;
-      items.forEach(it => {
-        html += `<div class="pd-item">
-          <div class="pd-check"></div>
-          <span class="pd-name">${it.name}${it.plu&&it.plu!=='–'?` <small style="color:#999;font-size:.75em">PLU ${it.plu}</small>`:''}</span>
-          <span class="pd-qty pd-bestand-qty">${it.qty}</span>
-          ${it.notiz?`<span class="pd-notiz">💬 ${it.notiz}</span>`:''}
-        </div>`;
-      });
-    });
-    html += `<div class="pd-notes-section"><div class="pd-notes-label">Notizen</div><div class="pd-notes-lines">${'<div class="pd-notes-line"></div>'.repeat(4)}</div></div>`;
-    document.getElementById('print-doc').innerHTML = html;
+    const exportData = {
+      type: 'hofmarkt-bestand',
+      exportedAt: today.toISOString(),
+      weekday: orderDay || null,
+      items: allItems.map(it => ({
+        catid: it.catid, catname: it.catname,
+        plu: it.plu, name: it.name,
+        bestand: it.bestand, notiz: it.notiz
+      }))
+    };
+    const json = JSON.stringify(exportData, null, 2);
+    const filename = `bestand_${today.toISOString().slice(0,10)}.json`;
+    const blob = new Blob([json], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast(`💾 "${filename}" gespeichert – dann mit 📥 wieder importieren`);
   }
+}
 
-  document.getElementById('print-overlay').classList.add('visible');
+// ═══════════════════════════════════════════
+//  BESTAND IMPORTIEREN
+// ═══════════════════════════════════════════
+function importBestand(input) {
+  const file = input.files[0];
+  if (!file) return;
+  input.value = ''; // reset so gleiche Datei nochmal wählbar
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (data.type !== 'hofmarkt-bestand' || !Array.isArray(data.items)) {
+        showToast('❌ Ungültige Datei – kein Hofmarkt-Bestand', true); return;
+      }
+      // Felder in UI eintragen
+      let loaded = 0, notFound = 0;
+      data.items.forEach(it => {
+        const itemEl = findItemElement(it.catid, it.plu, it.name);
+        if (!itemEl) { notFound++; return; }
+        const ins = itemEl.querySelectorAll('.qty-input');
+        if (ins.length >= 1 && it.bestand > 0) {
+          ins[0].value = it.bestand;
+          ins[0].classList.add('filled-bestand');
+          itemEl.closest('.category')?.classList.add('open');
+          loaded++;
+        }
+        if (it.notiz) {
+          const notizEl = itemEl.querySelector('.notiz-input');
+          if (notizEl) notizEl.value = it.notiz;
+        }
+      });
+      updateSummary();
+      scheduleAutosave();
+      const msg = notFound > 0
+        ? `✅ ${loaded} Bestände geladen · ${notFound} Artikel nicht gefunden`
+        : `✅ ${loaded} Bestände geladen`;
+      showToast(msg);
+      switchTab('bestellen');
+    } catch(err) {
+      showToast('❌ Datei konnte nicht gelesen werden', true);
+    }
+  };
+  reader.readAsText(file);
 }
 
 // ═══════════════════════════════════════════
