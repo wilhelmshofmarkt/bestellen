@@ -662,8 +662,12 @@ async function apiPost(payload) {
   try {
     await fetch(SCRIPT_URL, {method:'POST', mode:'no-cors', body:JSON.stringify(payload)});
     sheetsOnline = true;
+    // no-cors liefert immer eine opaque Response – wir können den Body nicht lesen.
+    // Für kritische Aktionen (save/update/delete) verifizieren wir daher nicht den Response,
+    // sondern verlassen uns auf die Offline-Queue als Sicherheitsnetz.
   } catch(e) {
     sheetsOnline = false;
+    setStatus(false);
     // Offline: in Queue einreihen damit beim nächsten Start synchronisiert wird
     const syncActions = ['saveorder','updateorder','deleteorder'];
     if (syncActions.includes((payload.action||'').toLowerCase())) {
@@ -768,7 +772,23 @@ function enterEditMode(histIdx) {
     // Lieferant wiederherstellen
     if (it.supplier) {
       const sel = itemEl.querySelector('.supplier-select');
-      if (sel) { sel.value = it.supplier; sel.classList.toggle('has-value', !!it.supplier); }
+      if (sel) {
+        // Sicherstellen dass der Lieferant als Option vorhanden ist,
+        // auch wenn er nicht in customSuppliers geladen wurde
+        const exists = Array.from(sel.options).some(o => o.value === it.supplier);
+        if (!exists) {
+          const opt = document.createElement('option');
+          opt.value = it.supplier;
+          opt.textContent = it.supplier;
+          sel.appendChild(opt);
+          // Auch in customSuppliers aufnehmen damit er zukünftig in der Liste erscheint
+          if (!DEFAULT_SUPPLIERS.includes(it.supplier) && !customSuppliers.includes(it.supplier)) {
+            customSuppliers.push(it.supplier);
+          }
+        }
+        sel.value = it.supplier;
+        sel.classList.toggle('has-value', !!it.supplier);
+      }
     }
     // Kategorie aufklappen wenn Wert vorhanden
     if (it.bestand > 0 || it.bestellen > 0 || it.notiz) {
@@ -1420,7 +1440,12 @@ async function loadHistory(){
     try{
       const r = await apiGet({action:'gethistory', from, to});
       if(r.history && Array.isArray(r.history)){
-        rawHistory = r.history;
+        // Merge: geladene Einträge einfügen, bestehende (z.B. lokal gespeicherte) behalten
+        const loaded = r.history;
+        const loadedKeys = new Set(loaded.map(o => o.savedAt));
+        // Lokale Einträge die noch nicht im Sheet sind (offline gespeichert), behalten
+        const localOnly = rawHistory.filter(o => !loadedKeys.has(o.savedAt));
+        rawHistory = [...loaded, ...localOnly].sort((a,b) => b.savedAt.localeCompare(a.savedAt));
       }
     }catch(e){ showToast('Sheets offline – zeige lokale Daten', true); }
   }
