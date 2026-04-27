@@ -221,6 +221,7 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
 .pd-check{width:18px;height:18px;border:2px solid #333;flex-shrink:0;border-radius:2px}
 .pd-name{flex:1;font-size:1rem;font-weight:500}
 .pd-qty{font-size:.9rem;font-weight:700;background:#f2f2f2;padding:3px 9px;border-radius:4px;white-space:nowrap}
+.pd-bestand-qty{background:#e8f5e9;color:#2D5016}
 .pd-notiz{font-size:.78rem;color:#666;font-style:italic}
 .pd-notes-section{margin-top:24px;border:1.5px solid #ccc;border-radius:6px;padding:12px 14px}
 .pd-notes-label{font-family:'DM Serif Display',serif;font-size:1rem;margin-bottom:8px}
@@ -263,6 +264,17 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
 .btn-sup-cancel{background:transparent;color:var(--muted);border:1px solid #ccc;border-radius:7px;padding:4px 8px;font-family:'DM Sans',sans-serif;font-size:.78rem;cursor:pointer}
 /* print supplier section header */
 .pd-supplier-title{font-family:'DM Serif Display',serif;font-size:1.25rem;margin:22px 0 8px;padding-bottom:5px;border-bottom:2.5px solid currentColor}
+/* Template-Vorlage & Duplikat */
+.btn-load-template{background:rgba(45,80,22,.12);color:#2D5016;border:1.5px solid #2D5016;border-radius:8px;padding:7px 13px;font-family:'DM Sans',sans-serif;font-size:.8rem;font-weight:600;cursor:pointer;width:100%;text-align:left;transition:all .15s}
+.btn-load-template:hover{background:#2D5016;color:white}
+.btn-hist-duplicate{background:transparent;color:#1A6BA0;border:1.5px solid #1A6BA0;border-radius:8px;padding:7px 12px;font-family:'DM Sans',sans-serif;font-size:.79rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px}
+.btn-hist-duplicate:hover{background:#e3f0fa}
+#autosave-indicator{font-size:.65rem;color:rgba(255,255,255,.6);padding:1px 13px;text-align:right;background:rgba(0,0,0,.12)}
+.template-list{max-height:260px;overflow-y:auto;margin-bottom:14px;display:flex;flex-direction:column;gap:6px}
+.template-item{padding:10px 12px;border:2px solid #ddd;border-radius:10px;background:white;cursor:pointer;text-align:left;font-family:'DM Sans',sans-serif;transition:all .15s;width:100%}
+.template-item:hover,.template-item.selected{border-color:#2D5016;background:#f0f7eb}
+.template-item-day{font-weight:700;font-size:.88rem;color:#2D5016}
+.template-item-meta{font-size:.73rem;color:var(--muted);margin-top:2px}
 </style>
 </head>
 <body>
@@ -281,6 +293,18 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
   <p id="loading-msg">Verbinde mit Google Sheets…</p>
 </div>
 <div id="toast"></div>
+
+<div class="modal-overlay hidden" id="template-modal">
+  <div class="modal-sheet">
+    <h2>📋 Vorlage laden</h2>
+    <p>Wähle eine Bestellung aus der Historie als Vorlage.</p>
+    <div class="template-list" id="template-list"></div>
+    <div class="modal-actions">
+      <button class="btn-modal-ok" id="template-ok-btn" onclick="confirmLoadTemplate()" disabled>✅ Laden & Tag wählen</button>
+      <button class="btn-modal-cancel" onclick="closeTemplateModal()">Abbrechen</button>
+    </div>
+  </div>
+</div>
 
 <div class="modal-overlay hidden" id="day-modal">
   <div class="modal-sheet">
@@ -312,9 +336,10 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
   </div>
 </header>
 <div id="status-bar">⬤ Verbinde …</div>
+<div id="autosave-indicator"></div>
 <div id="edit-mode-banner">
   <span id="edit-mode-label">✏️ Bearbeitung: …</span>
-  <span style="font-size:.7rem;opacity:.75">Tag ändern? Chip unten wählen.</span>
+  <span style="font-size:.7rem;opacity:.75">Tag ändern? Beim Speichern auswählen.</span>
   <button class="btn-cancel-edit" onclick="cancelEditMode()">✕ Abbrechen</button>
 </div>
 
@@ -338,6 +363,9 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
       <button class="day-select-chip" data-day="Sonntag"    onclick="selectOrderDay(this)">So</button>
     </div>
     <div class="day-banner-hint" id="day-banner-hint">⚠️ Kein Tag gewählt – Durchschnittswerte zeigen alle Tage</div>
+    <div style="margin-top:8px">
+      <button class="btn-load-template" onclick="openTemplateModal()">📋 Letzte Bestellung als Vorlage laden</button>
+    </div>
   </div>
   <div id="main"></div>
   <div class="no-results" id="no-results">Keine Artikel gefunden.</div>
@@ -354,6 +382,7 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
     <div class="summary-section gesamt-section">
       <div class="summary-header"><h2>📦 Bestandsübersicht</h2><span class="sum-count" id="gesamt-count">0</span></div>
       <div id="gesamt-list"></div>
+      <button class="btn-print" onclick="openPrintOverlay('bestand')" style="background:#2D5016;box-shadow:0 3px 0 #1a3a0a">🖨️ Bestandsliste</button>
       <button class="btn-clear" onclick="clearBestand()">Bestände löschen</button>
     </div>
   </div>
@@ -703,6 +732,17 @@ async function init() {
   }
 
   buildUI();
+  // Autosave wiederherstellen falls vorhanden
+  const snap = restoreAutosave();
+  if(snap && snap.items && snap.items.length > 0) {
+    setTimeout(() => {
+      const t = new Date(snap.savedAt).toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
+      if(confirm(`💾 Nicht gespeicherter Entwurf vom ${t} Uhr gefunden (${snap.items.length} Artikel). Wiederherstellen?`)) {
+        applySnapshot(snap);
+        showToast('↩️ Entwurf wiederhergestellt.');
+      }
+    }, 400);
+  }
   document.getElementById('loading').style.display = 'none';
 }
 
@@ -833,8 +873,13 @@ function findItemElement(catid, plu, name) {
 // ═══════════════════════════════════════════
 function handleSaveBtn() {
   if (editMode) {
-    // Im Edit-Modus: direkt speichern ohne Modal (Tag bereits bekannt)
-    confirmSave();
+    // Im Edit-Modus: Modal öffnen damit Tag geändert werden kann
+    // Tag mit dem aktuell eingestellten orderDay vorbelegen
+    selectedDay = orderDay || rawHistory[editIndex]?.weekday || '';
+    document.querySelectorAll('.day-btn').forEach(b =>
+      b.classList.toggle('selected', !!selectedDay && b.dataset.day === selectedDay));
+    document.getElementById('modal-ok-btn').disabled = !selectedDay;
+    document.getElementById('day-modal').classList.remove('hidden');
   } else {
     openDayModal();
   }
@@ -873,6 +918,43 @@ function closeModal() {
 //  SPEICHERN (neu + überschreiben)
 // ═══════════════════════════════════════════
 async function confirmSave() {
+  // ── VORLAGE LADEN (nur Tag wählen, nicht speichern) ──
+  if (_templateDayPending && _pendingTemplateIdx !== null) {
+    const day = selectedDay;
+    if (!day) return;
+    _templateDayPending = false;
+    closeModal();
+    const order = rawHistory[_pendingTemplateIdx];
+    _pendingTemplateIdx = null;
+    buildUI();
+    orderDay = day; selectedDay = day;
+    document.querySelectorAll('.day-select-chip').forEach(c =>
+      c.classList.toggle('active', c.dataset.day === day));
+    document.getElementById('day-banner').classList.add('day-selected');
+    document.getElementById('day-banner-hint').style.display = 'none';
+    document.querySelectorAll('.day-btn').forEach(b =>
+      b.classList.toggle('selected', b.dataset.day === day));
+    document.getElementById('modal-ok-btn').disabled = false;
+    updateAvgHints();
+    (order.items || []).forEach(it => {
+      const itemEl = findItemElement(it.catid, it.plu, it.name);
+      if(!itemEl) return;
+      const ins = itemEl.querySelectorAll('.qty-input');
+      if(ins.length >= 2 && it.bestellen > 0) {
+        ins[1].value = it.bestellen; ins[1].classList.add('filled');
+      }
+      if(it.supplier) {
+        const sel = itemEl.querySelector('.supplier-select');
+        if(sel) { sel.value = it.supplier; sel.classList.toggle('has-value', !!it.supplier); }
+      }
+      if(it.bestand > 0 || it.bestellen > 0)
+        itemEl.closest('.category')?.classList.add('open');
+    });
+    updateSummary(); doAutosave();
+    showToast(`📋 Vorlage geladen für ${day}!`);
+    return;
+  }
+
   // Im Edit-Modus: Tag aus editIndex-Eintrag behalten (selectedDay ggf. überschrieben via Banner)
   const day = editMode ? (orderDay || rawHistory[editIndex]?.weekday || '') : selectedDay;
   if (!day && !editMode) return;
@@ -951,6 +1033,7 @@ async function confirmSave() {
     try {
       await apiPost({action:'saveOrder', order});
       showToast(`✅ Gespeichert für ${day}!`);
+      localStorage.removeItem(AUTOSAVE_KEY);
     } catch(e) {
       showToast('⚠️ Lokal gespeichert – Sheets offline', true);
     }
@@ -1028,8 +1111,39 @@ function selectOrderDay(btn) {
   document.querySelectorAll('.day-btn').forEach(b =>
     b.classList.toggle('selected', b.dataset.day === orderDay));
   document.getElementById('modal-ok-btn').disabled = false;
-  // UI neu aufbauen (Durchschnitts-Hints aktualisieren)
-  buildUI();
+  // Nur Durchschnitts-Hints neu rendern (OHNE buildUI – würde Eingaben löschen!)
+  updateAvgHints();
+  updateSummary();
+}
+
+function updateAvgHints() {
+  const avgMap = buildAvgMap(orderDay);
+  document.querySelectorAll('#main .item').forEach(itemEl => {
+    const catid = itemEl.dataset.catid;
+    const name  = itemEl.dataset.name;
+    const k = catid + '|' + name;
+    const a = avgMap[k];
+    // Bestehendes Hint-Element finden oder erzeugen
+    let hintEl = itemEl.querySelector('.item-avg-hint');
+    if (a && a.avgGesamt > 0) {
+      const fmt = v => v%1===0 ? String(v) : v.toFixed(1);
+      const parts = [];
+      if (a.avgBestand   > 0) parts.push(`Bst. Ø ${fmt(a.avgBestand)}`);
+      if (a.avgBestellen > 0) parts.push(`Best. Ø ${fmt(a.avgBestellen)}`);
+      const lbl = orderDay ? `letzten 4 ${orderDay}-Bestellungen` : 'letzten 4 Bestellungen';
+      const html = `${lbl}: <span>${parts.join(' · ')}</span>`;
+      if (hintEl) {
+        hintEl.innerHTML = html;
+      } else {
+        hintEl = document.createElement('div');
+        hintEl.className = 'item-avg-hint';
+        hintEl.innerHTML = html;
+        itemEl.appendChild(hintEl);
+      }
+    } else if (hintEl) {
+      hintEl.remove();
+    }
+  });
 }
 
 // ═══════════════════════════════════════════
@@ -1208,8 +1322,8 @@ function itemHTML(p, cat, avgMap) {
         <div class="item-actions">
           ${p.userAdded ? `<button class="btn-del" onclick="deleteProduct('${cat.id}','${esc(p.plu)}','${n}')" title="Löschen">✕</button>` : ''}
         </div>
-        <input class="qty-input" type="number" min="0" placeholder="0" title="Bestand"   inputmode="decimal" oninput="onQty(this,false)">
-        <input class="qty-input" type="number" min="0" placeholder="0" title="Bestellen" inputmode="decimal" oninput="onQty(this,true)">
+        <input class="qty-input" type="number" min="0" placeholder="0" title="Bestand"   inputmode="numeric" pattern="[0-9]*" oninput="onQty(this,false)" onkeydown="onQtyKeydown(event,this)">
+        <input class="qty-input" type="number" min="0" placeholder="0" title="Bestellen" inputmode="numeric" pattern="[0-9]*" oninput="onQty(this,true)"  onkeydown="onQtyKeydown(event,this)">
       </div>
       <div class="item-supplier-row">
         <select class="supplier-select${lastSup?' has-value':''}"
@@ -1294,6 +1408,7 @@ function getItemSupplier(itemEl) {
 }
 
 function onQty(inp, isBestell) {
+  haptic(18);
   const val = parseFloat(inp.value) || 0;
   if (isBestell) {
     inp.classList.toggle('filled', val > 0);
@@ -1301,6 +1416,7 @@ function onQty(inp, isBestell) {
     inp.classList.toggle('filled-bestand', val > 0);
   }
   updateSummary();
+  scheduleAutosave();
 }
 
 function filterItems(q){
@@ -1521,6 +1637,7 @@ function renderHistory(orders){
         `).join('')}
         <div class="hist-actions">
           <button class="btn-hist-edit" onclick="enterEditMode(${histIdx})">✏️ Bearbeiten</button>
+          <button class="btn-hist-duplicate" onclick="loadOrderAsTemplate(${histIdx})">📋 Duplizieren</button>
           <button class="btn-hist-delete" onclick="deleteHistoryEntry(${histIdx})">🗑 Löschen</button>
         </div>
       </div>
@@ -1579,47 +1696,38 @@ function renderAverages(){
 // ═══════════════════════════════════════════
 //  PRINT – gruppiert nach Lieferant
 // ═══════════════════════════════════════════
-function openPrintOverlay(){
-  // Alle Items mit Bestellmenge sammeln
+function openPrintOverlay(mode){
+  mode = mode || 'bestellen';
+  const isBest = mode === 'bestellen';
+
+  // Items sammeln
   const allItems = [];
   document.querySelectorAll('#main .category').forEach(catEl=>{
     const {catname} = catEl.dataset;
     catEl.querySelectorAll('.item').forEach(it=>{
       const ins = it.querySelectorAll('.qty-input');
       if (!ins.length) return;
-      const best = parseFloat(ins[1].value)||0;
-      if (best <= 0) return;
+      const bestand  = parseFloat(ins[0].value)||0;
+      const bestellen= parseFloat(ins[1].value)||0;
+      const qty = isBest ? bestellen : bestand;
+      if (qty <= 0) return;
       const notiz    = it.querySelector('.notiz-input')?.value || '';
       const supplier = getItemSupplier(it) || '— Kein Lieferant —';
       allItems.push({
         plu: it.dataset.plu,
         name: it.dataset.name,
         catname,
-        qty: best,
+        qty,
         notiz,
         supplier
       });
     });
   });
 
-  if (!allItems.length) { showToast('Keine Bestellmengen eingetragen!', true); return; }
-
-  // Nach Lieferant gruppieren, innerhalb alphabetisch nach Name
-  const bySupplier = {};
-  allItems.forEach(it => {
-    if (!bySupplier[it.supplier]) bySupplier[it.supplier] = [];
-    bySupplier[it.supplier].push(it);
-  });
-  // Lieferanten sortieren: bekannte Lieferanten in Reihenfolge der Liste, dann eigene, dann kein Lieferant
-  const knownOrder = allSuppliers();
-  const sortedSuppliers = Object.keys(bySupplier).sort((a,b) => {
-    const ia = knownOrder.indexOf(a);
-    const ib = knownOrder.indexOf(b);
-    if (ia === -1 && ib === -1) return a.localeCompare(b, 'de');
-    if (ia === -1) return 1;
-    if (ib === -1) return -1;
-    return ia - ib;
-  });
+  if (!allItems.length) {
+    showToast(isBest ? 'Keine Bestellmengen eingetragen!' : 'Kein Bestand eingetragen!', true);
+    return;
+  }
 
   const today = new Date();
   const ds = today.toLocaleDateString('de-DE',{weekday:'long',day:'2-digit',month:'2-digit',year:'numeric'});
@@ -1627,30 +1735,87 @@ function openPrintOverlay(){
   const total = allItems.length;
   const dayLine = orderDay ? `<span>📅 Liefertag: <strong>${orderDay}</strong></span>` : '';
 
-  let html = `<div class="pd-title">Einkaufsliste Großmarkt</div>
-    <div class="pd-meta">
-      <span>Erstellt: ${ds}, ${ts} Uhr</span>${dayLine}<span>📦 ${total} Artikel</span>
-    </div>
-    <hr class="pd-divider">`;
-
-  // Lieferantenfarben – einfache Palette für den Druck
-  const supColors = ['#2D5016','#C0392B','#1A6BA0','#7B3FA0','#D4830A','#1E6F3E','#8B6914','#555','#903060','#4CAF50','#C0522A','#5D8233','#B7770D','#7D8C6A','#3A7D11'];
-  sortedSuppliers.forEach((sup, idx) => {
-    const color = supColors[idx % supColors.length];
-    const items = bySupplier[sup].sort((a,b) => a.name.localeCompare(b.name,'de'));
-    html += `<div class="pd-supplier-title" style="color:${color};border-color:${color}">🏪 ${sup}</div>`;
-    items.forEach(it => {
-      html += `<div class="pd-item">
-        <div class="pd-check"></div>
-        <span class="pd-name">${it.name}${it.plu&&it.plu!=='–'?` <small style="color:#999;font-size:.75em">PLU ${it.plu}</small>`:''} <small style="color:#777;font-size:.72em">${it.catname}</small></span>
-        <span class="pd-qty">${it.qty} ×</span>
-        ${it.notiz?`<span class="pd-notiz">💬 ${it.notiz}</span>`:''}
-      </div>`;
+  if (isBest) {
+    // ── BESTELLEN: gruppiert nach Lieferant (bisherige Logik) ──
+    const bySupplier = {};
+    allItems.forEach(it => {
+      if (!bySupplier[it.supplier]) bySupplier[it.supplier] = [];
+      bySupplier[it.supplier].push(it);
     });
-  });
+    const knownOrder = allSuppliers();
+    const sortedSuppliers = Object.keys(bySupplier).sort((a,b) => {
+      const ia = knownOrder.indexOf(a);
+      const ib = knownOrder.indexOf(b);
+      if (ia === -1 && ib === -1) return a.localeCompare(b, 'de');
+      if (ia === -1) return 1;
+      if (ib === -1) return -1;
+      return ia - ib;
+    });
 
-  html += `<div class="pd-notes-section"><div class="pd-notes-label">Notizen</div><div class="pd-notes-lines">${'<div class="pd-notes-line"></div>'.repeat(4)}</div></div>`;
-  document.getElementById('print-doc').innerHTML = html;
+    let html = `<div class="pd-title">Einkaufsliste Großmarkt</div>
+      <div class="pd-meta">
+        <span>Erstellt: ${ds}, ${ts} Uhr</span>${dayLine}<span>📦 ${total} Artikel</span>
+      </div>
+      <hr class="pd-divider">`;
+
+    const supColors = ['#2D5016','#C0392B','#1A6BA0','#7B3FA0','#D4830A','#1E6F3E','#8B6914','#555','#903060','#4CAF50','#C0522A','#5D8233','#B7770D','#7D8C6A','#3A7D11'];
+    sortedSuppliers.forEach((sup, idx) => {
+      const color = supColors[idx % supColors.length];
+      const items = bySupplier[sup].sort((a,b) => a.name.localeCompare(b.name,'de'));
+      html += `<div class="pd-supplier-title" style="color:${color};border-color:${color}">🏪 ${sup}</div>`;
+      items.forEach(it => {
+        html += `<div class="pd-item">
+          <div class="pd-check"></div>
+          <span class="pd-name">${it.name}${it.plu&&it.plu!=='–'?` <small style="color:#999;font-size:.75em">PLU ${it.plu}</small>`:''} <small style="color:#777;font-size:.72em">${it.catname}</small></span>
+          <span class="pd-qty">${it.qty} ×</span>
+          ${it.notiz?`<span class="pd-notiz">💬 ${it.notiz}</span>`:''}
+        </div>`;
+      });
+    });
+    html += `<div class="pd-notes-section"><div class="pd-notes-label">Notizen</div><div class="pd-notes-lines">${'<div class="pd-notes-line"></div>'.repeat(4)}</div></div>`;
+    document.getElementById('print-doc').innerHTML = html;
+
+  } else {
+    // ── BESTAND: gruppiert nach Kategorie ──
+    const byCat = {};
+    allItems.forEach(it => {
+      if (!byCat[it.catname]) byCat[it.catname] = [];
+      byCat[it.catname].push(it);
+    });
+    // Kategoriereihenfolge aus CATEGORIES
+    const catOrder = CATEGORIES.map(c => c.name);
+    const sortedCats = Object.keys(byCat).sort((a,b) => {
+      const ia = catOrder.indexOf(a), ib = catOrder.indexOf(b);
+      if (ia===-1 && ib===-1) return a.localeCompare(b,'de');
+      if (ia===-1) return 1; if (ib===-1) return -1;
+      return ia - ib;
+    });
+    const catColors = {};
+    CATEGORIES.forEach(c => catColors[c.name] = c.color);
+
+    let html = `<div class="pd-title">Bestandsliste</div>
+      <div class="pd-meta">
+        <span>Erstellt: ${ds}, ${ts} Uhr</span>${dayLine}<span>📦 ${total} Artikel</span>
+      </div>
+      <hr class="pd-divider">`;
+
+    sortedCats.forEach(catname => {
+      const color = catColors[catname] || '#555';
+      const items = byCat[catname].sort((a,b) => a.name.localeCompare(b.name,'de'));
+      html += `<div class="pd-supplier-title" style="color:${color};border-color:${color}">${catname}</div>`;
+      items.forEach(it => {
+        html += `<div class="pd-item">
+          <div class="pd-check"></div>
+          <span class="pd-name">${it.name}${it.plu&&it.plu!=='–'?` <small style="color:#999;font-size:.75em">PLU ${it.plu}</small>`:''}</span>
+          <span class="pd-qty pd-bestand-qty">${it.qty}</span>
+          ${it.notiz?`<span class="pd-notiz">💬 ${it.notiz}</span>`:''}
+        </div>`;
+      });
+    });
+    html += `<div class="pd-notes-section"><div class="pd-notes-label">Notizen</div><div class="pd-notes-lines">${'<div class="pd-notes-line"></div>'.repeat(4)}</div></div>`;
+    document.getElementById('print-doc').innerHTML = html;
+  }
+
   document.getElementById('print-overlay').classList.add('visible');
 }
 
@@ -1689,7 +1854,180 @@ function showUndoToast(msg, onUndo) {
   _tt = setTimeout(() => { t.className=''; t.textContent=''; }, 5200);
 }
 
-init();
-</script>
+// ═══════════════════════════════════════════
+//  HAPTISCHES FEEDBACK
+// ═══════════════════════════════════════════
+function haptic(ms=18){
+  try { if(navigator.vibrate) navigator.vibrate(ms); } catch(e){}
+}
+
+// ═══════════════════════════════════════════
+//  ENTER → nächste Menge (Bestellen-Input)
+// ═══════════════════════════════════════════
+function onQtyKeydown(e, inp) {
+  haptic(18);
+  if(e.key !== 'Enter') return;
+  e.preventDefault();
+  // Alle sichtbaren qty-inputs im #main sammeln
+  const all = Array.from(document.querySelectorAll('#main .item:not(.hidden) .qty-input'));
+  const idx = all.indexOf(inp);
+  if(idx >= 0 && idx < all.length - 1) {
+    const next = all[idx + 1];
+    // Kategorie aufklappen falls nötig
+    next.closest('.category')?.classList.add('open');
+    next.focus();
+    next.select();
+  }
+}
+
+// ═══════════════════════════════════════════
+//  AUTOSAVE (localStorage)
+// ═══════════════════════════════════════════
+const AUTOSAVE_KEY = 'hofmarkt_autosave';
+let _autosaveTimer = null;
+
+function scheduleAutosave() {
+  clearTimeout(_autosaveTimer);
+  _autosaveTimer = setTimeout(doAutosave, 800);
+}
+
+function doAutosave() {
+  const items = [];
+  document.querySelectorAll('#main .category').forEach(catEl => {
+    const {catid, catname} = catEl.dataset;
+    catEl.querySelectorAll('.item').forEach(it => {
+      const ins = it.querySelectorAll('.qty-input');
+      if(!ins.length) return;
+      const bestand   = parseFloat(ins[0].value) || 0;
+      const bestellen = parseFloat(ins[1].value) || 0;
+      const notiz     = it.querySelector('.notiz-input')?.value || '';
+      const supplier  = getItemSupplier(it);
+      if(bestand || bestellen || notiz) {
+        items.push({catid, catname, plu:it.dataset.plu, name:it.dataset.name, bestand, bestellen, notiz, supplier});
+      }
+    });
+  });
+  const snap = {savedAt: new Date().toISOString(), weekday: orderDay, items};
+  try {
+    localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(snap));
+    const ind = document.getElementById('autosave-indicator');
+    if(ind && items.length > 0) {
+      const t = new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
+      ind.textContent = `💾 Autosave ${t} – ${items.length} Artikel`;
+    }
+  } catch(e) {}
+}
+
+function restoreAutosave() {
+  try {
+    const raw = localStorage.getItem(AUTOSAVE_KEY);
+    if(!raw) return false;
+    const snap = JSON.parse(raw);
+    if(!snap || !snap.items || !snap.items.length) return false;
+    // Prüfen ob Autosave frisch ist (max 24h)
+    if(snap.savedAt && Date.now() - new Date(snap.savedAt).getTime() > 86400000) return false;
+    return snap;
+  } catch(e) { return false; }
+}
+
+function applySnapshot(snap) {
+  if(snap.weekday) {
+    orderDay = snap.weekday;
+    selectedDay = orderDay;
+    document.querySelectorAll('.day-select-chip').forEach(c =>
+      c.classList.toggle('active', c.dataset.day === orderDay));
+    document.getElementById('day-banner').classList.add('day-selected');
+    document.getElementById('day-banner-hint').style.display = 'none';
+    document.querySelectorAll('.day-btn').forEach(b =>
+      b.classList.toggle('selected', b.dataset.day === orderDay));
+    document.getElementById('modal-ok-btn').disabled = false;
+    updateAvgHints();
+  }
+  (snap.items || []).forEach(it => {
+    const itemEl = findItemElement(it.catid, it.plu, it.name);
+    if(!itemEl) return;
+    const ins = itemEl.querySelectorAll('.qty-input');
+    if(ins.length >= 2) {
+      if(it.bestand  > 0){ ins[0].value = it.bestand;  ins[0].classList.add('filled-bestand'); }
+      if(it.bestellen> 0){ ins[1].value = it.bestellen; ins[1].classList.add('filled'); }
+    }
+    const notizEl = itemEl.querySelector('.notiz-input');
+    if(notizEl && it.notiz) notizEl.value = it.notiz;
+    if(it.bestand > 0 || it.bestellen > 0 || it.notiz)
+      itemEl.closest('.category')?.classList.add('open');
+  });
+  updateSummary();
+}
+
+// ═══════════════════════════════════════════
+//  VORLAGE LADEN (aus Historie)
+// ═══════════════════════════════════════════
+let _templateSelectedIdx = null;
+
+function openTemplateModal() {
+  const avail = rawHistory.filter(o => !o.deleted && o.items && o.items.length > 0).slice(0, 15);
+  if(!avail.length) { showToast('Noch keine Bestellungen in der Historie.', true); return; }
+
+  _templateSelectedIdx = null;
+  document.getElementById('template-ok-btn').disabled = true;
+
+  const listEl = document.getElementById('template-list');
+  listEl.innerHTML = avail.map((o, i) => {
+    const realIdx = rawHistory.indexOf(o);
+    const dt = new Date(o.savedAt);
+    const ds = dt.toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'});
+    const ts = dt.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
+    const bestCount = (o.items||[]).filter(x => x.bestellen > 0).length;
+    return `<button class="template-item" data-real-idx="${realIdx}" onclick="selectTemplate(this,${realIdx})">
+      <div class="template-item-day">${o.weekday ? '📅 ' + o.weekday : '📦 Kein Tag'}</div>
+      <div class="template-item-meta">${ds}, ${ts} · ${bestCount} Bestell-Artikel</div>
+    </button>`;
+  }).join('');
+
+  document.getElementById('template-modal').classList.remove('hidden');
+}
+
+function selectTemplate(btn, realIdx) {
+  document.querySelectorAll('.template-item').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  _templateSelectedIdx = realIdx;
+  document.getElementById('template-ok-btn').disabled = false;
+  haptic(25);
+}
+
+function closeTemplateModal() {
+  document.getElementById('template-modal').classList.add('hidden');
+  _templateSelectedIdx = null;
+}
+
+function confirmLoadTemplate() {
+  if(_templateSelectedIdx === null) return;
+  closeTemplateModal();
+  // Tag-Modal öffnen damit Nutzer den Tag wählt, dann Vorlage anwenden
+  _pendingTemplateIdx = _templateSelectedIdx;
+  selectedDay = '';
+  document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('modal-ok-btn').disabled = true;
+  // Überschreibe confirmSave temporär nicht – wir nutzen eigenes flag
+  document.getElementById('day-modal').classList.remove('hidden');
+  // Flag setzen damit confirmSave weiß: Vorlage laden statt speichern
+  _templateDayPending = true;
+}
+
+// Flag für Vorlage-Lademodus
+let _pendingTemplateIdx  = null;
+let _templateDayPending  = false;
+
+// loadOrderAsTemplate: direkt aus Historie → Tag wählen → in Bestellen laden (kein Speichern)
+function loadOrderAsTemplate(histIdx) {
+  _pendingTemplateIdx = histIdx;
+  _templateDayPending = true;
+  selectedDay = '';
+  document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('modal-ok-btn').disabled = true;
+  document.getElementById('day-modal').classList.remove('hidden');
+}
+
+init();</script>
 </body>
 </html>
