@@ -446,7 +446,7 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
 </div>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyeEVUipOKdh1uw6LPX1J3RHQeb7nzcBJPtZM1x_yMrpCYFdvz9cqyc61dG__pMG6FQ/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx_jqAabX2CN9eIi1G04280U3qz8l4J-w3YAdplEIIS0nZibpKRMahKh3qjPNIUM28c/exec";
 
 const CATEGORIES = [
   {id:"aepfel", name:"Äpfel & Birnen", icon:"🍎", color:"#3A7D11", products:[
@@ -689,14 +689,18 @@ async function flushSyncQueue() {
 // ═══════════════════════════════════════════
 async function apiGet(params) {
   const url = SCRIPT_URL + '?' + new URLSearchParams(params).toString() + '&t=' + Date.now();
-  const res = await fetch(url, {cache:'no-cache', redirect:'follow'});
-  // Google Apps Script kann 302-Redirects liefern die fetch automatisch folgt;
-  // die finale Response ist dann ok:true aber manchmal text/html bei Fehlern
-  const text = await res.text();
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 15000);
   try {
-    return JSON.parse(text);
+    const res = await fetch(url, {cache:'no-cache', redirect:'follow', signal: controller.signal});
+    clearTimeout(timeout);
+    const text = await res.text();
+    try { return JSON.parse(text); }
+    catch(e) { throw new Error('Keine JSON-Antwort (Script-URL prüfen)'); }
   } catch(e) {
-    throw new Error('Keine JSON-Antwort vom Server (möglicherweise falsche Script-URL oder nicht deployed)');
+    clearTimeout(timeout);
+    if (e.name === 'AbortError') throw new Error('Timeout – Google Sheets antwortet nicht');
+    throw e;
   }
 }
 async function apiPost(payload) {
@@ -725,9 +729,22 @@ async function init() {
   document.getElementById('hist-from').value = new Date(Date.now()-30*864e5).toISOString().slice(0,10);
   document.getElementById('hist-to').value   = new Date().toISOString().slice(0,10);
 
+  // Sicherheitsnetz: Loading-Screen IMMER nach max. 12s verstecken
+  const safetyHide = setTimeout(() => {
+    document.getElementById('loading').style.display = 'none';
+  }, 12000);
+
   try {
-    document.getElementById('loading-msg').textContent = 'Lade Daten aus Google Sheets…';
+    document.getElementById('loading-msg').textContent = 'Verbinde…';
+    let dots = 0;
+    const loadingAnim = setInterval(() => {
+      dots = (dots + 1) % 4;
+      document.getElementById('loading-msg').textContent =
+        'Verbinde mit Google Sheets' + '.'.repeat(dots + 1);
+    }, 500);
+
     const d = await apiGet({action:'init'});
+    clearInterval(loadingAnim);
     if (d.error) throw new Error(d.error);
     userProducts    = d.products        || {};
     rawHistory      = d.history         || [];
@@ -740,30 +757,32 @@ async function init() {
     sheetsOnline = false;
     setStatus(false);
     console.error('Init-Fehler:', e.message);
-    document.getElementById('loading-msg').textContent = 'Offline-Modus – ' + e.message;
-    await new Promise(r => setTimeout(r, 1200));
   }
 
-  buildUI();
-  // Autosave wiederherstellen falls vorhanden
-  const snap = restoreAutosave();
-  if(snap && snap.items && snap.items.length > 0) {
-    const dismissedAt = localStorage.getItem('hofmarkt_autosave_dismissed');
-    const snapTime = new Date(snap.savedAt).getTime();
-    // Nur fragen wenn der Snap neuer ist als das letzte Ablehnen
-    if (!dismissedAt || snapTime > parseInt(dismissedAt)) {
-      setTimeout(() => {
-        if(confirm(`💾 Nicht gespeicherter Entwurf vom ${new Date(snap.savedAt).toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})} Uhr gefunden (${snap.items.length} Artikel). Wiederherstellen?`)) {
-          applySnapshot(snap);
-          showToast('↩️ Entwurf wiederhergestellt.');
-        } else {
-          // Merken dass User abgelehnt hat – nicht nochmal fragen für diesen Snap
-          localStorage.setItem('hofmarkt_autosave_dismissed', snapTime.toString());
-        }
-      }, 400);
-    }
-  }
+  clearTimeout(safetyHide);
+
+  try { buildUI(); } catch(e) { console.error('buildUI Fehler:', e); }
+
   document.getElementById('loading').style.display = 'none';
+
+  // Autosave wiederherstellen
+  try {
+    const snap = restoreAutosave();
+    if(snap && snap.items && snap.items.length > 0) {
+      const dismissedAt = localStorage.getItem('hofmarkt_autosave_dismissed');
+      const snapTime = new Date(snap.savedAt).getTime();
+      if (!dismissedAt || snapTime > parseInt(dismissedAt)) {
+        setTimeout(() => {
+          if(confirm(`💾 Entwurf vom ${new Date(snap.savedAt).toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})} Uhr (${snap.items.length} Artikel). Wiederherstellen?`)) {
+            applySnapshot(snap);
+            showToast('↩️ Entwurf wiederhergestellt.');
+          } else {
+            localStorage.setItem('hofmarkt_autosave_dismissed', snapTime.toString());
+          }
+        }, 400);
+      }
+    }
+  } catch(e) { console.error('Autosave-Fehler:', e); }
 }
 
 function setStatus(ok) {
@@ -877,13 +896,18 @@ function cancelEditMode() {
 //  Helper: Item-Element anhand catid/plu/name finden
 // ═══════════════════════════════════════════
 function findItemElement(catid, plu, name) {
-  // Suche anhand catid + name (plu kann doppelt sein)
+  // 1. Exakte Suche: catid + name
   let found = null;
   document.querySelectorAll('#main .category').forEach(catEl => {
     if (catEl.dataset.catid !== catid) return;
     catEl.querySelectorAll('.item').forEach(it => {
       if (it.dataset.name === name) found = it;
     });
+  });
+  if (found) return found;
+  // 2. Fallback: nur nach Name suchen (fängt verschobene Artikel wie Rhabarber ab)
+  document.querySelectorAll('#main .item').forEach(it => {
+    if (it.dataset.name === name) found = it;
   });
   return found;
 }
