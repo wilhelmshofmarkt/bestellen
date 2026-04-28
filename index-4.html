@@ -1,0 +1,2162 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <link rel="icon" type="image/svg+xml" href="images-2.svg">
+<link rel="icon" href="images-2.ico">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Hofmarkt Bestellplan</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600&display=swap');
+:root{--bg:#F5F0E8;--card:#FFFDF8;--text:#1A1208;--muted:#8A7E6A;--danger:#C0392B;--success:#2D5016;--warn:#D4830A}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:70px}
+
+header{background:#2D5016;color:white;padding:14px 14px 10px;position:sticky;top:0;z-index:200;box-shadow:0 2px 12px rgba(0,0,0,.2)}
+header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
+.header-row2{display:flex;gap:8px;margin-top:9px;align-items:center}
+.search-bar{flex:1;position:relative}
+.search-bar input{width:100%;padding:8px 12px 8px 31px;border-radius:8px;border:none;background:rgba(255,255,255,.18);color:white;font-size:.88rem;font-family:'DM Sans',sans-serif;outline:none}
+.search-bar input::placeholder{color:rgba(255,255,255,.5)}
+.search-bar::before{content:"🔍";position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:.8rem}
+.btn-primary{background:var(--warn);color:white;border:none;border-radius:8px;padding:8px 13px;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;white-space:nowrap;box-shadow:0 3px 0 #9c5e06;transition:all .1s}
+.btn-primary:active{transform:translateY(2px);box-shadow:0 1px 0 #9c5e06}
+.btn-primary:disabled{opacity:.55;cursor:not-allowed}
+.btn-primary.edit-mode{background:#1A6BA0;box-shadow:0 3px 0 #0f4d78}
+.btn-primary.edit-mode:active{box-shadow:0 1px 0 #0f4d78}
+#status-bar{background:rgba(0,0,0,.25);padding:2px 13px;font-size:.68rem;color:rgba(255,255,255,.75);text-align:right}
+
+/* EDIT MODE BANNER */
+#edit-mode-banner{display:none;background:#1A6BA0;color:white;padding:8px 14px;font-size:.8rem;font-weight:600;align-items:center;justify-content:space-between;gap:8px}
+#edit-mode-banner.visible{display:flex}
+.btn-cancel-edit{background:rgba(255,255,255,.2);color:white;border:1.5px solid rgba(255,255,255,.4);border-radius:7px;padding:4px 10px;font-family:'DM Sans',sans-serif;font-size:.77rem;cursor:pointer}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:500;display:flex;align-items:flex-end;justify-content:center}
+.modal-overlay.hidden{display:none}
+.modal-sheet{background:var(--card);border-radius:20px 20px 0 0;padding:22px 18px 34px;width:100%;max-width:480px;box-shadow:0 -4px 30px rgba(0,0,0,.18)}
+.modal-sheet h2{font-family:'DM Serif Display',serif;font-size:1.15rem;margin-bottom:5px;color:var(--text)}
+.modal-sheet p{font-size:.82rem;color:var(--muted);margin-bottom:16px}
+.day-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:18px}
+.day-btn{padding:10px 4px;border:2px solid #ddd;border-radius:11px;background:white;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:600;color:var(--muted);cursor:pointer;text-align:center;transition:all .15s;line-height:1.3}
+.day-btn:hover{border-color:#2D5016;color:#2D5016}
+.day-btn.selected{background:#2D5016;border-color:#2D5016;color:white}
+.modal-actions{display:flex;gap:9px}
+.btn-modal-ok{flex:1;background:#2D5016;color:white;border:none;border-radius:10px;padding:12px;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:700;cursor:pointer}
+.btn-modal-ok:disabled{opacity:.45;cursor:not-allowed}
+.btn-modal-cancel{background:transparent;color:var(--muted);border:1.5px solid #ddd;border-radius:10px;padding:12px 16px;font-family:'DM Sans',sans-serif;font-size:.88rem;cursor:pointer}
+
+/* TABS */
+.tabs{display:flex;background:#fff;border-bottom:2px solid #e8e2d8;position:sticky;top:103px;z-index:150;overflow-x:auto}
+.tab-btn{flex:1;min-width:68px;padding:10px 4px;border:none;background:transparent;font-family:'DM Sans',sans-serif;font-size:.77rem;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s;white-space:nowrap}
+.tab-btn.active{color:#2D5016;border-bottom-color:#2D5016}
+.tab-panel{display:none;padding:10px}
+.tab-panel.active{display:block}
+
+/* CATEGORIES */
+.category{margin-bottom:12px;border-radius:14px;overflow:hidden;background:var(--card);box-shadow:0 1px 6px rgba(0,0,0,.06)}
+.cat-header{display:flex;align-items:center;justify-content:space-between;padding:11px 13px;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent}
+.cat-header-left{display:flex;align-items:center;gap:8px}
+.cat-icon{font-size:1.2rem}.cat-name{font-weight:600;font-size:.91rem}
+.cat-count{font-size:.7rem;background:rgba(255,255,255,.25);padding:2px 7px;border-radius:20px;font-weight:500}
+.chevron{font-size:.65rem;opacity:.6;transition:transform .2s}
+.category.open .chevron{transform:rotate(180deg)}
+.cat-items{display:none;border-top:1px solid rgba(0,0,0,.06)}
+.category.open .cat-items{display:block}
+
+/* COL HEADERS */
+.col-headers{display:flex;align-items:center;padding:4px 12px 3px;background:rgba(0,0,0,.03);border-bottom:1px solid rgba(0,0,0,.05);gap:6px}
+.col-headers span{font-size:.65rem;color:var(--muted);font-weight:700;letter-spacing:.05em;text-transform:uppercase}
+.ch-plu{min-width:30px}.ch-name{flex:1}
+.ch-bestand,.ch-bestellen{width:62px;text-align:center;flex-shrink:0}
+.ch-notiz{flex:1}.ch-actions{width:26px}
+
+/* ITEMS */
+.item{display:flex;flex-direction:column;padding:6px 12px;border-bottom:1px solid rgba(0,0,0,.04);gap:4px}
+.item:last-child{border-bottom:none}.item.hidden{display:none}.category.all-hidden{display:none}
+.item-main{display:flex;align-items:center;gap:5px}
+.item-notiz-row{display:flex;padding-left:35px}
+.plu-num{font-weight:700;font-size:.8rem;color:var(--muted);min-width:30px;text-align:right;flex-shrink:0}
+.plu-name{font-size:.88rem;flex:1}
+
+/* INFO-ONLY */
+.item-info{display:flex;align-items:center;padding:5px 12px;border-bottom:1px solid rgba(0,0,0,.03);gap:5px}
+.item-info:last-child{border-bottom:none}.item-info.hidden{display:none}
+.item-info .plu-num{color:var(--muted);opacity:.7}
+.item-info .plu-name{font-size:.86rem;color:var(--text)}
+.info-tag{font-size:.59rem;background:#f0f0ea;color:var(--muted);border:1px solid #ddd;padding:1px 5px;border-radius:8px;flex-shrink:0}
+
+.user-badge{font-size:.59rem;background:#e8f5e9;color:#2D5016;border:1px solid #a5d6a7;padding:1px 5px;border-radius:10px;font-weight:600;flex-shrink:0}
+.qty-input{width:62px;flex-shrink:0;padding:5px 4px;border:1.5px solid rgba(0,0,0,.14);border-radius:7px;font-size:.85rem;font-family:'DM Sans',sans-serif;text-align:center;background:#fff;color:var(--text);outline:none;transition:border-color .15s,background .15s;-moz-appearance:textfield}
+.qty-input::-webkit-outer-spin-button,.qty-input::-webkit-inner-spin-button{-webkit-appearance:none}
+.qty-input:focus{border-color:#2D5016}
+.qty-input.filled{background:#FFF8E7;border-color:var(--warn);color:#7A4F00;font-weight:700}
+.qty-input.filled-bestand{background:#EEF8E6;border-color:#2D5016;color:#1a4008;font-weight:700}
+.notiz-input{flex:1;padding:3px 7px;border:1.5px solid rgba(0,0,0,.1);border-radius:6px;font-size:.77rem;font-family:'DM Sans',sans-serif;background:rgba(0,0,0,.02);color:var(--text);outline:none}
+.notiz-input::placeholder{color:rgba(0,0,0,.22);font-style:italic}
+.notiz-input:focus{border-color:#2D5016;background:#fff}
+.item-actions{width:26px;flex-shrink:0;display:flex;justify-content:flex-end}
+.btn-del{background:none;border:none;color:#ccc;font-size:.88rem;cursor:pointer;padding:2px;transition:color .15s;line-height:1}
+.btn-del:hover{color:var(--danger)}
+.item-avg-hint{font-size:.71rem;color:var(--muted);padding:0 12px 4px 35px;font-style:italic}
+.item-avg-hint span{background:#f5f0e8;border-radius:4px;padding:1px 5px;font-style:normal;font-weight:600;color:#7A5C2E}
+
+/* ADD FORM */
+.cat-footer{padding:6px 12px;border-top:1px dashed rgba(0,0,0,.1)}
+.btn-add-product{width:100%;background:transparent;border:1.5px dashed rgba(0,0,0,.17);border-radius:8px;padding:6px 12px;font-size:.79rem;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;text-align:left}
+.btn-add-product:hover{border-color:#2D5016;color:#2D5016}
+.add-form{display:none;padding:10px 12px;background:#f0f7eb;border-top:1px solid #c8e6c9;gap:8px;flex-wrap:wrap;align-items:flex-end}
+.add-form.open{display:flex}
+.add-form label{font-size:.68rem;color:var(--muted);font-weight:600;display:block;margin-bottom:2px}
+.add-form input{padding:6px 9px;border:1.5px solid #c8e6c9;border-radius:7px;font-family:'DM Sans',sans-serif;font-size:.84rem;background:white;outline:none}
+.add-form input:focus{border-color:#2D5016}
+.add-form-name{flex:1;min-width:110px}.add-form-plu{width:76px}
+.btn-add-confirm{background:#2D5016;color:white;border:none;border-radius:8px;padding:7px 13px;font-family:'DM Sans',sans-serif;font-size:.81rem;font-weight:600;cursor:pointer}
+.btn-add-cancel{background:transparent;color:var(--muted);border:1px solid #ccc;border-radius:8px;padding:7px 11px;font-family:'DM Sans',sans-serif;font-size:.81rem;cursor:pointer}
+
+/* TAG-BANNER */
+#day-banner{background:var(--card);border-radius:14px;margin-bottom:10px;padding:11px 13px;box-shadow:0 1px 6px rgba(0,0,0,.07);border:2px solid #ddd;transition:border-color .2s}
+#day-banner.day-selected{border-color:#2D5016}
+.day-banner-label{font-size:.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.day-banner-chips{display:flex;gap:6px;flex-wrap:wrap}
+.day-select-chip{padding:6px 13px;border:2px solid #ddd;border-radius:20px;background:white;font-family:'DM Sans',sans-serif;font-size:.8rem;font-weight:600;color:var(--muted);cursor:pointer;transition:all .15s}
+.day-select-chip:hover{border-color:#2D5016;color:#2D5016}
+.day-select-chip.active{background:#2D5016;border-color:#2D5016;color:white}
+.day-banner-hint{font-size:.72rem;color:var(--warn);margin-top:7px}
+
+/* ÜBERSICHT */
+.uebersichten{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.summary-section{flex:1;min-width:250px;border-radius:14px;overflow:hidden;background:var(--card);box-shadow:0 2px 10px rgba(0,0,0,.09)}
+.bestell-section{border:2px solid var(--danger)}.gesamt-section{border:2px solid #2D5016}
+.summary-header{color:white;padding:11px 14px;display:flex;align-items:center;justify-content:space-between}
+.bestell-section .summary-header{background:var(--danger)}.gesamt-section .summary-header{background:#2D5016}
+.summary-header h2{font-family:'DM Serif Display',serif;font-size:.98rem}
+.sum-count{font-size:.73rem;background:rgba(255,255,255,.22);padding:2px 9px;border-radius:20px;font-weight:600}
+.summary-empty{padding:15px 14px;text-align:center;color:var(--muted);font-size:.85rem}
+.summary-cat{border-bottom:1px solid rgba(0,0,0,.06)}.summary-cat:last-child{border-bottom:none}
+.summary-cat-label{padding:5px 13px 3px;font-weight:700;font-size:.74rem;color:white}
+.summary-row{display:flex;align-items:center;flex-wrap:wrap;padding:4px 13px;gap:5px;border-bottom:1px solid rgba(0,0,0,.04)}
+.summary-row:last-child{border-bottom:none}
+.sum-plu{font-size:.74rem;color:var(--muted);font-weight:700;min-width:24px;text-align:right}
+.sum-name{flex:1;font-size:.84rem;min-width:80px}
+.sum-badge-order{background:var(--danger);color:white;font-size:.71rem;font-weight:700;padding:2px 7px;border-radius:20px}
+.sum-badge-qty{background:#2D5016;color:white;font-size:.71rem;font-weight:700;padding:2px 7px;border-radius:20px}
+.sum-notiz{font-size:.71rem;color:var(--muted);font-style:italic;width:100%;padding-left:29px}
+.sum-arrow{font-size:.85rem;font-weight:700;flex-shrink:0;line-height:1}
+.sum-arrow.up2{color:#1a7a1a}.sum-arrow.up1{color:#7a9e1a}.sum-arrow.even{color:#aaa}.sum-arrow.down1{color:#c87a00}.sum-arrow.down2{color:#b22222}
+.sum-trend{font-size:.68rem;font-weight:700;padding:1px 5px;border-radius:8px;flex-shrink:0;white-space:nowrap}
+.sum-trend.trend-up{background:#e6f4e6;color:#1a7a1a}.sum-trend.trend-down{background:#fdeaea;color:#b22222}.sum-trend.trend-flat{background:#f0f0ea;color:#888}
+.sum-avg-note{font-size:.69rem;color:var(--muted);padding:3px 13px 5px;font-style:italic}
+.btn-clear{display:block;margin:10px auto;padding:6px 17px;background:transparent;border:1.5px solid rgba(0,0,0,.16);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.79rem;color:var(--muted);cursor:pointer}
+.btn-clear:hover{background:rgba(0,0,0,.05)}
+.btn-print{background:#1A1208;color:white;border:none;border-radius:8px;padding:8px 14px;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;margin:10px 14px 4px;box-shadow:0 3px 0 #000;transition:all .1s}
+.btn-print:active{transform:translateY(2px);box-shadow:0 1px 0 #000}
+
+/* FILTER */
+.filter-bar{background:var(--card);border-radius:12px;padding:11px 13px;margin-bottom:11px;box-shadow:0 1px 5px rgba(0,0,0,.06)}
+.filter-bar-row{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+.filter-bar-row+.filter-bar-row{margin-top:8px;padding-top:8px;border-top:1px solid rgba(0,0,0,.06)}
+.filter-label{font-size:.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;min-width:42px}
+.filter-bar input[type=date]{padding:7px 9px;border:1.5px solid #ddd;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.82rem;background:white;outline:none;flex:1;min-width:120px}
+.filter-bar input:focus{border-color:#2D5016}
+.btn-load{background:#2D5016;color:white;border:none;border-radius:8px;padding:7px 13px;font-family:'DM Sans',sans-serif;font-size:.81rem;font-weight:600;cursor:pointer;flex-shrink:0}
+.day-filter-chips{display:flex;gap:6px;flex-wrap:wrap;flex:1}
+.day-chip{padding:5px 11px;border:1.5px solid #ddd;border-radius:20px;background:white;font-family:'DM Sans',sans-serif;font-size:.76rem;font-weight:600;color:var(--muted);cursor:pointer;transition:all .15s}
+.day-chip.active{background:#2D5016;border-color:#2D5016;color:white}
+.day-chip.all-chip.active{background:var(--warn);border-color:var(--warn);color:white}
+
+/* HISTORY */
+.history-entry{background:var(--card);border-radius:12px;margin-bottom:10px;overflow:hidden;box-shadow:0 1px 5px rgba(0,0,0,.07);border:1px solid rgba(0,0,0,.06)}
+.history-entry.deleted{display:none}
+.history-entry-header{background:#2D5016;color:white;padding:10px 13px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none}
+.history-entry-header.no-weekday{background:#555}
+.hist-weekday{font-weight:700;font-size:1rem;letter-spacing:.01em}
+.hist-created{font-size:.71rem;opacity:.7;margin-top:1px}
+.hist-meta{font-size:.72rem;opacity:.75;text-align:right}
+.hist-chev{font-size:.75rem;opacity:.8;transition:transform .25s;display:inline-block;flex-shrink:0}
+.history-entry.open .hist-chev{transform:rotate(90deg)}
+.history-body{display:none}.history-entry.open .history-body{display:block}
+.hist-cat-label{padding:5px 13px 3px;font-size:.69rem;font-weight:700;color:white;letter-spacing:.04em;text-transform:uppercase}
+.hist-row{display:flex;padding:4px 13px;gap:7px;align-items:center;border-bottom:1px solid rgba(0,0,0,.04);font-size:.83rem;flex-wrap:wrap}
+.hist-row:last-child{border-bottom:none}
+.hist-plu{min-width:24px;text-align:right;font-weight:700;color:var(--muted);font-size:.74rem;flex-shrink:0}
+.hist-name{flex:1}.hist-bestand{font-size:.74rem;color:var(--muted)}
+.hist-badge{background:var(--warn);color:white;font-size:.7rem;font-weight:700;padding:1px 6px;border-radius:12px}
+.hist-notiz{font-style:italic;color:var(--muted);font-size:.72rem;width:100%;padding-left:31px}
+.hist-edited-badge{display:inline-block;font-size:.64rem;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:8px;padding:1px 7px;margin-top:3px;font-style:italic;opacity:.85}
+/* History action buttons */
+.hist-actions{display:flex;gap:7px;padding:10px 13px;border-top:1px solid rgba(0,0,0,.07);background:rgba(0,0,0,.02)}
+.btn-hist-edit{background:#1A6BA0;color:white;border:none;border-radius:8px;padding:7px 14px;font-family:'DM Sans',sans-serif;font-size:.79rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px}
+.btn-hist-edit:hover{background:#155a8a}
+.btn-hist-delete{background:transparent;color:var(--danger);border:1.5px solid var(--danger);border-radius:8px;padding:7px 12px;font-family:'DM Sans',sans-serif;font-size:.79rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px}
+.btn-hist-delete:hover{background:#fdeaea}
+
+/* DURCHSCHNITT */
+.avg-section{background:var(--card);border-radius:12px;overflow:hidden;box-shadow:0 1px 5px rgba(0,0,0,.07);margin-bottom:12px}
+.avg-header-bar{background:#5D8233;color:white;padding:10px 13px;font-family:'DM Serif Display',serif;font-size:.98rem}
+.avg-controls-row{display:flex;align-items:center;gap:10px;padding:9px 13px;border-bottom:1px solid rgba(0,0,0,.06);background:rgba(0,0,0,.02);flex-wrap:wrap}
+.avg-controls-row select{padding:6px 9px;border:1.5px solid #ddd;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.81rem;background:white;outline:none}
+.avg-controls-row select:focus{border-color:#2D5016}
+.avg-cat-label{padding:5px 13px 3px;font-size:.69rem;font-weight:700;color:white;letter-spacing:.04em;text-transform:uppercase}
+.avg-row{display:flex;padding:4px 13px;gap:7px;align-items:center;border-bottom:1px solid rgba(0,0,0,.04);font-size:.83rem}
+.avg-row:last-child{border-bottom:none}
+.avg-plu{min-width:24px;text-align:right;font-weight:700;color:var(--muted);font-size:.74rem}
+.avg-name{flex:1}
+.avg-val{background:#e8f5e9;color:#2D5016;font-size:.74rem;font-weight:700;padding:2px 7px;border-radius:12px}
+.avg-n{font-size:.7rem;color:var(--muted)}
+
+/* PRINT */
+#print-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:8000;overflow-y:auto;padding:20px}
+#print-overlay.visible{display:block}
+.print-close-bar{display:flex;justify-content:center;gap:10px;margin-bottom:14px}
+.btn-do-print{background:#2D5016;color:white;border:none;border-radius:10px;padding:11px 28px;font-family:'DM Sans',sans-serif;font-size:.95rem;font-weight:700;cursor:pointer}
+.btn-close-print{background:rgba(255,255,255,.15);color:white;border:1.5px solid rgba(255,255,255,.3);border-radius:10px;padding:11px 20px;font-family:'DM Sans',sans-serif;font-size:.88rem;cursor:pointer}
+#print-doc{background:white;max-width:210mm;margin:0 auto;padding:20mm 18mm 18mm;font-family:'DM Serif Display',serif;color:#000;box-shadow:0 4px 40px rgba(0,0,0,.3);border-radius:4px}
+.pd-title{font-size:2rem;font-weight:700;margin:0 0 4px;letter-spacing:-.02em}
+.pd-meta{font-size:.9rem;font-family:'DM Sans',sans-serif;color:#555;margin-bottom:6px;display:flex;gap:16px;flex-wrap:wrap}
+.pd-divider{border:none;border-top:2.5px solid #000;margin:10px 0 18px}
+.pd-cat-title{font-family:'DM Serif Display',serif;font-size:1.15rem;margin:18px 0 6px;padding-bottom:4px;border-bottom:1.5px solid #ccc}
+.pd-item{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid #e8e8e8;font-family:'DM Sans',sans-serif}
+.pd-item:last-child{border-bottom:none}
+.pd-check{width:18px;height:18px;border:2px solid #333;flex-shrink:0;border-radius:2px}
+.pd-name{flex:1;font-size:1rem;font-weight:500}
+.pd-qty{font-size:.9rem;font-weight:700;background:#f2f2f2;padding:3px 9px;border-radius:4px;white-space:nowrap}
+.pd-bestand-qty{background:#e8f5e9;color:#2D5016}
+.pd-notiz{font-size:.78rem;color:#666;font-style:italic}
+.pd-notes-section{margin-top:24px;border:1.5px solid #ccc;border-radius:6px;padding:12px 14px}
+.pd-notes-label{font-family:'DM Serif Display',serif;font-size:1rem;margin-bottom:8px}
+.pd-notes-lines{display:flex;flex-direction:column;gap:10px}
+.pd-notes-line{border-bottom:1px solid #ccc;height:22px}
+@media print{
+  body > *:not(#print-overlay){display:none!important}
+  #print-overlay{display:block!important;position:static!important;background:none!important;padding:0!important;overflow:visible!important}
+  .print-close-bar{display:none!important}
+  #print-doc{box-shadow:none!important;border-radius:0!important;padding:15mm 14mm!important;max-width:100%!important;margin:0!important}
+}
+
+/* LOADING / TOAST */
+#loading{position:fixed;inset:0;background:rgba(245,240,232,.97);z-index:9000;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px}
+.spinner{width:36px;height:36px;border:3px solid #ddd;border-top-color:#2D5016;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+#loading p{color:var(--muted);font-size:.88rem;text-align:center;max-width:260px;line-height:1.5}
+#toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%) translateY(70px);background:#2D5016;color:white;padding:10px 20px;border-radius:20px;font-size:.83rem;font-weight:600;z-index:9999;transition:transform .3s ease;pointer-events:none;white-space:nowrap;max-width:92%;text-align:center}
+#toast.show{transform:translateX(-50%) translateY(0);pointer-events:auto}
+#toast.error{background:var(--danger)}
+#toast .undo-btn{background:rgba(255,255,255,.25);border:1.5px solid rgba(255,255,255,.5);border-radius:10px;color:white;font-family:'DM Sans',sans-serif;font-size:.8rem;font-weight:700;padding:3px 10px;cursor:pointer;margin-left:10px;vertical-align:middle}
+.no-results{text-align:center;padding:36px;color:var(--muted);font-size:.88rem;display:none}
+.tab-empty{text-align:center;padding:28px 18px;color:var(--muted);font-size:.86rem;line-height:1.6}
+
+/* sticky tabs shift when edit banner visible */
+.edit-active .tabs{top:131px}
+/* LIEFERANT-SELECT */
+.item-supplier-row{display:flex;align-items:center;gap:6px;padding:2px 0 2px 35px;flex-wrap:wrap}
+.supplier-select{flex:1;min-width:140px;max-width:220px;padding:4px 7px;border:1.5px solid rgba(0,0,0,.12);border-radius:7px;font-family:'DM Sans',sans-serif;font-size:.78rem;background:#fff;color:var(--text);outline:none;cursor:pointer}
+.supplier-select:focus{border-color:#2D5016}
+.supplier-select.has-value{border-color:#2D5016;background:#f0f7eb;color:#1E5010;font-weight:600}
+.btn-add-supplier{background:transparent;border:1.5px dashed rgba(0,0,0,.18);border-radius:7px;padding:4px 8px;font-family:'DM Sans',sans-serif;font-size:.73rem;color:var(--muted);cursor:pointer;white-space:nowrap;flex-shrink:0}
+.btn-add-supplier:hover{border-color:#2D5016;color:#2D5016}
+/* Supplier-Inline-Add */
+.supplier-add-inline{display:none;align-items:center;gap:5px;flex-wrap:wrap;padding:4px 0 2px 35px}
+.supplier-add-inline.open{display:flex}
+.supplier-add-inline input{padding:4px 8px;border:1.5px solid #c8e6c9;border-radius:7px;font-family:'DM Sans',sans-serif;font-size:.8rem;width:160px;outline:none}
+.supplier-add-inline input:focus{border-color:#2D5016}
+.btn-sup-ok{background:#2D5016;color:white;border:none;border-radius:7px;padding:4px 10px;font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:600;cursor:pointer}
+.btn-sup-cancel{background:transparent;color:var(--muted);border:1px solid #ccc;border-radius:7px;padding:4px 8px;font-family:'DM Sans',sans-serif;font-size:.78rem;cursor:pointer}
+/* print supplier section header */
+.pd-supplier-title{font-family:'DM Serif Display',serif;font-size:1.25rem;margin:22px 0 8px;padding-bottom:5px;border-bottom:2.5px solid currentColor}
+/* Template-Vorlage & Duplikat */
+.btn-load-template{background:rgba(45,80,22,.12);color:#2D5016;border:1.5px solid #2D5016;border-radius:8px;padding:7px 13px;font-family:'DM Sans',sans-serif;font-size:.8rem;font-weight:600;cursor:pointer;width:100%;text-align:left;transition:all .15s}
+.btn-load-template:hover{background:#2D5016;color:white}
+.btn-hist-duplicate{background:transparent;color:#1A6BA0;border:1.5px solid #1A6BA0;border-radius:8px;padding:7px 12px;font-family:'DM Sans',sans-serif;font-size:.79rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px}
+.btn-hist-duplicate:hover{background:#e3f0fa}
+.btn-import-bestand{display:block;margin:6px 14px 4px;padding:8px 14px;background:transparent;color:#2D5016;border:1.5px solid #2D5016;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;text-align:center}
+#autosave-indicator{font-size:.65rem;color:rgba(255,255,255,.6);padding:1px 13px;text-align:right;background:rgba(0,0,0,.12)}
+.template-list{max-height:260px;overflow-y:auto;margin-bottom:14px;display:flex;flex-direction:column;gap:6px}
+.template-item{padding:10px 12px;border:2px solid #ddd;border-radius:10px;background:white;cursor:pointer;text-align:left;font-family:'DM Sans',sans-serif;transition:all .15s;width:100%}
+.template-item:hover,.template-item.selected{border-color:#2D5016;background:#f0f7eb}
+.template-item-day{font-weight:700;font-size:.88rem;color:#2D5016}
+.template-item-meta{font-size:.73rem;color:var(--muted);margin-top:2px}
+</style>
+</head>
+<body>
+
+<div id="print-overlay">
+  <div class="print-close-bar">
+    <button class="btn-do-print" onclick="window.print()">🖨️ Jetzt drucken</button>
+    <button class="btn-close-print" onclick="document.getElementById('print-overlay').classList.remove('visible')">✕ Schließen</button>
+  </div>
+  <div id="print-doc"></div>
+</div>
+
+<div id="loading">
+  <div style="font-size:2.2rem">🌿</div>
+  <div class="spinner"></div>
+  <p id="loading-msg">Verbinde mit Google Sheets…</p>
+</div>
+<div id="toast"></div>
+
+<div class="modal-overlay hidden" id="template-modal">
+  <div class="modal-sheet">
+    <h2>📋 Vorlage laden</h2>
+    <p>Wähle eine Bestellung aus der Historie als Vorlage.</p>
+    <div class="template-list" id="template-list"></div>
+    <div class="modal-actions">
+      <button class="btn-modal-ok" id="template-ok-btn" onclick="confirmLoadTemplate()" disabled>✅ Laden & Tag wählen</button>
+      <button class="btn-modal-cancel" onclick="closeTemplateModal()">Abbrechen</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="day-modal">
+  <div class="modal-sheet">
+    <h2>📅 Für welchen Tag?</h2>
+    <p>Bitte wähle den Wochentag, für den diese Bestellung gilt.</p>
+    <div class="day-grid">
+      <button class="day-btn" data-day="Montag"     onclick="selectDay(this)">Mo<br>Montag</button>
+      <button class="day-btn" data-day="Dienstag"   onclick="selectDay(this)">Di<br>Dienstag</button>
+      <button class="day-btn" data-day="Mittwoch"   onclick="selectDay(this)">Mi<br>Mittwoch</button>
+      <button class="day-btn" data-day="Donnerstag" onclick="selectDay(this)">Do<br>Donnerstag</button>
+      <button class="day-btn" data-day="Freitag"    onclick="selectDay(this)">Fr<br>Freitag</button>
+      <button class="day-btn" data-day="Samstag"    onclick="selectDay(this)">Sa<br>Samstag</button>
+      <button class="day-btn" data-day="Sonntag"    onclick="selectDay(this)">So<br>Sonntag</button>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-modal-ok" id="modal-ok-btn" onclick="confirmSave()" disabled>💾 Speichern</button>
+      <button class="btn-modal-cancel" onclick="closeModal()">Abbrechen</button>
+    </div>
+  </div>
+</div>
+
+<header>
+  <h1>🌿 Hofmarkt Bestellplan</h1>
+  <div class="header-row2">
+    <div class="search-bar">
+      <input type="text" id="search" placeholder="Suchen nach Name oder PLU …" oninput="filterItems(this.value)">
+    </div>
+    <button class="btn-primary" onclick="handleSaveBtn()" id="btn-save">💾 Speichern</button>
+  </div>
+</header>
+<div id="status-bar">⬤ Verbinde …</div>
+<div id="autosave-indicator"></div>
+<div id="edit-mode-banner">
+  <span id="edit-mode-label">✏️ Bearbeitung: …</span>
+  <span style="font-size:.7rem;opacity:.75">Tag ändern? Beim Speichern auswählen.</span>
+  <button class="btn-cancel-edit" onclick="cancelEditMode()">✕ Abbrechen</button>
+</div>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab('bestellen')">📋 Bestellen</button>
+  <button class="tab-btn" onclick="switchTab('uebersicht')">📊 Übersicht</button>
+  <button class="tab-btn" onclick="switchTab('historie')">📅 Historie</button>
+  <button class="tab-btn" onclick="switchTab('durchschnitt')">📈 Durchschnitt</button>
+</div>
+
+<div id="tab-bestellen" class="tab-panel active">
+  <div id="day-banner">
+    <div class="day-banner-label">📅 Bestellung für welchen Tag?</div>
+    <div class="day-banner-chips">
+      <button class="day-select-chip" data-day="Montag"     onclick="selectOrderDay(this)">Mo</button>
+      <button class="day-select-chip" data-day="Dienstag"   onclick="selectOrderDay(this)">Di</button>
+      <button class="day-select-chip" data-day="Mittwoch"   onclick="selectOrderDay(this)">Mi</button>
+      <button class="day-select-chip" data-day="Donnerstag" onclick="selectOrderDay(this)">Do</button>
+      <button class="day-select-chip" data-day="Freitag"    onclick="selectOrderDay(this)">Fr</button>
+      <button class="day-select-chip" data-day="Samstag"    onclick="selectOrderDay(this)">Sa</button>
+      <button class="day-select-chip" data-day="Sonntag"    onclick="selectOrderDay(this)">So</button>
+    </div>
+    <div class="day-banner-hint" id="day-banner-hint">⚠️ Kein Tag gewählt – Durchschnittswerte zeigen alle Tage</div>
+    <div style="margin-top:8px">
+      <button class="btn-load-template" onclick="openTemplateModal()">📋 Letzte Bestellung als Vorlage laden</button>
+    </div>
+  </div>
+  <div id="main"></div>
+  <div class="no-results" id="no-results">Keine Artikel gefunden.</div>
+</div>
+
+<div id="tab-uebersicht" class="tab-panel">
+  <div class="uebersichten">
+    <div class="summary-section bestell-section">
+      <div class="summary-header"><h2>🛒 Zu bestellen</h2><span class="sum-count" id="bestell-count">0</span></div>
+      <div id="bestell-list"></div>
+      <button class="btn-print" onclick="printEinkaufszettel()">🖨️ Einkaufszettel drucken</button>
+      <button class="btn-print" onclick="shareList('bestellen')" style="background:#1A6BA0;box-shadow:0 3px 0 #0f4a73;margin-top:6px">📤 Einkaufszettel teilen</button>
+      <button class="btn-clear" onclick="clearBestellen()">Bestellmengen löschen</button>
+    </div>
+    <div class="summary-section gesamt-section">
+      <div class="summary-header"><h2>📦 Bestandsübersicht</h2><span class="sum-count" id="gesamt-count">0</span></div>
+      <div id="gesamt-list"></div>
+      <button class="btn-print" onclick="shareList('bestand')" style="background:#2D5016;box-shadow:0 3px 0 #1a3a0a">💾 Bestand exportieren (.json)</button>
+      <label class="btn-import-bestand">
+        📥 Bestand importieren (.json)
+        <input type="file" accept=".json" style="display:none" onchange="importBestand(this)">
+      </label>
+      <button class="btn-clear" onclick="clearBestand()">Bestände löschen</button>
+    </div>
+  </div>
+</div>
+
+<div id="tab-historie" class="tab-panel">
+  <div class="filter-bar">
+    <div class="filter-bar-row">
+      <span class="filter-label">Datum</span>
+      <input type="date" id="hist-from">
+      <input type="date" id="hist-to">
+      <button class="btn-load" onclick="loadHistory()">🔄 Laden</button>
+    </div>
+    <div class="filter-bar-row">
+      <span class="filter-label">Tag</span>
+      <div class="day-filter-chips" id="hist-day-chips">
+        <button class="day-chip all-chip active" data-day="" onclick="toggleDayChip(this,'hist')">Alle</button>
+        <button class="day-chip" data-day="Montag"     onclick="toggleDayChip(this,'hist')">Mo</button>
+        <button class="day-chip" data-day="Dienstag"   onclick="toggleDayChip(this,'hist')">Di</button>
+        <button class="day-chip" data-day="Mittwoch"   onclick="toggleDayChip(this,'hist')">Mi</button>
+        <button class="day-chip" data-day="Donnerstag" onclick="toggleDayChip(this,'hist')">Do</button>
+        <button class="day-chip" data-day="Freitag"    onclick="toggleDayChip(this,'hist')">Fr</button>
+        <button class="day-chip" data-day="Samstag"    onclick="toggleDayChip(this,'hist')">Sa</button>
+        <button class="day-chip" data-day="Sonntag"    onclick="toggleDayChip(this,'hist')">So</button>
+      </div>
+    </div>
+  </div>
+  <div id="history-list"><div class="tab-empty">Datumsbereich wählen und auf 🔄 Laden drücken.</div></div>
+</div>
+
+<div id="tab-durchschnitt" class="tab-panel">
+  <div class="avg-section">
+    <div class="avg-header-bar">📈 Durchschnittliche Bestellmengen</div>
+    <div class="avg-controls-row">
+      <select id="avg-range" onchange="renderAverages()">
+        <option value="4">Letzte 4 Bestellungen</option>
+        <option value="8" selected>Letzte 8 Bestellungen</option>
+        <option value="12">Letzte 12 Bestellungen</option>
+        <option value="26">Letzte 26 Bestellungen</option>
+        <option value="999">Alle</option>
+      </select>
+      <div class="day-filter-chips" id="avg-day-chips">
+        <button class="day-chip all-chip active" data-day="" onclick="toggleDayChip(this,'avg')">Alle Tage</button>
+        <button class="day-chip" data-day="Montag"     onclick="toggleDayChip(this,'avg')">Mo</button>
+        <button class="day-chip" data-day="Dienstag"   onclick="toggleDayChip(this,'avg')">Di</button>
+        <button class="day-chip" data-day="Mittwoch"   onclick="toggleDayChip(this,'avg')">Mi</button>
+        <button class="day-chip" data-day="Donnerstag" onclick="toggleDayChip(this,'avg')">Do</button>
+        <button class="day-chip" data-day="Freitag"    onclick="toggleDayChip(this,'avg')">Fr</button>
+        <button class="day-chip" data-day="Samstag"    onclick="toggleDayChip(this,'avg')">Sa</button>
+        <button class="day-chip" data-day="Sonntag"    onclick="toggleDayChip(this,'avg')">So</button>
+      </div>
+    </div>
+    <div id="avg-list"><div class="tab-empty">Noch keine Bestellhistorie vorhanden.</div></div>
+  </div>
+</div>
+
+<script>
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyeEVUipOKdh1uw6LPX1J3RHQeb7nzcBJPtZM1x_yMrpCYFdvz9cqyc61dG__pMG6FQ/exec";
+
+const CATEGORIES = [
+  {id:"aepfel", name:"Äpfel & Birnen", icon:"🍎", color:"#3A7D11", products:[
+    {plu:"1",  name:"Äpfel"},
+    {plu:"2",  name:"Äpfel 3 kg", infoOnly:true},
+    {plu:"41", name:"Kochäpfel"},
+    {plu:"4",  name:"Birnen"},
+  ]},
+  {id:"beeren", name:"Beeren", icon:"🫐", color:"#7B3FA0", products:[
+    {plu:"23", name:"Brombeeren"},
+    {plu:"–",  name:"Brombeeren 250 g"},
+    {plu:"31", name:"Erdbeeren"},
+    {plu:"24", name:"Heidelbeeren"},
+    {plu:"34", name:"Heidelbeeren 500g"},
+    {plu:"33", name:"Himbeeren"},
+    {plu:"43", name:"Himbeeren 500 g"},
+    {plu:"35", name:"Johannisbeeren (rot)"},
+    {plu:"44", name:"Johannisbeeren (schwarz)"},
+    {plu:"38", name:"Sauerkirschen"},
+    {plu:"45", name:"Sauerkirschen"},
+    {plu:"36", name:"Stachelbeeren"},
+  ]},
+  {id:"steinobst", name:"Steinobst & Kirschen", icon:"🍑", color:"#C0522A", products:[
+    {plu:"124", name:"Aprikosen"},
+    {plu:"112", name:"Gaishirtle"},
+    {plu:"23",  name:"Kirschen"},
+    {plu:"14",  name:"Mirabellen"},
+    {plu:"130", name:"Nektarinen"},
+    {plu:"25",  name:"Pfirsich"},
+    {plu:"125", name:"Ufo-Pfirsich"},
+    {plu:"5",   name:"Zwetschgen"},
+    {plu:"15",  name:"Zwetschgen"},
+  ]},
+  {id:"melonen", name:"Melonen & Sonstiges Obst", icon:"🍉", color:"#4CAF50", products:[
+    {plu:"126", name:"Netzmelone"},
+    {plu:"128", name:"Wassermelone"},
+    {plu:"109", name:"Quitten"},
+    {plu:"46",  name:"Trauben"},
+    {plu:"131", name:"Trauben"},
+  ]},
+  {id:"suedfruchte", name:"Südfrüchte & Exoten", icon:"🍊", color:"#D4830A", products:[
+    {plu:"83",  name:"Ananas"},
+    {plu:"78",  name:"Avocado"},
+    {plu:"80",  name:"Bananen"},
+    {plu:"81",  name:"Blutorangen"},
+    {plu:"21",  name:"Clementinen"},
+    {plu:"12",  name:"Orangen"},
+    {plu:"67",  name:"Zitronen"},
+    {plu:"118", name:"Granatapfel"},
+    {plu:"85",  name:"Ingwer"},
+    {plu:"82",  name:"Kiwi"},
+  ]},
+  {id:"tomaten", name:"Tomaten & Paprika", icon:"🍅", color:"#C0392B", products:[
+    {plu:"106", name:"Auberginen"},
+    {plu:"48",  name:"Paprika", infoOnly:true},
+    {plu:"47",  name:"Spitzpaprika", infoOnly:true},
+    {plu:"111", name:"Peperoni / Chilli"},
+    {plu:"–",   name:"Paprika rot"},
+    {plu:"–",   name:"Paprika gelb"},
+    {plu:"–",   name:"Paprika orange"},
+    {plu:"–",   name:"Spitzpaprika rot"},
+    {plu:"–",   name:"Spitzpaprika gelb"},
+    {plu:"–",   name:"Spitzpaprika orange"},
+    {plu:"–",   name:"Spitzpaprika mix"},
+    {plu:"11",  name:"Tomaten"},
+    {plu:"113", name:"Tomaten (Koch-)"},
+    {plu:"110", name:"Tomaten Remstal"},
+    {plu:"57",  name:"Tomaten San Marzano"},
+    {plu:"57",  name:"Tomaten Ochsenherz"},
+    {plu:"16",  name:"Tomaten Schale 250 g"},
+    {plu:"27",  name:"Tomaten Schale 500 g"},
+  ]},
+  {id:"salate", name:"Salate & Blattgemüse", icon:"🥬", color:"#27AE60", products:[
+    {plu:"8",   name:"Ackersalat"},
+    {plu:"65",  name:"Chicorée"},
+    {plu:"88",  name:"Chinakohl"},
+    {plu:"42",  name:"Kopfsalate", infoOnly:true},
+    {plu:"42",  name:"Batavia"},
+    {plu:"42",  name:"Kopfsalat"},
+    {plu:"42",  name:"Eichblatt rot"},
+    {plu:"42",  name:"Eichblatt grün"},
+    {plu:"42",  name:"Endivien"},
+    {plu:"122", name:"Kresse"},
+    {plu:"94",  name:"Mangold"},
+    {plu:"91",  name:"Pak Choi"},
+    {plu:"66",  name:"Radicchio"},
+    {plu:"29",  name:"Ruccola"},
+    {plu:"123", name:"Schnittsalat"},
+    {plu:"87",  name:"Spinat"},
+  ]},
+  {id:"kohl", name:"Kohl & Kohlgemüse", icon:"🥦", color:"#1E6F3E", products:[
+    {plu:"71",  name:"Blumenkohl"},
+    {plu:"72",  name:"Brokkoli"},
+    {plu:"77",  name:"Grünkohl"},
+    {plu:"119", name:"Kohlrabi"},
+    {plu:"89",  name:"Kohlröschen"},
+    {plu:"76",  name:"Kraut (rot & weiß)"},
+    {plu:"3",   name:"Kürbis"},
+    {plu:"121", name:"Lauch"},
+    {plu:"120", name:"Romanesco"},
+    {plu:"70",  name:"Rosenkohl"},
+    {plu:"108", name:"Sauerkraut"},
+    {plu:"60",  name:"Spitzkohl"},
+    {plu:"84",  name:"Wirsing"},
+  ]},
+  {id:"wurzel", name:"Wurzel- & Knollengemüse", icon:"🥕", color:"#B7770D", products:[
+    {plu:"100", name:"Fenchel"},
+    {plu:"19",  name:"Karotten"},
+    {plu:"75",  name:"Karotten (Bund)"},
+    {plu:"97",  name:"Urkarotten"},
+    {plu:"129", name:"Urkarotten (Bund)"},
+    {plu:"10",  name:"Kartoffel"},
+    {plu:"20",  name:"Kartoffel 2,5 kg"},
+    {plu:"26",  name:"Kartoffel (neue)"},
+    {plu:"99",  name:"Süßkartoffel"},
+    {plu:"56",  name:"Knoblauch (getrocknet)"},
+    {plu:"79",  name:"Knoblauch (frisch)"},
+    {plu:"98",  name:"Mairübchen"},
+    {plu:"69",  name:"Pastinaken"},
+    {plu:"68",  name:"Petersilienwurzel"},
+    {plu:"90",  name:"Rettich (weiß)"},
+    {plu:"96",  name:"Rettich (rot)"},
+    {plu:"101", name:"Rettich (schwarz)"},
+    {plu:"30",  name:"Rote Bete mit Grün"},
+    {plu:"104", name:"Rote Bete"},
+    {plu:"102", name:"Sellerie (Stauden-)"},
+    {plu:"105", name:"Sellerie"},
+    {plu:"107", name:"Sellerie mit Grün"},
+    {plu:"95",  name:"Steckrüben"},
+    {plu:"9",   name:"Zwiebel"},
+    {plu:"74",  name:"Zwiebel (Bund)"},
+  ]},
+  {id:"spargel", name:"Spargel, Gurken & Co.", icon:"🌱", color:"#7D8C6A", products:[
+    {plu:"50",  name:"Bohnen"},
+    {plu:"6",   name:"Gurke (Schlangen-)"},
+    {plu:"7",   name:"Gurke (Mini-)"},
+    {plu:"92",  name:"Pilze"},
+    {plu:"73",  name:"Radieschen"},
+    {plu:"49",  name:"Rhabarber"},
+    {plu:"37",  name:"Spargel 1A (weiß)"},
+    {plu:"59",  name:"Spargel 2A (weiß)"},
+    {plu:"58",  name:"Spargel Bund (weiß)"},
+    {plu:"39",  name:"Spargel (violett)"},
+    {plu:"40",  name:"Spargel (grün)"},
+    {plu:"17",  name:"Zucchini"},
+  ]},
+  {id:"kraeuter", name:"Kräuter & Suppengrün", icon:"🌿", color:"#5D8233", products:[
+    {plu:"28",  name:"Dill"},
+    {plu:"18",  name:"Kräuter", infoOnly:true},
+    {plu:"–",   name:"Koriander"},
+    {plu:"–",   name:"Grüne Soße"},
+    {plu:"–",   name:"Schnittlauch"},
+    {plu:"–",   name:"Petersilie glatt"},
+    {plu:"–",   name:"Petersilie krause"},
+    {plu:"93",  name:"Suppengrün"},
+  ]},
+  {id:"eier", name:"Eier", icon:"🥚", color:"#8B6914", products:[
+    {plu:"–",   name:"Eier Karton"},
+    {plu:"115", name:"Eier 1 St."},
+    {plu:"116", name:"Eier 10 St."},
+  ]},
+  {id:"saefte", name:"Säfte & Getränke", icon:"🍹", color:"#1A6BA0", products:[
+    {plu:"51",  name:"Apfelsaft"},
+    {plu:"114", name:"Glühwein"},
+    {plu:"52",  name:"Mischsäfte"},
+    {plu:"53",  name:"Saftbox"},
+  ]},
+  {id:"konfituere", name:"Konfitüre & Nüsse", icon:"🍓", color:"#903060", products:[
+    {plu:"54",  name:"Marmelade (kl.)"},
+    {plu:"55",  name:"Marmelade (gr.)"},
+    {plu:"117", name:"Walnüsse"},
+  ]},
+  {id:"pfand", name:"Pfand", icon:"💳", color:"#555", noOrder:true, products:[
+    {plu:"61", name:"Pfand 0,15 €"},
+    {plu:"62", name:"Pfand 0,25 €"},
+  ]},
+];
+
+// ═══════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════
+let userProducts  = {};
+let rawHistory    = [];   // komplette, ungefilterte Liste
+let sheetsOnline  = false;
+let orderDay      = '';   // gewählter Tag im Bestellen-Tab-Banner
+let selectedDay   = '';   // Tag im Modal
+let histDayFilter = '';
+let avgDayFilter  = '';
+
+// Edit-Mode-State
+let editMode       = false;
+let editIndex      = null;
+
+// ── LIEFERANTEN ──────────────────────────────
+const DEFAULT_SUPPLIERS = [
+  'Gärtnerei Bauer','Sonnenland Schmid','Rebhorn','Tsiorvas','Haap',
+  'Kiemle','Kärcher','Merz','Clauss','Felger','Bauerle','Neber',
+  'Lang','Schäffer','Binder'
+];
+let customSuppliers = [];   // vom Nutzer hinzugefügte Lieferanten (aus Sheets)
+let supplierChoices = {};   // { "catid|name" : "Lieferantenname" } – letzte Wahl
+function allSuppliers() {
+  return [...DEFAULT_SUPPLIERS, ...customSuppliers.filter(s => !DEFAULT_SUPPLIERS.includes(s))];
+}
+
+// Offline-Sync-Queue: Aktionen die während Offline gesammelt werden
+const SYNC_QUEUE_KEY = 'hofmarkt_sync_queue';
+
+function getSyncQueue() {
+  try { return JSON.parse(localStorage.getItem(SYNC_QUEUE_KEY) || '[]'); } catch(e) { return []; }
+}
+function saveSyncQueue(q) {
+  try { localStorage.setItem(SYNC_QUEUE_KEY, JSON.stringify(q)); } catch(e) {}
+}
+function enqueueSyncAction(payload) {
+  const q = getSyncQueue();
+  q.push({...payload, _queuedAt: new Date().toISOString()});
+  saveSyncQueue(q);
+}
+async function flushSyncQueue() {
+  const q = getSyncQueue();
+  if (!q.length) return;
+  const failed = [];
+  for (const item of q) {
+    try {
+      const {_queuedAt, ...payload} = item;
+      await apiPost(payload);
+    } catch(e) {
+      failed.push(item);
+    }
+  }
+  saveSyncQueue(failed);
+  if (q.length > failed.length) {
+    showToast(`☁️ ${q.length - failed.length} offline-Aktion(en) synchronisiert.`);
+  }
+}
+
+// ═══════════════════════════════════════════
+//  API
+// ═══════════════════════════════════════════
+async function apiGet(params) {
+  const url = SCRIPT_URL + '?' + new URLSearchParams(params).toString() + '&t=' + Date.now();
+  const res = await fetch(url, {cache:'no-cache', redirect:'follow'});
+  // Google Apps Script kann 302-Redirects liefern die fetch automatisch folgt;
+  // die finale Response ist dann ok:true aber manchmal text/html bei Fehlern
+  const text = await res.text();
+  try {
+    return JSON.parse(text);
+  } catch(e) {
+    throw new Error('Keine JSON-Antwort vom Server (möglicherweise falsche Script-URL oder nicht deployed)');
+  }
+}
+async function apiPost(payload) {
+  try {
+    await fetch(SCRIPT_URL, {method:'POST', mode:'no-cors', body:JSON.stringify(payload)});
+    sheetsOnline = true;
+    // no-cors liefert immer eine opaque Response – wir können den Body nicht lesen.
+    // Für kritische Aktionen (save/update/delete) verifizieren wir daher nicht den Response,
+    // sondern verlassen uns auf die Offline-Queue als Sicherheitsnetz.
+  } catch(e) {
+    sheetsOnline = false;
+    setStatus(false);
+    // Offline: in Queue einreihen damit beim nächsten Start synchronisiert wird
+    const syncActions = ['saveorder','updateorder','deleteorder'];
+    if (syncActions.includes((payload.action||'').toLowerCase())) {
+      enqueueSyncAction(payload);
+    }
+    throw e; // damit der Aufrufer den Fehler weiterhin anzeigen kann
+  }
+}
+
+// ═══════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════
+async function init() {
+  document.getElementById('hist-from').value = new Date(Date.now()-30*864e5).toISOString().slice(0,10);
+  document.getElementById('hist-to').value   = new Date().toISOString().slice(0,10);
+
+  try {
+    document.getElementById('loading-msg').textContent = 'Lade Daten aus Google Sheets…';
+    const d = await apiGet({action:'init'});
+    if (d.error) throw new Error(d.error);
+    userProducts    = d.products        || {};
+    rawHistory      = d.history         || [];
+    customSuppliers = d.customSuppliers || [];
+    supplierChoices = d.supplierChoices || {};
+    sheetsOnline = true;
+    setStatus(true);
+    await flushSyncQueue();
+  } catch(e) {
+    sheetsOnline = false;
+    setStatus(false);
+    console.error('Init-Fehler:', e.message);
+    document.getElementById('loading-msg').textContent = 'Offline-Modus – ' + e.message;
+    await new Promise(r => setTimeout(r, 1200));
+  }
+
+  buildUI();
+  // Autosave wiederherstellen falls vorhanden
+  const snap = restoreAutosave();
+  if(snap && snap.items && snap.items.length > 0) {
+    const dismissedAt = localStorage.getItem('hofmarkt_autosave_dismissed');
+    const snapTime = new Date(snap.savedAt).getTime();
+    // Nur fragen wenn der Snap neuer ist als das letzte Ablehnen
+    if (!dismissedAt || snapTime > parseInt(dismissedAt)) {
+      setTimeout(() => {
+        if(confirm(`💾 Nicht gespeicherter Entwurf vom ${new Date(snap.savedAt).toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})} Uhr gefunden (${snap.items.length} Artikel). Wiederherstellen?`)) {
+          applySnapshot(snap);
+          showToast('↩️ Entwurf wiederhergestellt.');
+        } else {
+          // Merken dass User abgelehnt hat – nicht nochmal fragen für diesen Snap
+          localStorage.setItem('hofmarkt_autosave_dismissed', snapTime.toString());
+        }
+      }, 400);
+    }
+  }
+  document.getElementById('loading').style.display = 'none';
+}
+
+function setStatus(ok) {
+  const b = document.getElementById('status-bar');
+  b.textContent = ok ? '⬤ Verbunden mit Google Sheets' : '⬤ Offline – keine Verbindung';
+  b.style.background = ok ? 'rgba(45,80,22,.45)' : 'rgba(160,50,0,.35)';
+}
+
+// ═══════════════════════════════════════════
+//  EDIT MODE
+// ═══════════════════════════════════════════
+function enterEditMode(histIdx) {
+  const order = rawHistory[histIdx];
+  if (!order) return;
+
+  editMode  = true;
+  editIndex = histIdx;
+
+  // UI: Banner anzeigen, Speichern-Button anpassen
+  const banner = document.getElementById('edit-mode-banner');
+  const dt   = new Date(order.savedAt);
+  const ds   = dt.toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'});
+  document.getElementById('edit-mode-label').textContent =
+    `✏️ Bearbeitung: ${order.weekday || 'Unbekannter Tag'} (${ds})`;
+  banner.classList.add('visible');
+  document.body.classList.add('edit-active');
+
+  const btn = document.getElementById('btn-save');
+  btn.textContent = '💾 Änderungen speichern';
+  btn.classList.add('edit-mode');
+
+  // Tag-Banner vorbelegen
+  orderDay = order.weekday || '';
+  selectedDay = orderDay;
+  document.querySelectorAll('.day-select-chip').forEach(c => {
+    c.classList.toggle('active', !!orderDay && c.dataset.day === orderDay);
+  });
+  if (orderDay) {
+    document.getElementById('day-banner').classList.add('day-selected');
+    document.getElementById('day-banner-hint').style.display = 'none';
+    document.querySelectorAll('.day-btn').forEach(b =>
+      b.classList.toggle('selected', b.dataset.day === orderDay));
+    document.getElementById('modal-ok-btn').disabled = false;
+  }
+
+  // Felder befüllen: erst UI bauen, dann Werte eintragen
+  buildUI();
+
+  // Werte aus dem Eintrag in die Inputs laden
+  (order.items || []).forEach(it => {
+    const itemEl = findItemElement(it.catid, it.plu, it.name);
+    if (!itemEl) return;
+    const ins = itemEl.querySelectorAll('.qty-input');
+    if (ins.length >= 2) {
+      if (it.bestand > 0) {
+        ins[0].value = it.bestand;
+        ins[0].classList.add('filled-bestand');
+      }
+      if (it.bestellen > 0) {
+        ins[1].value = it.bestellen;
+        ins[1].classList.add('filled');
+      }
+    }
+    const notizEl = itemEl.querySelector('.notiz-input');
+    if (notizEl && it.notiz) notizEl.value = it.notiz;
+    // Lieferant wiederherstellen
+    if (it.supplier) {
+      const sel = itemEl.querySelector('.supplier-select');
+      if (sel) {
+        // Sicherstellen dass der Lieferant als Option vorhanden ist,
+        // auch wenn er nicht in customSuppliers geladen wurde
+        const exists = Array.from(sel.options).some(o => o.value === it.supplier);
+        if (!exists) {
+          const opt = document.createElement('option');
+          opt.value = it.supplier;
+          opt.textContent = it.supplier;
+          sel.appendChild(opt);
+          // Auch in customSuppliers aufnehmen damit er zukünftig in der Liste erscheint
+          if (!DEFAULT_SUPPLIERS.includes(it.supplier) && !customSuppliers.includes(it.supplier)) {
+            customSuppliers.push(it.supplier);
+          }
+        }
+        sel.value = it.supplier;
+        sel.classList.toggle('has-value', !!it.supplier);
+      }
+    }
+    // Kategorie aufklappen wenn Wert vorhanden
+    if (it.bestand > 0 || it.bestellen > 0 || it.notiz) {
+      itemEl.closest('.category')?.classList.add('open');
+    }
+  });
+
+  updateSummary();
+  switchTab('bestellen');
+  showToast(`✏️ Bearbeitung gestartet für ${order.weekday || 'Eintrag'}`);
+}
+
+function cancelEditMode() {
+  editMode  = false;
+  editIndex = null;
+  document.getElementById('edit-mode-banner').classList.remove('visible');
+  document.body.classList.remove('edit-active');
+  const btn = document.getElementById('btn-save');
+  btn.textContent = '💾 Speichern';
+  btn.classList.remove('edit-mode');
+  buildUI(); // felder leeren
+  showToast('Bearbeitung abgebrochen.');
+}
+
+// ═══════════════════════════════════════════
+//  Helper: Item-Element anhand catid/plu/name finden
+// ═══════════════════════════════════════════
+function findItemElement(catid, plu, name) {
+  // Suche anhand catid + name (plu kann doppelt sein)
+  let found = null;
+  document.querySelectorAll('#main .category').forEach(catEl => {
+    if (catEl.dataset.catid !== catid) return;
+    catEl.querySelectorAll('.item').forEach(it => {
+      if (it.dataset.name === name) found = it;
+    });
+  });
+  return found;
+}
+
+// ═══════════════════════════════════════════
+//  MODAL & SPEICHERN
+// ═══════════════════════════════════════════
+function handleSaveBtn() {
+  if (editMode) {
+    // Im Edit-Modus: Modal öffnen damit Tag geändert werden kann
+    // Tag mit dem aktuell eingestellten orderDay vorbelegen
+    selectedDay = orderDay || rawHistory[editIndex]?.weekday || '';
+    document.querySelectorAll('.day-btn').forEach(b =>
+      b.classList.toggle('selected', !!selectedDay && b.dataset.day === selectedDay));
+    document.getElementById('modal-ok-btn').disabled = !selectedDay;
+    document.getElementById('day-modal').classList.remove('hidden');
+  } else {
+    openDayModal();
+  }
+}
+
+function openDayModal() {
+  // Prüfen: gibt es irgendeinen Wert (Bestand ODER Bestellen)?
+  let has = false;
+  document.querySelectorAll('#main .item .qty-input').forEach(i => {
+    if (parseFloat(i.value) > 0) has = true;
+  });
+  document.querySelectorAll('#main .item .notiz-input').forEach(i => {
+    if (i.value.trim()) has = true;
+  });
+  if (!has) { showToast('Bitte erst etwas eintragen!', true); return; }
+
+  selectedDay = orderDay || '';
+  document.querySelectorAll('.day-btn').forEach(b =>
+    b.classList.toggle('selected', !!selectedDay && b.dataset.day === selectedDay));
+  document.getElementById('modal-ok-btn').disabled = !selectedDay;
+  document.getElementById('day-modal').classList.remove('hidden');
+}
+
+function selectDay(btn) {
+  document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  selectedDay = btn.dataset.day;
+  document.getElementById('modal-ok-btn').disabled = false;
+}
+
+function closeModal() {
+  document.getElementById('day-modal').classList.add('hidden');
+}
+
+// ═══════════════════════════════════════════
+//  SPEICHERN (neu + überschreiben)
+// ═══════════════════════════════════════════
+async function confirmSave() {
+  // ── VORLAGE LADEN (nur Tag wählen, nicht speichern) ──
+  if (_templateDayPending && _pendingTemplateIdx !== null) {
+    const day = selectedDay;
+    if (!day) return;
+    _templateDayPending = false;
+    closeModal();
+    const order = rawHistory[_pendingTemplateIdx];
+    _pendingTemplateIdx = null;
+    buildUI();
+    orderDay = day; selectedDay = day;
+    document.querySelectorAll('.day-select-chip').forEach(c =>
+      c.classList.toggle('active', c.dataset.day === day));
+    document.getElementById('day-banner').classList.add('day-selected');
+    document.getElementById('day-banner-hint').style.display = 'none';
+    document.querySelectorAll('.day-btn').forEach(b =>
+      b.classList.toggle('selected', b.dataset.day === day));
+    document.getElementById('modal-ok-btn').disabled = false;
+    updateAvgHints();
+    (order.items || []).forEach(it => {
+      const itemEl = findItemElement(it.catid, it.plu, it.name);
+      if(!itemEl) return;
+      const ins = itemEl.querySelectorAll('.qty-input');
+      if(ins.length >= 2 && it.bestellen > 0) {
+        ins[1].value = it.bestellen; ins[1].classList.add('filled');
+      }
+      if(it.supplier) {
+        const sel = itemEl.querySelector('.supplier-select');
+        if(sel) { sel.value = it.supplier; sel.classList.toggle('has-value', !!it.supplier); }
+      }
+      if(it.bestand > 0 || it.bestellen > 0)
+        itemEl.closest('.category')?.classList.add('open');
+    });
+    updateSummary(); doAutosave();
+    showToast(`📋 Vorlage geladen für ${day}!`);
+    return;
+  }
+
+  // Im Edit-Modus: Tag aus editIndex-Eintrag behalten (selectedDay ggf. überschrieben via Banner)
+  const day = editMode ? (orderDay || rawHistory[editIndex]?.weekday || '') : selectedDay;
+  if (!day && !editMode) return;
+
+  closeModal();
+
+  const btn = document.getElementById('btn-save');
+  btn.disabled = true;
+  btn.textContent = '⏳ …';
+
+  const items = [];
+  document.querySelectorAll('#main .category').forEach(catEl => {
+    const {catid, catname} = catEl.dataset;
+    catEl.querySelectorAll('.item').forEach(it => {
+      const ins = it.querySelectorAll('.qty-input');
+      if (!ins.length) return;
+      const bestand   = parseFloat(ins[0].value) || 0;
+      const bestellen = parseFloat(ins[1].value) || 0;
+      const notiz     = it.querySelector('.notiz-input')?.value || '';
+      const supplier  = getItemSupplier(it);
+      if (bestand || bestellen || notiz) {
+        items.push({catid, catname, plu:it.dataset.plu, name:it.dataset.name, bestand, bestellen, notiz, supplier});
+      }
+    });
+  });
+
+  if (!items.length) {
+    showToast('Bitte erst etwas eintragen!', true);
+    btn.disabled = false;
+    btn.textContent = editMode ? '💾 Änderungen speichern' : '💾 Speichern';
+    return;
+  }
+
+  if (editMode) {
+    // ── ÜBERSCHREIBEN ──
+    const orig = rawHistory[editIndex];
+    const updatedOrder = {
+      ...orig,
+      weekday: day || orig.weekday,
+      items,
+      hasBestand:   items.some(i => i.bestand  > 0),
+      hasBestellen: items.some(i => i.bestellen > 0),
+      editedAt: new Date().toISOString()
+    };
+    rawHistory[editIndex] = updatedOrder;
+
+    try {
+      await apiPost({action:'updateOrder', index: editIndex, order: updatedOrder});
+      showToast(`✅ Eintrag aktualisiert (${updatedOrder.weekday})!`);
+    } catch(e) {
+      showToast('⚠️ Lokal aktualisiert – Sheets offline', true);
+    }
+
+    // Edit-Modus beenden
+    editMode  = false;
+    editIndex = null;
+    document.getElementById('edit-mode-banner').classList.remove('visible');
+    document.body.classList.remove('edit-active');
+    btn.textContent = '💾 Speichern';
+    btn.classList.remove('edit-mode');
+
+  } else {
+    // ── NEU ANLEGEN ──
+    // hasBestand-Flag damit das Apps Script auch reine Bestand-Einträge korrekt speichert
+    const hasBestand  = items.some(i => i.bestand  > 0);
+    const hasBestellen = items.some(i => i.bestellen > 0);
+    const order = {
+      savedAt: new Date().toISOString(),
+      weekday: day,
+      hasBestand,
+      hasBestellen,
+      items
+    };
+    rawHistory.unshift(order);
+
+    try {
+      await apiPost({action:'saveOrder', order});
+      showToast(`✅ Gespeichert für ${day}!`);
+      localStorage.removeItem(AUTOSAVE_KEY);
+      localStorage.removeItem('hofmarkt_autosave_dismissed');
+    } catch(e) {
+      showToast('⚠️ Lokal gespeichert – Sheets offline', true);
+    }
+  }
+
+  // Durchschnitt-Tab ggf. aktualisieren
+  if (document.getElementById('tab-durchschnitt').classList.contains('active')) {
+    renderAverages();
+  }
+
+  buildUI();
+  btn.disabled = false;
+  btn.textContent = '💾 Speichern';
+}
+
+// ═══════════════════════════════════════════
+//  SOFT-DELETE mit Undo-Toast (kein confirm)
+// ═══════════════════════════════════════════
+let _undoTimer = null;
+let _pendingDelete = null; // {histIdx, order}
+
+async function deleteHistoryEntry(histIdx) {
+  const order = rawHistory[histIdx];
+  if (!order) return;
+
+  // Sofort in der UI ausblenden
+  rawHistory[histIdx] = {...order, deleted: true};
+  renderHistory(getFilteredHistory());
+
+  // Alten Pending-Delete ohne Undo abschließen
+  if (_pendingDelete !== null) {
+    clearTimeout(_undoTimer);
+    await _commitDelete(_pendingDelete);
+  }
+
+  _pendingDelete = {histIdx, order};
+
+  // Undo-Toast für 5 Sekunden
+  showUndoToast('🗑 Eintrag gelöscht.', async () => {
+    // Undo: Eintrag wiederherstellen
+    clearTimeout(_undoTimer);
+    if (_pendingDelete) {
+      rawHistory[_pendingDelete.histIdx] = _pendingDelete.order;
+      _pendingDelete = null;
+    }
+    renderHistory(getFilteredHistory());
+    showToast('↩️ Löschen rückgängig gemacht.');
+  });
+
+  _undoTimer = setTimeout(async () => {
+    if (_pendingDelete) {
+      await _commitDelete(_pendingDelete);
+      _pendingDelete = null;
+    }
+  }, 5000);
+}
+
+async function _commitDelete({histIdx, order}) {
+  try {
+    await apiPost({action:'deleteOrder', savedAt: order.savedAt});
+  } catch(e) {}
+}
+
+// ═══════════════════════════════════════════
+//  TAG IM BESTELLEN-TAB (Banner)
+// ═══════════════════════════════════════════
+function selectOrderDay(btn) {
+  orderDay = btn.dataset.day;
+  document.querySelectorAll('.day-select-chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('day-banner').classList.add('day-selected');
+  document.getElementById('day-banner-hint').style.display = 'none';
+  // Modal vorbelegen
+  selectedDay = orderDay;
+  document.querySelectorAll('.day-btn').forEach(b =>
+    b.classList.toggle('selected', b.dataset.day === orderDay));
+  document.getElementById('modal-ok-btn').disabled = false;
+  // Nur Durchschnitts-Hints neu rendern (OHNE buildUI – würde Eingaben löschen!)
+  updateAvgHints();
+  updateSummary();
+}
+
+function updateAvgHints() {
+  const avgMap = buildAvgMap(orderDay);
+  document.querySelectorAll('#main .item').forEach(itemEl => {
+    const catid = itemEl.dataset.catid;
+    const name  = itemEl.dataset.name;
+    const k = catid + '|' + name;
+    const a = avgMap[k];
+    // Bestehendes Hint-Element finden oder erzeugen
+    let hintEl = itemEl.querySelector('.item-avg-hint');
+    if (a && a.avgGesamt > 0) {
+      const fmt = v => v%1===0 ? String(v) : v.toFixed(1);
+      const parts = [];
+      if (a.avgBestand   > 0) parts.push(`Bst. Ø ${fmt(a.avgBestand)}`);
+      if (a.avgBestellen > 0) parts.push(`Best. Ø ${fmt(a.avgBestellen)}`);
+      const lbl = orderDay ? `letzten 4 ${orderDay}-Bestellungen` : 'letzten 4 Bestellungen';
+      const html = `${lbl}: <span>${parts.join(' · ')}</span>`;
+      if (hintEl) {
+        hintEl.innerHTML = html;
+      } else {
+        hintEl = document.createElement('div');
+        hintEl.className = 'item-avg-hint';
+        hintEl.innerHTML = html;
+        itemEl.appendChild(hintEl);
+      }
+    } else if (hintEl) {
+      hintEl.remove();
+    }
+  });
+}
+
+// ═══════════════════════════════════════════
+//  TAG-FILTER CHIPS (Historie & Durchschnitt)
+// ═══════════════════════════════════════════
+function toggleDayChip(btn, scope) {
+  const container = document.getElementById(scope==='hist' ? 'hist-day-chips' : 'avg-day-chips');
+  container.querySelectorAll('.day-chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+
+  if (scope === 'hist') {
+    histDayFilter = btn.dataset.day;
+    renderHistory(getFilteredHistory());
+  } else {
+    avgDayFilter = btn.dataset.day;
+    renderAverages();
+  }
+}
+
+// ═══════════════════════════════════════════
+//  DURCHSCHNITT-MAP (für Item-Hints)
+// ═══════════════════════════════════════════
+function buildAvgMap(day) {
+  let pool = day ? rawHistory.filter(o => !o.deleted && o.weekday===day) : rawHistory.filter(o => !o.deleted);
+  pool = pool.slice(0, 4);
+  if (!pool.length) return {};
+  const n = pool.length;
+  const acc = {};
+  pool.forEach(o => (o.items||[]).forEach(it => {
+    const k = it.catid+'|'+it.name;
+    if (!acc[k]) acc[k] = {sumBst:0, sumOrd:0, count:0};
+    acc[k].sumBst += (it.bestand||0);
+    acc[k].sumOrd += (it.bestellen||0);
+    acc[k].count++;
+  }));
+  const res = {};
+  Object.entries(acc).forEach(([k, v]) => {
+    res[k] = {avgBestand:v.sumBst/n, avgBestellen:v.sumOrd/n, avgGesamt:(v.sumBst+v.sumOrd)/n, count:v.count};
+  });
+  return res;
+}
+
+// ═══════════════════════════════════════════
+//  VERGLEICH-MAP (für Pfeile in Übersicht)
+// ═══════════════════════════════════════════
+function buildExtAvgMap(day) {
+  let pool = day
+    ? rawHistory.filter(o => !o.deleted && o.weekday===day)
+    : rawHistory.filter(o => !o.deleted);
+  if (!pool.length) return {};
+  const n4   = Math.min(pool.length, 4);
+  const r4   = pool.slice(0, n4);
+  const old4 = pool.slice(n4, n4+4);
+
+  const sumUp = (orders, n) => {
+    const acc = {};
+    orders.forEach(o => (o.items||[]).filter(x=>x.bestellen>0).forEach(it => {
+      const k = it.catid+'|'+it.name;
+      if (!acc[k]) acc[k] = 0;
+      acc[k] += it.bestellen;
+    }));
+    const r = {};
+    Object.entries(acc).forEach(([k,v]) => r[k] = v/n);
+    return r;
+  };
+
+  const avg4   = sumUp(r4, n4);
+  const avgOld = old4.length ? sumUp(old4, old4.length) : null;
+
+  const res = {};
+  Object.entries(avg4).forEach(([k, avgBest]) => {
+    let trend = 'flat';
+    if (avgOld && avgOld[k] != null) {
+      const pct = (avgBest - avgOld[k]) / (avgOld[k]||1);
+      if      (pct >  0.12) trend = 'up';
+      else if (pct < -0.12) trend = 'down';
+    }
+    res[k] = {avgBestellen: avgBest, trend};
+  });
+  return res;
+}
+
+function getArrow(current, avg) {
+  if (!avg) return null;
+  const pct = (current - avg) / avg;
+  if      (pct >=  0.25) return {cls:'up2',   sym:'↑↑'};
+  else if (pct >=  0.08) return {cls:'up1',   sym:'↗'};
+  else if (pct <= -0.25) return {cls:'down2', sym:'↓↓'};
+  else if (pct <= -0.08) return {cls:'down1', sym:'↘'};
+  else                   return {cls:'even',  sym:'→'};
+}
+
+// ═══════════════════════════════════════════
+//  BUILD UI
+// ═══════════════════════════════════════════
+function buildUI() {
+  const container = document.getElementById('main');
+  container.innerHTML = '';
+  const avgMap = buildAvgMap(orderDay);
+
+  CATEGORIES.forEach(cat => {
+    const extra = (userProducts[cat.id]||[]).filter(p => p.userAdded);
+    const allP  = [...cat.products, ...extra.map(p=>({...p, infoOnly:false}))];
+    const orderCount = allP.filter(p => !p.infoOnly).length;
+
+    const el = document.createElement('div');
+    el.className = 'category';
+    Object.assign(el.dataset, {catid:cat.id, catname:cat.name, catcolor:cat.color});
+
+    el.innerHTML = `
+      <div class="cat-header" onclick="toggleCat(this)" style="background:${cat.color};color:white">
+        <div class="cat-header-left">
+          <span class="cat-icon">${cat.icon}</span>
+          <span class="cat-name">${cat.name}</span>
+          <span class="cat-count">${orderCount}</span>
+        </div>
+        <span class="chevron">▼</span>
+      </div>
+      <div class="cat-items">
+        ${cat.noOrder ? '' : `
+        <div class="col-headers">
+          <span class="ch-plu"></span><span class="ch-name">Artikel</span>
+          <span class="ch-bestand">Bestand</span>
+          <span class="ch-bestellen">Bestellen</span>
+          <span class="ch-notiz">Notiz</span>
+          <span class="ch-actions"></span>
+        </div>`}
+        ${allP.map(p => itemHTML(p, cat, avgMap)).join('')}
+        ${cat.noOrder ? '' : addFormHTML(cat.id)}
+      </div>`;
+
+    container.appendChild(el);
+  });
+  updateSummary();
+}
+
+function itemHTML(p, cat, avgMap) {
+  const n = esc(p.name);
+
+  if (cat.noOrder || p.infoOnly) {
+    return `<div class="item-info" data-catid="${cat.id}" data-plu="${p.plu}" data-name="${n}">
+      <span class="plu-num">${p.plu}</span>
+      <span class="plu-name">${n}</span>
+      ${p.infoOnly ? '<span class="info-tag">nur PLU</span>' : ''}
+    </div>`;
+  }
+
+  let avgHint = '';
+  if (avgMap) {
+    const k = cat.id+'|'+p.name;
+    const a = avgMap[k];
+    if (a && a.avgGesamt > 0) {
+      const fmt = v => v%1===0 ? String(v) : v.toFixed(1);
+      const parts = [];
+      if (a.avgBestand   > 0) parts.push(`Bst. Ø ${fmt(a.avgBestand)}`);
+      if (a.avgBestellen > 0) parts.push(`Best. Ø ${fmt(a.avgBestellen)}`);
+      const lbl = orderDay ? `letzten 4 ${orderDay}-Bestellungen` : 'letzten 4 Bestellungen';
+      avgHint = `<div class="item-avg-hint">${lbl}: <span>${parts.join(' · ')}</span></div>`;
+    }
+  }
+
+  const supKey = cat.id+'|'+p.name;
+  const lastSup = supplierChoices[supKey] || '';
+  const supOptions = allSuppliers().map(s =>
+    `<option value="${esc(s)}"${s===lastSup?' selected':''}>${esc(s)}</option>`
+  ).join('');
+  // Eindeutige ID für inline-add
+  const safeKey = (cat.id+'__'+p.name).replace(/[^a-zA-Z0-9]/g,'_');
+
+  return `
+    <div class="item" data-catid="${cat.id}" data-plu="${p.plu}" data-name="${n}" data-ua="${!!p.userAdded}">
+      <div class="item-main">
+        <span class="plu-num">${p.plu}</span>
+        <span class="plu-name">${n}</span>
+        ${p.userAdded ? '<span class="user-badge">eigenes Produkt</span>' : ''}
+        <div class="item-actions">
+          ${p.userAdded ? `<button class="btn-del" onclick="deleteProduct('${cat.id}','${esc(p.plu)}','${n}')" title="Löschen">✕</button>` : ''}
+        </div>
+        <input class="qty-input" type="number" min="0" placeholder="0" title="Bestand"   inputmode="numeric" pattern="[0-9]*" oninput="onQty(this,false)" onkeydown="onQtyKeydown(event,this)">
+        <input class="qty-input" type="number" min="0" placeholder="0" title="Bestellen" inputmode="numeric" pattern="[0-9]*" oninput="onQty(this,true)"  onkeydown="onQtyKeydown(event,this)">
+      </div>
+      <div class="item-supplier-row">
+        <select class="supplier-select${lastSup?' has-value':''}"
+                onchange="onSupplierChange(this,'${cat.id}','${n}','${safeKey}')">
+          <option value="">— Lieferant —</option>
+          ${supOptions}
+        </select>
+        <button class="btn-add-supplier" onclick="toggleSupplierAdd('${safeKey}')">+ Neu</button>
+      </div>
+      <div class="supplier-add-inline" id="sai-${safeKey}">
+        <input type="text" id="sai-inp-${safeKey}" placeholder="Lieferant …">
+        <button class="btn-sup-ok" onclick="addSupplier('${safeKey}','${cat.id}','${n}')">OK</button>
+        <button class="btn-sup-cancel" onclick="toggleSupplierAdd('${safeKey}')">✕</button>
+      </div>
+      <div class="item-notiz-row">
+        <input class="notiz-input" type="text" placeholder="Notiz …" oninput="updateSummary()">
+      </div>
+      ${avgHint}
+    </div>`;
+}
+
+function addFormHTML(id) {
+  return `
+    <div class="cat-footer">
+      <button class="btn-add-product" onclick="toggleAddForm('${id}')">+ Produkt hinzufügen</button>
+    </div>
+    <div class="add-form" id="af-${id}">
+      <div><label>Artikelname *</label><input type="text"   class="add-form-name" id="an-${id}" placeholder="z.B. Mango"></div>
+      <div><label>PLU (optional)</label><input type="number" class="add-form-plu"  id="ap-${id}" placeholder="999"></div>
+      <button class="btn-add-confirm" onclick="addProduct('${id}')">Hinzufügen</button>
+      <button class="btn-add-cancel"  onclick="toggleAddForm('${id}')">Abbrechen</button>
+    </div>`;
+}
+
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')}
+function toggleCat(h){h.closest('.category').classList.toggle('open')}
+function toggleAddForm(id){
+  const f=document.getElementById('af-'+id);
+  f.classList.toggle('open');
+  if(f.classList.contains('open')) document.getElementById('an-'+id).focus();
+}
+
+// ─── LIEFERANTEN-FUNKTIONEN ───────────────────
+function onSupplierChange(sel, catid, name, safeKey) {
+  const val = sel.value;
+  sel.classList.toggle('has-value', !!val);
+  if (!val) return;
+  const k = catid+'|'+name;
+  supplierChoices[k] = val;
+  // Letzte Wahl ins Backend persistieren
+  apiPost({action:'saveSupplierChoice', key: k, supplier: val}).catch(()=>{});
+  updateSummary();
+}
+
+function toggleSupplierAdd(safeKey) {
+  const el = document.getElementById('sai-'+safeKey);
+  el.classList.toggle('open');
+  if (el.classList.contains('open')) document.getElementById('sai-inp-'+safeKey).focus();
+}
+
+async function addSupplier(safeKey, catid, name) {
+  const inp = document.getElementById('sai-inp-'+safeKey);
+  const val = inp.value.trim();
+  if (!val) { inp.focus(); return; }
+  if (!customSuppliers.includes(val) && !DEFAULT_SUPPLIERS.includes(val)) {
+    customSuppliers.push(val);
+    try { await apiPost({action:'saveCustomSupplier', name: val}); } catch(e) {}
+  }
+  // Direkt als Auswahl setzen
+  const k = catid+'|'+name;
+  supplierChoices[k] = val;
+  try { await apiPost({action:'saveSupplierChoice', key: k, supplier: val}); } catch(e) {}
+  inp.value = '';
+  toggleSupplierAdd(safeKey);
+  buildUI();  // Dropdown neu bauen mit neuem Lieferanten vorausgewählt
+  showToast(`✅ Lieferant "${val}" hinzugefügt & gewählt.`);
+}
+
+// Lieferant für ein Item aus dem DOM auslesen
+function getItemSupplier(itemEl) {
+  return itemEl.querySelector('.supplier-select')?.value || '';
+}
+
+function onQty(inp, isBestell) {
+  haptic(18);
+  const val = parseFloat(inp.value) || 0;
+  if (isBestell) {
+    inp.classList.toggle('filled', val > 0);
+  } else {
+    inp.classList.toggle('filled-bestand', val > 0);
+  }
+  updateSummary();
+  scheduleAutosave();
+}
+
+function filterItems(q){
+  q=q.toLowerCase().trim();let any=false;
+  document.querySelectorAll('#main .category').forEach(cat=>{
+    let vis=false;
+    cat.querySelectorAll('.item,.item-info').forEach(it=>{
+      const ok=!q||it.dataset.name.toLowerCase().includes(q)||it.dataset.plu.toLowerCase().includes(q);
+      it.classList.toggle('hidden',!ok);if(ok)vis=true;
+    });
+    cat.classList.toggle('all-hidden',!vis);
+    if(q&&vis)cat.classList.add('open');if(vis)any=true;
+  });
+  document.getElementById('no-results').style.display=any?'none':'block';
+}
+
+// ═══════════════════════════════════════════
+//  ADD / DELETE PRODUKT
+// ═══════════════════════════════════════════
+async function addProduct(catId){
+  const ne=document.getElementById('an-'+catId), pe=document.getElementById('ap-'+catId);
+  const name=ne.value.trim(), plu=pe.value.trim()||'–';
+  if(!name){ne.focus();return;}
+  const prod={plu,name,userAdded:true,addedAt:new Date().toISOString()};
+  if(!userProducts[catId]) userProducts[catId]=[];
+  userProducts[catId].push(prod);
+  try{await apiPost({action:'saveProduct',catId,product:prod})}catch(e){}
+  ne.value='';pe.value='';
+  toggleAddForm(catId);buildUI();showToast('✅ Produkt hinzugefügt!');
+}
+async function deleteProduct(catId,plu,name){
+  if(!confirm(`"${name}" wirklich löschen?`))return;
+  if(!userProducts[catId])return;
+  const idx=userProducts[catId].findIndex(p=>p.userAdded&&p.plu===plu&&p.name===name);
+  if(idx===-1)return;
+  userProducts[catId].splice(idx,1);
+  try{await apiPost({action:'deleteProduct',catId,plu,name})}catch(e){}
+  buildUI();showToast('🗑 Produkt gelöscht.');
+}
+
+// ═══════════════════════════════════════════
+//  ÜBERSICHT
+// ═══════════════════════════════════════════
+function updateSummary(){
+  const bM={},sM={};let bt=0,st=0;
+  document.querySelectorAll('#main .category').forEach(catEl=>{
+    const {catid,catname,catcolor}=catEl.dataset;
+    catEl.querySelectorAll('.item').forEach(it=>{
+      const ins=it.querySelectorAll('.qty-input');if(!ins.length)return;
+      const bestand=parseFloat(ins[0].value)||0, bestellen=parseFloat(ins[1].value)||0;
+      const notiz=it.querySelector('.notiz-input')?.value||'';
+      const {plu,name}=it.dataset;
+      if(bestellen>0){if(!bM[catid])bM[catid]={name:catname,color:catcolor,items:[]};bM[catid].items.push({plu,name,catid,qty:bestellen,notiz});bt++;}
+      if(bestand>0) {if(!sM[catid])sM[catid]={name:catname,color:catcolor,items:[]};sM[catid].items.push({plu,name,catid,qty:bestand,notiz});st++;}
+    });
+  });
+  document.getElementById('bestell-count').textContent=bt;
+  document.getElementById('gesamt-count').textContent=st;
+
+  const extAvg = bt>0 ? buildExtAvgMap(orderDay) : null;
+  renderSumList('bestell-list',bM,'order',extAvg);
+  renderSumList('gesamt-list',sM,'qty',null);
+}
+
+function renderSumList(id, map, type, extAvg){
+  const el=document.getElementById(id);
+  if(!Object.keys(map).length){
+    el.innerHTML=`<div class="summary-empty">${type==='order'?'Noch nichts zu bestellen.':'Kein Bestand erfasst.'}</div>`;
+    return;
+  }
+  const hasAvg = extAvg && Object.keys(extAvg).length>0;
+  const dayLabel = orderDay || null;
+
+  let html = Object.values(map).map(cat => `
+    <div class="summary-cat">
+      <div class="summary-cat-label" style="background:${cat.color}">${cat.name}</div>
+      ${cat.items.map(it => {
+        let arrowH='', trendH='';
+        if(type==='order' && hasAvg){
+          const k=it.catid+'|'+it.name;
+          const a=extAvg[k];
+          if(a){
+            const ar=getArrow(it.qty, a.avgBestellen);
+            if(ar) arrowH=`<span class="sum-arrow ${ar.cls}" title="Ø ${a.avgBestellen.toFixed(1)}">${ar.sym}</span>`;
+            if(a.trend==='up')   trendH=`<span class="sum-trend trend-up">↑ Trend</span>`;
+            if(a.trend==='down') trendH=`<span class="sum-trend trend-down">↓ Trend</span>`;
+          }
+        }
+        return `<div class="summary-row">
+          <span class="sum-plu">${it.plu}</span>
+          <span class="sum-name">${it.name}</span>
+          ${arrowH}
+          <span class="${type==='order'?'sum-badge-order':'sum-badge-qty'}">${it.qty}×</span>
+          ${trendH}
+          ${it.notiz?`<span class="sum-notiz">💬 ${it.notiz}</span>`:''}
+        </div>`;
+      }).join('')}
+    </div>`).join('');
+
+  if(type==='order' && hasAvg){
+    html += `<div class="sum-avg-note">↑↑ >25% über Ø · ↗ leicht über · → Ø · ↘ leicht unter · ↓↓ >25% unter${dayLabel?' · Ø aus letzten 4 '+dayLabel+'-Bestellungen':' · Ø aus letzten 4 Bestellungen'}</div>`;
+  }
+  el.innerHTML = html;
+}
+
+function clearBestellen(){
+  document.querySelectorAll('#main .qty-input[title="Bestellen"]').forEach(i=>{i.value='';i.classList.remove('filled')});
+  updateSummary();
+}
+function clearBestand(){
+  document.querySelectorAll('#main .qty-input[title="Bestand"]').forEach(i=>{i.value='';i.classList.remove('filled-bestand')});
+  updateSummary();
+}
+
+// ═══════════════════════════════════════════
+//  HISTORY
+// ═══════════════════════════════════════════
+function getFilteredHistory() {
+  const from = document.getElementById('hist-from').value;
+  const to   = document.getElementById('hist-to').value;
+  return rawHistory.filter(o => {
+    if (o.deleted) return false;  // soft-deleted ausblenden
+    if (from && o.savedAt < from) return false;
+    if (to   && o.savedAt > to+'T23:59:59') return false;
+    if (histDayFilter && o.weekday !== histDayFilter) return false;
+    return true;
+  });
+}
+
+async function loadHistory(){
+  const from = document.getElementById('hist-from').value;
+  const to   = document.getElementById('hist-to').value;
+  const el   = document.getElementById('history-list');
+  el.innerHTML = '<div class="tab-empty">⏳ Lade …</div>';
+
+  if(sheetsOnline){
+    try{
+      const r = await apiGet({action:'gethistory', from, to});
+      if(r.history && Array.isArray(r.history)){
+        // Merge: geladene Einträge einfügen, bestehende (z.B. lokal gespeicherte) behalten
+        const loaded = r.history;
+        const loadedKeys = new Set(loaded.map(o => o.savedAt));
+        // Lokale Einträge die noch nicht im Sheet sind (offline gespeichert), behalten
+        const localOnly = rawHistory.filter(o => !loadedKeys.has(o.savedAt));
+        rawHistory = [...loaded, ...localOnly].sort((a,b) => b.savedAt.localeCompare(a.savedAt));
+      }
+    }catch(e){ showToast('Sheets offline – zeige lokale Daten', true); }
+  }
+
+  renderHistory(getFilteredHistory());
+}
+
+function renderHistory(orders){
+  const el = document.getElementById('history-list');
+  if(!orders.length){
+    el.innerHTML='<div class="tab-empty">Keine Bestellungen im gewählten Zeitraum / Tag.</div>';
+    return;
+  }
+  const gc = id => { const c=CATEGORIES.find(c=>c.id===id); return c?c.color:'#555'; };
+
+  // Wir müssen den echten Index in rawHistory kennen (für Edit/Delete)
+  el.innerHTML = orders.map(o => {
+    // Echten Index in rawHistory ermitteln
+    const histIdx = rawHistory.indexOf(o);
+
+    const dt  = new Date(o.savedAt);
+    const ds  = dt.toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'});
+    const ts  = dt.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
+    // Alle Items (auch reine Bestand-Einträge)
+    const allItems = (o.items||[]).filter(x => x.bestand > 0 || x.bestellen > 0 || x.notiz);
+    const bi  = (o.items||[]).filter(x => x.bestellen > 0);
+    const byCat = {};
+    allItems.forEach(it => {
+      if(!byCat[it.catid])byCat[it.catid]={name:it.catname,items:[]};
+      byCat[it.catid].items.push(it);
+    });
+
+    const weekdayText = o.weekday ? `📅 Liefertag: ${o.weekday}` : '📦 Kein Liefertag angegeben';
+    const headerCls   = o.weekday ? '' : ' no-weekday';
+    const domId = `he-${histIdx}`;
+
+    // editedAt-Badge
+    let editedBadge = '';
+    if (o.editedAt) {
+      const edt = new Date(o.editedAt);
+      const eds = edt.toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'});
+      const ets = edt.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
+      editedBadge = `<span class="hist-edited-badge">✏️ bearbeitet ${eds}, ${ets} Uhr</span>`;
+    }
+
+    // Bestand-count
+    const bestandCount = allItems.filter(x => x.bestand > 0).length;
+    const metaParts = [];
+    if (bi.length > 0) metaParts.push(`${bi.length} Bestell-Artikel`);
+    if (bestandCount > 0) metaParts.push(`${bestandCount} Bestand`);
+
+    return `<div class="history-entry" id="${domId}">
+      <div class="history-entry-header${headerCls}" onclick="toggleHistEntry('${domId}')">
+        <div>
+          <div class="hist-weekday">${weekdayText}</div>
+          <div class="hist-created">Erstellt: ${ds}, ${ts} Uhr · ${metaParts.join(' · ')}</div>
+          ${editedBadge}
+        </div>
+        <span class="hist-chev">▶</span>
+      </div>
+      <div class="history-body">
+        ${Object.entries(byCat).map(([id,cat]) => `
+          <div class="hist-cat-label" style="background:${gc(id)}">${cat.name}</div>
+          ${cat.items.map(it => `
+            <div class="hist-row">
+              <span class="hist-plu">${it.plu}</span>
+              <span class="hist-name">${it.name}</span>
+              ${it.bestand  > 0 ? `<span class="hist-bestand">Bestand: ${it.bestand}</span>`   : ''}
+              ${it.bestellen> 0 ? `<span class="hist-badge">Bestellen: ${it.bestellen}</span>` : ''}
+              ${it.supplier     ? `<span class="info-tag">🏪 ${it.supplier}</span>`            : ''}
+              ${it.notiz        ? `<span class="hist-notiz">💬 ${it.notiz}</span>`              : ''}
+            </div>`).join('')}
+        `).join('')}
+        <div class="hist-actions">
+          <button class="btn-hist-edit" onclick="enterEditMode(${histIdx})">✏️ Bearbeiten</button>
+          <button class="btn-hist-duplicate" onclick="loadOrderAsTemplate(${histIdx})">📋 Duplizieren</button>
+          <button class="btn-hist-delete" onclick="deleteHistoryEntry(${histIdx})">🗑 Löschen</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleHistEntry(id) {
+  const el = document.getElementById(id);
+  if(el) el.classList.toggle('open');
+}
+
+// ═══════════════════════════════════════════
+//  DURCHSCHNITT
+// ═══════════════════════════════════════════
+function renderAverages(){
+  const n  = parseInt(document.getElementById('avg-range').value);
+  const el = document.getElementById('avg-list');
+
+  let pool = avgDayFilter
+    ? rawHistory.filter(o => !o.deleted && o.weekday===avgDayFilter)
+    : rawHistory.filter(o => !o.deleted);
+  const orders = pool.slice(0, n);
+
+  if(!orders.length){el.innerHTML='<div class="tab-empty">Noch keine Bestellhistorie vorhanden.</div>';return;}
+
+  const acc={};
+  orders.forEach(o => (o.items||[]).filter(x=>x.bestellen>0).forEach(it=>{
+    const k=it.catid+'|'+it.plu+'|'+it.name;
+    if(!acc[k]) acc[k]={catid:it.catid,catname:it.catname,plu:it.plu,name:it.name,total:0,count:0};
+    acc[k].total+=it.bestellen;acc[k].count++;
+  }));
+
+  if(!Object.keys(acc).length){el.innerHTML='<div class="tab-empty">Keine Daten für diesen Filter.</div>';return;}
+
+  const byCat={};
+  Object.values(acc).forEach(v=>{
+    if(!byCat[v.catid])byCat[v.catid]={name:v.catname,items:[]};
+    byCat[v.catid].items.push(v);
+  });
+  Object.values(byCat).forEach(c=>c.items.sort((a,b)=>(b.total/b.count)-(a.total/a.count)));
+  const gc=id=>{const c=CATEGORIES.find(c=>c.id===id);return c?c.color:'#555';};
+
+  el.innerHTML = Object.entries(byCat).map(([id,cat]) => `
+    <div class="avg-cat-label" style="background:${gc(id)}">${cat.name}</div>
+    ${cat.items.map(it => `
+      <div class="avg-row">
+        <span class="avg-plu">${it.plu}</span>
+        <span class="avg-name">${it.name}</span>
+        <span class="avg-val">Ø ${(it.total/orders.length).toFixed(1)}</span>
+        <span class="avg-n">(${it.count}× bestellt)</span>
+      </div>`).join('')}
+  `).join('');
+}
+
+// ═══════════════════════════════════════════
+//  EINKAUFSZETTEL DRUCKEN
+// ═══════════════════════════════════════════
+function printEinkaufszettel() {
+  const allItems = [];
+  document.querySelectorAll('#main .category').forEach(catEl => {
+    const {catname} = catEl.dataset;
+    catEl.querySelectorAll('.item').forEach(it => {
+      const ins = it.querySelectorAll('.qty-input');
+      if (!ins.length) return;
+      const qty = parseFloat(ins[1].value) || 0;
+      if (qty <= 0) return;
+      const notiz    = it.querySelector('.notiz-input')?.value || '';
+      const supplier = getItemSupplier(it) || '— Kein Lieferant —';
+      allItems.push({ plu: it.dataset.plu, name: it.dataset.name, catname, qty, notiz, supplier });
+    });
+  });
+
+  if (!allItems.length) { showToast('Keine Bestellmengen eingetragen!', true); return; }
+
+  const bySupplier = {};
+  allItems.forEach(it => {
+    if (!bySupplier[it.supplier]) bySupplier[it.supplier] = [];
+    bySupplier[it.supplier].push(it);
+  });
+  const knownOrder = allSuppliers();
+  const sortedSup = Object.keys(bySupplier).sort((a,b) => {
+    const ia=knownOrder.indexOf(a), ib=knownOrder.indexOf(b);
+    if(ia===-1&&ib===-1) return a.localeCompare(b,'de');
+    if(ia===-1) return 1; if(ib===-1) return -1;
+    return ia-ib;
+  });
+
+  const today = new Date();
+  const ds = today.toLocaleDateString('de-DE',{weekday:'long',day:'2-digit',month:'2-digit',year:'numeric'});
+  const ts = today.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
+  const dayLine = orderDay ? ` · Liefertag: <strong>${orderDay}</strong>` : '';
+  const supColors = ['#2D5016','#C0392B','#1A6BA0','#7B3FA0','#D4830A','#1E6F3E','#8B6914','#555','#903060'];
+
+  let body = '';
+  sortedSup.forEach((sup, idx) => {
+    const color = supColors[idx % supColors.length];
+    const items = bySupplier[sup].sort((a,b) => a.name.localeCompare(b.name,'de'));
+    body += `<div class="sup-title" style="color:${color};border-color:${color}">🏪 ${sup}</div>`;
+    items.forEach(it => {
+      body += `<div class="row">
+        <div class="check"></div>
+        <span class="name">${it.name}${it.plu&&it.plu!=='–'?` <small>PLU ${it.plu}</small>`:''} <small class="cat">${it.catname}</small></span>
+        <span class="qty">${it.qty}&thinsp;×</span>
+      </div>`;
+      if(it.notiz) body += `<div class="notiz">💬 ${it.notiz}</div>`;
+    });
+  });
+
+  const html = `<!DOCTYPE html><html lang="de"><head><meta charset="UTF-8">
+<title>Einkaufsliste – ${ds}</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Helvetica Neue',Arial,sans-serif;font-size:12px;color:#111;padding:12mm 14mm;max-width:210mm}
+  h1{font-size:18px;font-weight:800;margin-bottom:2px}
+  .meta{font-size:10px;color:#666;margin-bottom:10px}
+  hr{border:none;border-top:2px solid #2D5016;margin:8px 0 12px}
+  .sup-title{font-size:13px;font-weight:700;border-bottom:2px solid;padding-bottom:3px;margin:14px 0 6px}
+  .sup-title:first-of-type{margin-top:0}
+  .row{display:flex;align-items:baseline;gap:6px;padding:3px 0;border-bottom:1px dotted #ddd}
+  .check{width:14px;height:14px;border:1.5px solid #aaa;border-radius:3px;flex-shrink:0;margin-top:1px}
+  .name{flex:1;font-size:11.5px}
+  .name small{color:#999;font-size:9.5px}
+  .cat{color:#aaa!important}
+  .qty{font-weight:700;font-size:12px;white-space:nowrap}
+  .notiz{font-size:10px;color:#555;padding:1px 0 3px 22px;font-style:italic}
+  @page{size:A4 portrait;margin:0;-webkit-print-color-adjust:exact;duplex:simplex}
+  @media print{
+    html,body{height:auto!important;overflow:visible!important}
+    body{padding:10mm 12mm}
+  }
+</style></head><body>
+<h1>🌿 Einkaufsliste Großmarkt</h1>
+<div class="meta">${ds}, ${ts} Uhr${dayLine} · ${allItems.length} Artikel</div>
+<hr>
+${body}
+<script>
+window.onload = function() {
+  // Kurz warten bis alles gerendert, dann drucken
+  setTimeout(function(){ window.print(); }, 120);
+};
+<\/script>
+</body></html>`;
+
+  const win = window.open('', '_blank');
+  if (!win) { showToast('Popup blockiert – bitte Popups erlauben', true); return; }
+  win.document.write(html);
+  win.document.close();
+}
+  mode = mode || 'bestellen';
+  const isBest = mode === 'bestellen';
+
+  // Items sammeln
+  const allItems = [];
+  document.querySelectorAll('#main .category').forEach(catEl=>{
+    const {catname, catid} = catEl.dataset;
+    catEl.querySelectorAll('.item').forEach(it=>{
+      const ins = it.querySelectorAll('.qty-input');
+      if (!ins.length) return;
+      const bestand  = parseFloat(ins[0].value)||0;
+      const bestellen= parseFloat(ins[1].value)||0;
+      const qty = isBest ? bestellen : bestand;
+      if (qty <= 0) return;
+      const notiz    = it.querySelector('.notiz-input')?.value || '';
+      const supplier = getItemSupplier(it) || '';
+      allItems.push({ plu: it.dataset.plu, name: it.dataset.name, catname, catid, qty, notiz, supplier, bestand, bestellen });
+    });
+  });
+
+  if (!allItems.length) {
+    showToast(isBest ? 'Keine Bestellmengen eingetragen!' : 'Kein Bestand eingetragen!', true);
+    return;
+  }
+
+  const today = new Date();
+  const ds = today.toLocaleDateString('de-DE',{weekday:'long',day:'2-digit',month:'2-digit',year:'numeric'});
+  const ts = today.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
+  const dayLine = orderDay ? ` · Liefertag: ${orderDay}` : '';
+
+  if (isBest) {
+    // Einkaufszettel: nach Lieferant gruppiert, als Text
+    const bySupplier = {};
+    allItems.forEach(it => {
+      const sup = it.supplier || '— Kein Lieferant —';
+      if (!bySupplier[sup]) bySupplier[sup] = [];
+      bySupplier[sup].push(it);
+    });
+    const knownOrder = allSuppliers();
+    const sortedSup = Object.keys(bySupplier).sort((a,b) => {
+      const ia=knownOrder.indexOf(a), ib=knownOrder.indexOf(b);
+      if(ia===-1&&ib===-1) return a.localeCompare(b,'de');
+      if(ia===-1) return 1; if(ib===-1) return -1;
+      return ia-ib;
+    });
+    let text = `🌿 Einkaufsliste Großmarkt\n${ds}, ${ts} Uhr${dayLine}\n${'─'.repeat(32)}\n`;
+    sortedSup.forEach(sup => {
+      text += `\n🏪 ${sup}\n`;
+      bySupplier[sup].sort((a,b)=>a.name.localeCompare(b.name,'de')).forEach(it => {
+        text += `  • ${it.name}${it.plu&&it.plu!=='–'?' (PLU '+it.plu+')':''}: ${it.qty}×`;
+        if(it.notiz) text += `  💬 ${it.notiz}`;
+        text += '\n';
+      });
+    });
+    text += `\n${'─'.repeat(32)}\n📦 ${allItems.length} Artikel gesamt`;
+
+    if (navigator.share) {
+      await navigator.share({ title: 'Einkaufsliste Großmarkt', text });
+    } else {
+      await navigator.clipboard.writeText(text);
+      showToast('📋 In Zwischenablage kopiert!');
+    }
+
+  } else {
+    // Bestand: immer als JSON-Datei downloaden (zuverlässig auf Android & iOS)
+    const byCat = {};
+    allItems.forEach(it => {
+      if (!byCat[it.catname]) byCat[it.catname] = [];
+      byCat[it.catname].push(it);
+    });
+
+    const exportData = {
+      type: 'hofmarkt-bestand',
+      exportedAt: today.toISOString(),
+      weekday: orderDay || null,
+      items: allItems.map(it => ({
+        catid: it.catid, catname: it.catname,
+        plu: it.plu, name: it.name,
+        bestand: it.bestand, notiz: it.notiz
+      }))
+    };
+    const json = JSON.stringify(exportData, null, 2);
+    const filename = `bestand_${today.toISOString().slice(0,10)}.json`;
+    const blob = new Blob([json], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast(`💾 "${filename}" gespeichert – dann mit 📥 wieder importieren`);
+  }
+}
+
+// ═══════════════════════════════════════════
+//  BESTAND IMPORTIEREN
+// ═══════════════════════════════════════════
+function importBestand(input) {
+  const file = input.files[0];
+  if (!file) return;
+  input.value = ''; // reset so gleiche Datei nochmal wählbar
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (data.type !== 'hofmarkt-bestand' || !Array.isArray(data.items)) {
+        showToast('❌ Ungültige Datei – kein Hofmarkt-Bestand', true); return;
+      }
+      // Felder in UI eintragen
+      let loaded = 0, notFound = 0;
+      data.items.forEach(it => {
+        const itemEl = findItemElement(it.catid, it.plu, it.name);
+        if (!itemEl) { notFound++; return; }
+        const ins = itemEl.querySelectorAll('.qty-input');
+        if (ins.length >= 1 && it.bestand > 0) {
+          ins[0].value = it.bestand;
+          ins[0].classList.add('filled-bestand');
+          itemEl.closest('.category')?.classList.add('open');
+          loaded++;
+        }
+        if (it.notiz) {
+          const notizEl = itemEl.querySelector('.notiz-input');
+          if (notizEl) notizEl.value = it.notiz;
+        }
+      });
+      updateSummary();
+      scheduleAutosave();
+      const msg = notFound > 0
+        ? `✅ ${loaded} Bestände geladen · ${notFound} Artikel nicht gefunden`
+        : `✅ ${loaded} Bestände geladen`;
+      showToast(msg);
+      switchTab('bestellen');
+    } catch(err) {
+      showToast('❌ Datei konnte nicht gelesen werden', true);
+    }
+  };
+  reader.readAsText(file);
+}
+
+// ═══════════════════════════════════════════
+//  TABS / TOAST
+// ═══════════════════════════════════════════
+function switchTab(name){
+  const names=['bestellen','uebersicht','historie','durchschnitt'];
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',names[i]===name));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  if(name==='uebersicht')   updateSummary();
+  if(name==='historie')     loadHistory();
+  if(name==='durchschnitt') renderAverages();
+}
+
+let _tt=null;
+function showToast(msg, err=false){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='show'+(err?' error':'');
+  clearTimeout(_tt);_tt=setTimeout(()=>t.className='',3200);
+}
+function showUndoToast(msg, onUndo) {
+  const t = document.getElementById('toast');
+  t.innerHTML = '';
+  const span = document.createElement('span');
+  span.textContent = msg;
+  const btn = document.createElement('button');
+  btn.className = 'undo-btn';
+  btn.textContent = 'Rückgängig';
+  btn.onclick = () => { t.className=''; onUndo(); };
+  t.appendChild(span);
+  t.appendChild(btn);
+  t.className = 'show';
+  clearTimeout(_tt);
+  _tt = setTimeout(() => { t.className=''; t.textContent=''; }, 5200);
+}
+
+// ═══════════════════════════════════════════
+//  HAPTISCHES FEEDBACK
+// ═══════════════════════════════════════════
+function haptic(ms=18){
+  try { if(navigator.vibrate) navigator.vibrate(ms); } catch(e){}
+}
+
+// ═══════════════════════════════════════════
+//  ENTER → nächste Menge (Bestellen-Input)
+// ═══════════════════════════════════════════
+function onQtyKeydown(e, inp) {
+  haptic(18);
+  if(e.key !== 'Enter') return;
+  e.preventDefault();
+  // Alle sichtbaren qty-inputs im #main sammeln
+  const all = Array.from(document.querySelectorAll('#main .item:not(.hidden) .qty-input'));
+  const idx = all.indexOf(inp);
+  if(idx >= 0 && idx < all.length - 1) {
+    const next = all[idx + 1];
+    // Kategorie aufklappen falls nötig
+    next.closest('.category')?.classList.add('open');
+    next.focus();
+    next.select();
+  }
+}
+
+// ═══════════════════════════════════════════
+//  AUTOSAVE (localStorage)
+// ═══════════════════════════════════════════
+const AUTOSAVE_KEY = 'hofmarkt_autosave';
+let _autosaveTimer = null;
+
+function scheduleAutosave() {
+  clearTimeout(_autosaveTimer);
+  _autosaveTimer = setTimeout(doAutosave, 800);
+}
+
+function doAutosave() {
+  const items = [];
+  document.querySelectorAll('#main .category').forEach(catEl => {
+    const {catid, catname} = catEl.dataset;
+    catEl.querySelectorAll('.item').forEach(it => {
+      const ins = it.querySelectorAll('.qty-input');
+      if(!ins.length) return;
+      const bestand   = parseFloat(ins[0].value) || 0;
+      const bestellen = parseFloat(ins[1].value) || 0;
+      const notiz     = it.querySelector('.notiz-input')?.value || '';
+      const supplier  = getItemSupplier(it);
+      if(bestand || bestellen || notiz) {
+        items.push({catid, catname, plu:it.dataset.plu, name:it.dataset.name, bestand, bestellen, notiz, supplier});
+      }
+    });
+  });
+  const snap = {savedAt: new Date().toISOString(), weekday: orderDay, items};
+  try {
+    localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(snap));
+    const ind = document.getElementById('autosave-indicator');
+    if(ind && items.length > 0) {
+      const t = new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
+      ind.textContent = `💾 Autosave ${t} – ${items.length} Artikel`;
+    }
+  } catch(e) {}
+}
+
+function restoreAutosave() {
+  try {
+    const raw = localStorage.getItem(AUTOSAVE_KEY);
+    if(!raw) return false;
+    const snap = JSON.parse(raw);
+    if(!snap || !snap.items || !snap.items.length) return false;
+    // Prüfen ob Autosave frisch ist (max 24h)
+    if(snap.savedAt && Date.now() - new Date(snap.savedAt).getTime() > 86400000) return false;
+    return snap;
+  } catch(e) { return false; }
+}
+
+function applySnapshot(snap) {
+  if(snap.weekday) {
+    orderDay = snap.weekday;
+    selectedDay = orderDay;
+    document.querySelectorAll('.day-select-chip').forEach(c =>
+      c.classList.toggle('active', c.dataset.day === orderDay));
+    document.getElementById('day-banner').classList.add('day-selected');
+    document.getElementById('day-banner-hint').style.display = 'none';
+    document.querySelectorAll('.day-btn').forEach(b =>
+      b.classList.toggle('selected', b.dataset.day === orderDay));
+    document.getElementById('modal-ok-btn').disabled = false;
+    updateAvgHints();
+  }
+  (snap.items || []).forEach(it => {
+    const itemEl = findItemElement(it.catid, it.plu, it.name);
+    if(!itemEl) return;
+    const ins = itemEl.querySelectorAll('.qty-input');
+    if(ins.length >= 2) {
+      if(it.bestand  > 0){ ins[0].value = it.bestand;  ins[0].classList.add('filled-bestand'); }
+      if(it.bestellen> 0){ ins[1].value = it.bestellen; ins[1].classList.add('filled'); }
+    }
+    const notizEl = itemEl.querySelector('.notiz-input');
+    if(notizEl && it.notiz) notizEl.value = it.notiz;
+    if(it.bestand > 0 || it.bestellen > 0 || it.notiz)
+      itemEl.closest('.category')?.classList.add('open');
+  });
+  updateSummary();
+}
+
+// ═══════════════════════════════════════════
+//  VORLAGE LADEN (aus Historie)
+// ═══════════════════════════════════════════
+let _templateSelectedIdx = null;
+
+function openTemplateModal() {
+  const avail = rawHistory.filter(o => !o.deleted && o.items && o.items.length > 0).slice(0, 15);
+  if(!avail.length) { showToast('Noch keine Bestellungen in der Historie.', true); return; }
+
+  _templateSelectedIdx = null;
+  document.getElementById('template-ok-btn').disabled = true;
+
+  const listEl = document.getElementById('template-list');
+  listEl.innerHTML = avail.map((o, i) => {
+    const realIdx = rawHistory.indexOf(o);
+    const dt = new Date(o.savedAt);
+    const ds = dt.toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'});
+    const ts = dt.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
+    const bestCount = (o.items||[]).filter(x => x.bestellen > 0).length;
+    return `<button class="template-item" data-real-idx="${realIdx}" onclick="selectTemplate(this,${realIdx})">
+      <div class="template-item-day">${o.weekday ? '📅 ' + o.weekday : '📦 Kein Tag'}</div>
+      <div class="template-item-meta">${ds}, ${ts} · ${bestCount} Bestell-Artikel</div>
+    </button>`;
+  }).join('');
+
+  document.getElementById('template-modal').classList.remove('hidden');
+}
+
+function selectTemplate(btn, realIdx) {
+  document.querySelectorAll('.template-item').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  _templateSelectedIdx = realIdx;
+  document.getElementById('template-ok-btn').disabled = false;
+  haptic(25);
+}
+
+function closeTemplateModal() {
+  document.getElementById('template-modal').classList.add('hidden');
+  _templateSelectedIdx = null;
+}
+
+function confirmLoadTemplate() {
+  if(_templateSelectedIdx === null) return;
+  closeTemplateModal();
+  // Tag-Modal öffnen damit Nutzer den Tag wählt, dann Vorlage anwenden
+  _pendingTemplateIdx = _templateSelectedIdx;
+  selectedDay = '';
+  document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('modal-ok-btn').disabled = true;
+  // Überschreibe confirmSave temporär nicht – wir nutzen eigenes flag
+  document.getElementById('day-modal').classList.remove('hidden');
+  // Flag setzen damit confirmSave weiß: Vorlage laden statt speichern
+  _templateDayPending = true;
+}
+
+// Flag für Vorlage-Lademodus
+let _pendingTemplateIdx  = null;
+let _templateDayPending  = false;
+
+// loadOrderAsTemplate: direkt aus Historie → Tag wählen → in Bestellen laden (kein Speichern)
+function loadOrderAsTemplate(histIdx) {
+  _pendingTemplateIdx = histIdx;
+  _templateDayPending = true;
+  selectedDay = '';
+  document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('modal-ok-btn').disabled = true;
+  document.getElementById('day-modal').classList.remove('hidden');
+}
+
+init();</script>
+</body>
+</html>
