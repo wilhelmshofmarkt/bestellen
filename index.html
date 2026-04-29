@@ -663,25 +663,25 @@ function saveSyncQueue(q) {
 }
 function enqueueSyncAction(payload) {
   const q = getSyncQueue();
+  // Max 20 Items in Queue – älteste rauswerfen
+  if (q.length >= 20) q.shift();
   q.push({...payload, _queuedAt: new Date().toISOString()});
   saveSyncQueue(q);
 }
 async function flushSyncQueue() {
   const q = getSyncQueue();
   if (!q.length) return;
-  const failed = [];
-  for (const item of q) {
-    try {
+  // Alle parallel mit Gesamt-Timeout von 8s
+  const results = await Promise.allSettled(
+    q.map(item => {
       const {_queuedAt, ...payload} = item;
-      await apiPost(payload);
-    } catch(e) {
-      failed.push(item);
-    }
-  }
+      return apiPost(payload);
+    })
+  );
+  const failed = q.filter((_, i) => results[i].status === 'rejected');
   saveSyncQueue(failed);
-  if (q.length > failed.length) {
-    showToast(`☁️ ${q.length - failed.length} offline-Aktion(en) synchronisiert.`);
-  }
+  const synced = q.length - failed.length;
+  if (synced > 0) showToast(`☁️ ${synced} offline-Aktion(en) synchronisiert.`);
 }
 
 // ═══════════════════════════════════════════
@@ -690,35 +690,39 @@ async function flushSyncQueue() {
 async function apiGet(params) {
   const url = SCRIPT_URL + '?' + new URLSearchParams(params).toString() + '&t=' + Date.now();
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 15000);
+  const timeout = setTimeout(() => controller.abort(), 10000);
   try {
     const res = await fetch(url, {cache:'no-cache', redirect:'follow', signal: controller.signal});
     clearTimeout(timeout);
     const text = await res.text();
     try { return JSON.parse(text); }
-    catch(e) { throw new Error('Keine JSON-Antwort (Script-URL prüfen)'); }
+    catch(e) { throw new Error('Keine JSON-Antwort'); }
   } catch(e) {
     clearTimeout(timeout);
-    if (e.name === 'AbortError') throw new Error('Timeout – Google Sheets antwortet nicht');
+    if (e.name === 'AbortError') throw new Error('Timeout');
     throw e;
   }
 }
+
 async function apiPost(payload) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 10000);
   try {
-    await fetch(SCRIPT_URL, {method:'POST', mode:'no-cors', body:JSON.stringify(payload)});
+    await fetch(SCRIPT_URL, {
+      method:'POST', mode:'no-cors', body:JSON.stringify(payload),
+      signal: controller.signal
+    });
+    clearTimeout(timeout);
     sheetsOnline = true;
-    // no-cors liefert immer eine opaque Response – wir können den Body nicht lesen.
-    // Für kritische Aktionen (save/update/delete) verifizieren wir daher nicht den Response,
-    // sondern verlassen uns auf die Offline-Queue als Sicherheitsnetz.
   } catch(e) {
+    clearTimeout(timeout);
     sheetsOnline = false;
     setStatus(false);
-    // Offline: in Queue einreihen damit beim nächsten Start synchronisiert wird
     const syncActions = ['saveorder','updateorder','deleteorder'];
     if (syncActions.includes((payload.action||'').toLowerCase())) {
       enqueueSyncAction(payload);
     }
-    throw e; // damit der Aufrufer den Fehler weiterhin anzeigen kann
+    throw e;
   }
 }
 
@@ -729,22 +733,37 @@ async function init() {
   document.getElementById('hist-from').value = new Date(Date.now()-30*864e5).toISOString().slice(0,10);
   document.getElementById('hist-to').value   = new Date().toISOString().slice(0,10);
 
-  // Sicherheitsnetz: Loading-Screen IMMER nach max. 12s verstecken
+  const dbg = t => { document.getElementById('loading-msg').textContent = t; console.log(t); };
+
+  // Sicherheitsnetz: nach 12s einfach weitermachen
+  let safetyFired = false;
   const safetyHide = setTimeout(() => {
+    safetyFired = true;
+    dbg('⚠️ Timeout – starte offline');
+    sheetsOnline = false;
+    setStatus(false);
+    try { buildUI(); } catch(e) {}
     document.getElementById('loading').style.display = 'none';
   }, 12000);
 
   try {
-    document.getElementById('loading-msg').textContent = 'Verbinde…';
-    let dots = 0;
-    const loadingAnim = setInterval(() => {
-      dots = (dots + 1) % 4;
-      document.getElementById('loading-msg').textContent =
-        'Verbinde mit Google Sheets' + '.'.repeat(dots + 1);
-    }, 500);
+    dbg('Schritt 1: Fetch startet…');
 
-    const d = await apiGet({action:'init'});
-    clearInterval(loadingAnim);
+    const controller = new AbortController();
+    setTimeout(() => controller.abort(), 11000);
+
+    const url = SCRIPT_URL + '?action=init&t=' + Date.now();
+    dbg('Schritt 2: URL = ' + url.slice(0,60) + '…');
+
+    const res = await fetch(url, {cache:'no-cache', redirect:'follow', signal: controller.signal});
+    dbg('Schritt 3: Response erhalten, status=' + res.status);
+
+    const text = await res.text();
+    dbg('Schritt 4: Text ok, ' + text.length + ' Zeichen');
+
+    const d = JSON.parse(text);
+    dbg('Schritt 5: JSON ok – ' + Object.keys(d).join(', '));
+
     if (d.error) throw new Error(d.error);
     userProducts    = d.products        || {};
     rawHistory      = d.history         || [];
@@ -752,20 +771,21 @@ async function init() {
     supplierChoices = d.supplierChoices || {};
     sheetsOnline = true;
     setStatus(true);
+    dbg('Schritt 6: Daten geladen ✓');
     await flushSyncQueue();
   } catch(e) {
     sheetsOnline = false;
     setStatus(false);
-    console.error('Init-Fehler:', e.message);
+    dbg('❌ Fehler bei: ' + e.name + ' – ' + e.message);
+    await new Promise(r => setTimeout(r, 2000));
   }
 
+  if (safetyFired) return;
   clearTimeout(safetyHide);
 
-  try { buildUI(); } catch(e) { console.error('buildUI Fehler:', e); }
-
+  try { buildUI(); } catch(e) { console.error('buildUI:', e); }
   document.getElementById('loading').style.display = 'none';
 
-  // Autosave wiederherstellen
   try {
     const snap = restoreAutosave();
     if(snap && snap.items && snap.items.length > 0) {
@@ -782,7 +802,7 @@ async function init() {
         }, 400);
       }
     }
-  } catch(e) { console.error('Autosave-Fehler:', e); }
+  } catch(e) { console.error('Autosave:', e); }
 }
 
 function setStatus(ok) {
