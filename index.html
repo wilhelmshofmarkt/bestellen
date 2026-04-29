@@ -484,6 +484,7 @@ const CATEGORIES = [
     {plu:"126", name:"Netzmelone"},
     {plu:"128", name:"Wassermelone"},
     {plu:"109", name:"Quitten"},
+    {plu:"49",  name:"Rhabarber"},
     {plu:"46",  name:"Trauben"},
     {plu:"131", name:"Trauben"},
   ]},
@@ -585,7 +586,6 @@ const CATEGORIES = [
     {plu:"7",   name:"Gurke (Mini-)"},
     {plu:"92",  name:"Pilze"},
     {plu:"73",  name:"Radieschen"},
-    {plu:"49",  name:"Rhabarber"},
     {plu:"37",  name:"Spargel 1A (weiß)"},
     {plu:"59",  name:"Spargel 2A (weiß)"},
     {plu:"58",  name:"Spargel Bund (weiß)"},
@@ -687,6 +687,34 @@ async function flushSyncQueue() {
 // ═══════════════════════════════════════════
 //  API
 // ═══════════════════════════════════════════
+function apiGetJsonp(params) {
+  return new Promise((resolve, reject) => {
+    const cbName = '_gs_cb_' + Date.now();
+    const timeout = setTimeout(() => {
+      delete window[cbName];
+      if (script.parentNode) script.parentNode.removeChild(script);
+      reject(new Error('Timeout'));
+    }, 12000);
+
+    window[cbName] = data => {
+      clearTimeout(timeout);
+      delete window[cbName];
+      if (script.parentNode) script.parentNode.removeChild(script);
+      resolve(data);
+    };
+
+    const url = SCRIPT_URL + '?' + new URLSearchParams({...params, callback: cbName, t: Date.now()}).toString();
+    const script = document.createElement('script');
+    script.src = url;
+    script.onerror = () => {
+      clearTimeout(timeout);
+      delete window[cbName];
+      reject(new Error('Script-Ladefehler'));
+    };
+    document.head.appendChild(script);
+  });
+}
+
 async function apiGet(params) {
   const url = SCRIPT_URL + '?' + new URLSearchParams(params).toString() + '&t=' + Date.now();
   const controller = new AbortController();
@@ -733,37 +761,43 @@ async function init() {
   document.getElementById('hist-from').value = new Date(Date.now()-30*864e5).toISOString().slice(0,10);
   document.getElementById('hist-to').value   = new Date().toISOString().slice(0,10);
 
-  const dbg = t => { document.getElementById('loading-msg').textContent = t; console.log(t); };
+  const dbg = t => { document.getElementById('loading-msg').textContent = t; };
 
-  // Sicherheitsnetz: nach 12s einfach weitermachen
-  let safetyFired = false;
-  const safetyHide = setTimeout(() => {
-    safetyFired = true;
-    dbg('⚠️ Timeout – starte offline');
+  function finish() {
+    try { buildUI(); } catch(e) { console.error('buildUI:', e); }
+    document.getElementById('loading').style.display = 'none';
+    // Autosave
+    try {
+      const snap = restoreAutosave();
+      if(snap && snap.items && snap.items.length > 0) {
+        const dismissedAt = localStorage.getItem('hofmarkt_autosave_dismissed');
+        const snapTime = new Date(snap.savedAt).getTime();
+        if (!dismissedAt || snapTime > parseInt(dismissedAt)) {
+          setTimeout(() => {
+            if(confirm(`💾 Entwurf vom ${new Date(snap.savedAt).toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})} Uhr (${snap.items.length} Artikel). Wiederherstellen?`)) {
+              applySnapshot(snap);
+              showToast('↩️ Entwurf wiederhergestellt.');
+            } else {
+              localStorage.setItem('hofmarkt_autosave_dismissed', snapTime.toString());
+            }
+          }, 400);
+        }
+      }
+    } catch(e) {}
+  }
+
+  // Absolutes Sicherheitsnetz – nach 13s IMMER starten
+  const safetyTimer = setTimeout(() => {
+    dbg('⚠️ Offline-Modus');
     sheetsOnline = false;
     setStatus(false);
-    try { buildUI(); } catch(e) {}
-    document.getElementById('loading').style.display = 'none';
-  }, 12000);
+    finish();
+  }, 13000);
 
   try {
-    dbg('Schritt 1: Fetch startet…');
-
-    const controller = new AbortController();
-    setTimeout(() => controller.abort(), 11000);
-
-    const url = SCRIPT_URL + '?action=init&t=' + Date.now();
-    dbg('Schritt 2: URL = ' + url.slice(0,60) + '…');
-
-    const res = await fetch(url, {cache:'no-cache', redirect:'follow', signal: controller.signal});
-    dbg('Schritt 3: Response erhalten, status=' + res.status);
-
-    const text = await res.text();
-    dbg('Schritt 4: Text ok, ' + text.length + ' Zeichen');
-
-    const d = JSON.parse(text);
-    dbg('Schritt 5: JSON ok – ' + Object.keys(d).join(', '));
-
+    dbg('Verbinde…');
+    const d = await apiGet({action:'init'});
+    clearTimeout(safetyTimer);
     if (d.error) throw new Error(d.error);
     userProducts    = d.products        || {};
     rawHistory      = d.history         || [];
@@ -771,38 +805,15 @@ async function init() {
     supplierChoices = d.supplierChoices || {};
     sheetsOnline = true;
     setStatus(true);
-    dbg('Schritt 6: Daten geladen ✓');
-    await flushSyncQueue();
+    try { await flushSyncQueue(); } catch(e) {}
   } catch(e) {
+    clearTimeout(safetyTimer);
     sheetsOnline = false;
     setStatus(false);
-    dbg('❌ Fehler bei: ' + e.name + ' – ' + e.message);
-    await new Promise(r => setTimeout(r, 2000));
+    dbg('Offline: ' + e.message);
   }
 
-  if (safetyFired) return;
-  clearTimeout(safetyHide);
-
-  try { buildUI(); } catch(e) { console.error('buildUI:', e); }
-  document.getElementById('loading').style.display = 'none';
-
-  try {
-    const snap = restoreAutosave();
-    if(snap && snap.items && snap.items.length > 0) {
-      const dismissedAt = localStorage.getItem('hofmarkt_autosave_dismissed');
-      const snapTime = new Date(snap.savedAt).getTime();
-      if (!dismissedAt || snapTime > parseInt(dismissedAt)) {
-        setTimeout(() => {
-          if(confirm(`💾 Entwurf vom ${new Date(snap.savedAt).toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})} Uhr (${snap.items.length} Artikel). Wiederherstellen?`)) {
-            applySnapshot(snap);
-            showToast('↩️ Entwurf wiederhergestellt.');
-          } else {
-            localStorage.setItem('hofmarkt_autosave_dismissed', snapTime.toString());
-          }
-        }, 400);
-      }
-    }
-  } catch(e) { console.error('Autosave:', e); }
+  finish();
 }
 
 function setStatus(ok) {
@@ -1852,6 +1863,11 @@ window.onload = function() {
   win.document.write(html);
   win.document.close();
 }
+
+// ═══════════════════════════════════════════
+//  TEILEN
+// ═══════════════════════════════════════════
+async function shareList(mode) {
   mode = mode || 'bestellen';
   const isBest = mode === 'bestellen';
 
