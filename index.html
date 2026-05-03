@@ -172,6 +172,25 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
 .btn-clear:hover{background:rgba(0,0,0,.05)}
 .btn-print{background:#1A1208;color:white;border:none;border-radius:8px;padding:8px 14px;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;margin:10px 14px 4px;box-shadow:0 3px 0 #000;transition:all .1s}
 .btn-print:active{transform:translateY(2px);box-shadow:0 1px 0 #000}
+.btn-kiemle{background:#5B3A8E;color:white;border:none;border-radius:8px;padding:8px 14px;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;margin:6px 14px 4px;box-shadow:0 3px 0 #3a1f6e;transition:all .1s}
+.btn-kiemle:active{transform:translateY(2px);box-shadow:0 1px 0 #3a1f6e}
+
+/* KIEMLE MAPPING MODAL */
+.kiemle-modal{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:600;display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;padding:20px 0 40px}
+.kiemle-modal.hidden{display:none}
+.kiemle-sheet{background:var(--card);border-radius:16px;padding:20px 16px 28px;width:100%;max-width:520px;margin:auto}
+.kiemle-sheet h2{font-family:'DM Serif Display',serif;font-size:1.1rem;margin-bottom:4px;color:#5B3A8E}
+.kiemle-sheet p{font-size:.8rem;color:var(--muted);margin-bottom:14px}
+.kiemle-group{margin-bottom:12px;border:1px solid rgba(0,0,0,.08);border-radius:10px;overflow:hidden}
+.kiemle-group-header{background:#5B3A8E;color:white;padding:7px 12px;font-size:.8rem;font-weight:700;letter-spacing:.04em}
+.kiemle-row{display:flex;align-items:center;gap:8px;padding:6px 10px;border-bottom:1px solid rgba(0,0,0,.05)}
+.kiemle-row:last-child{border-bottom:none}
+.kiemle-row-name{font-size:.82rem;flex:1;color:var(--text)}
+.kiemle-row select{flex:1;padding:4px 7px;border:1.5px solid var(--input-border);border-radius:7px;font-family:'DM Sans',sans-serif;font-size:.77rem;background:var(--input-bg);color:var(--text);outline:none;max-width:200px}
+.kiemle-row select.mapped{border-color:#5B3A8E;background:#f3effe;color:#3a1f6e;font-weight:600}
+.kiemle-footer{display:flex;gap:9px;margin-top:16px}
+.btn-kiemle-save{flex:1;background:#5B3A8E;color:white;border:none;border-radius:10px;padding:11px;font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:700;cursor:pointer}
+.btn-kiemle-cancel{background:transparent;color:var(--muted);border:1.5px solid #ddd;border-radius:10px;padding:11px 16px;font-family:'DM Sans',sans-serif;font-size:.86rem;cursor:pointer}
 
 /* FILTER */
 .filter-bar{background:var(--card);border-radius:12px;padding:11px 13px;margin-bottom:11px;box-shadow:0 1px 5px rgba(0,0,0,.06)}
@@ -448,6 +467,8 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
       <div id="bestell-list"></div>
       <button class="btn-print" onclick="printEinkaufszettel()">🖨️ Einkaufszettel drucken</button>
       <button class="btn-print" onclick="shareList('bestellen')" style="background:#1A6BA0;box-shadow:0 3px 0 #0f4a73;margin-top:6px">📤 Einkaufszettel teilen</button>
+      <button class="btn-kiemle" onclick="downloadKiemleXLS()">📥 Kiemle Bestellformular</button>
+      <button class="btn-kiemle" onclick="openKiemleMapping()" style="background:#3a1f6e;box-shadow:0 3px 0 #1e0f3a">⚙️ Kiemle Zuordnung</button>
       <button class="btn-clear" onclick="clearBestellen()">Bestellmengen löschen</button>
     </div>
     <div class="summary-section gesamt-section">
@@ -459,6 +480,19 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
         <input type="file" accept=".json" style="display:none" onchange="importBestand(this)">
       </label>
       <button class="btn-clear" onclick="clearBestand()">Bestände löschen</button>
+    </div>
+  </div>
+</div>
+
+<!-- KIEMLE MAPPING MODAL -->
+<div id="kiemle-modal" class="kiemle-modal hidden">
+  <div class="kiemle-sheet">
+    <h2>⚙️ Kiemle Zuordnung</h2>
+    <p>Welches Hofmarkt-Produkt entspricht welchem Kiemle-Artikel?</p>
+    <div id="kiemle-mapping-body"></div>
+    <div class="kiemle-footer">
+      <button class="btn-kiemle-save" onclick="saveKiemleMapping()">✓ Speichern</button>
+      <button class="btn-kiemle-cancel" onclick="closeKiemleMapping()">Abbrechen</button>
     </div>
   </div>
 </div>
@@ -2284,6 +2318,322 @@ function loadOrderAsTemplate(histIdx) {
   document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('selected'));
   document.getElementById('modal-ok-btn').disabled = true;
   document.getElementById('day-modal').classList.remove('hidden');
+}
+
+// ── KIEMLE XLS ──────────────────────────────────────────────────
+// Vollständige Liste aller Kiemle-Artikel mit ihrer XLS-Zelle (row, col)
+// col: 0 = linke Spalte qty, 5 = mittlere Spalte qty, 10 = rechte Spalte qty
+const KIEMLE_PRODUCTS = [
+  // Tomaten (left, qty col 0)
+  {row:10,col:0,unit:'Ki',name:'Strauchtomaten'},
+  {row:11,col:0,unit:'Ki',name:'Strauchtomaten 9 Korb-Schalen'},
+  {row:12,col:0,unit:'Ki',name:'Eiertomaten-Rispe'},
+  {row:13,col:0,unit:'Ki',name:'Aranca-Rispe'},
+  {row:14,col:0,unit:'Ki',name:'Aranca lose'},
+  {row:15,col:0,unit:'Ki',name:'Lycopina'},
+  {row:16,col:0,unit:'Ki',name:'Lycopina 9 Korb-Schalen'},
+  {row:17,col:0,unit:'Ki',name:'Kumato'},
+  {row:18,col:0,unit:'Ki',name:'San Marzano'},
+  {row:19,col:0,unit:'Ki',name:'San Marzano 10 Kreuz-Schalen'},
+  {row:20,col:0,unit:'Ki',name:'Fleischtomaten'},
+  {row:21,col:0,unit:'Ki',name:'Cuore'},
+  {row:22,col:0,unit:'Ki',name:'Cuore 9 Korb-Schalen'},
+  {row:23,col:0,unit:'Ki',name:'Romanella-Rispe'},
+  {row:24,col:0,unit:'Ki',name:'Romanella-Rispe 10 Kreuz-Schalen'},
+  {row:25,col:0,unit:'Ki',name:'Pflaumentomaten-Rispe'},
+  {row:26,col:0,unit:'Ki',name:'Dolcella-Rispe'},
+  {row:27,col:0,unit:'Ki',name:'Dolcella 16x250g Holzschliff'},
+  {row:28,col:0,unit:'Ki',name:'Olivtomaten 16x250g Holzschliff'},
+  {row:29,col:0,unit:'Ki',name:'Mini-Olivtomaten 16x250g Holzschliff'},
+  {row:30,col:0,unit:'Ki',name:'Marzanino 16x250g Holzschliff'},
+  {row:31,col:0,unit:'Ki',name:'Gelbe Perle 16x250g Holzschliff'},
+  {row:32,col:0,unit:'Ki',name:'Zebratomaten 16x250g Holzschliff'},
+  {row:33,col:0,unit:'Ki',name:'Tomaten 9x500g Holzschliff'},
+  {row:34,col:0,unit:'Ki',name:'WM-Schalen 9x500g Holzschliff'},
+  {row:35,col:0,unit:'Ki',name:'WM-Schalen Mini-Olivtomaten 9x500g'},
+  {row:38,col:0,unit:'Ki',name:'Tomaten II. / Kochtomaten'},
+  {row:39,col:0,unit:'Ki',name:'San Marzano II. / Cuore II.'},
+  // Paprika (left)
+  {row:41,col:0,unit:'Ki',name:'Paprika rot'},
+  {row:42,col:0,unit:'Ki',name:'Paprika gelb'},
+  {row:43,col:0,unit:'Ki',name:'Paprika orange'},
+  {row:44,col:0,unit:'Ki',name:'Paprika grün'},
+  {row:45,col:0,unit:'Ki',name:'Paprika mix rot/gelb/grün'},
+  {row:46,col:0,unit:'Ki',name:'Paprika mix rot/gelb/orange'},
+  {row:47,col:0,unit:'Ki',name:'Paprika rot-gelb'},
+  {row:49,col:0,unit:'Ki',name:'Paprika spitz mix'},
+  {row:50,col:0,unit:'Ki',name:'Paprika spitz rot/grün'},
+  {row:57,col:0,unit:'Ki',name:'Paprika II.'},
+  // Auberginen (left)
+  {row:59,col:0,unit:'Ki',name:'Auberginen'},
+  {row:60,col:0,unit:'Ki',name:'Auberginen mix'},
+  {row:61,col:0,unit:'Ki',name:'Auberginen gestreift'},
+  {row:63,col:0,unit:'Ki',name:'Auberginen II.'},
+  // Gurken / Zucchini (middle, qty col 5)
+  {row:10,col:5,unit:'Ki',name:'Minigurken'},
+  {row:11,col:5,unit:'Ki',name:'Minigurken 10 Kreuz-Schalen'},
+  {row:12,col:5,unit:'Ki',name:'Schlangengurken 12 Stück'},
+  {row:13,col:5,unit:'Ki',name:'Krumme Minigurken'},
+  {row:14,col:5,unit:'Ki',name:'Krumme Schlangengurken'},
+  {row:16,col:5,unit:'Ki',name:'Minigurken II.'},
+  {row:17,col:5,unit:'Ki',name:'Schlangengurken II.'},
+  {row:19,col:5,unit:'Ki',name:'Zucchini grün'},
+  {row:20,col:5,unit:'Ki',name:'Zucchini mix'},
+  {row:21,col:5,unit:'Ki',name:'Zucchini gelb'},
+  {row:22,col:5,unit:'Ki',name:'Zucchiniblüten 10 Stk.'},
+  // Salate (middle)
+  {row:25,col:5,unit:'Ki',name:'Kopfsalat'},
+  {row:26,col:5,unit:'Ki',name:'Kopfsalat rot'},
+  {row:27,col:5,unit:'Ki',name:'Raisa grün'},
+  {row:28,col:5,unit:'Ki',name:'Raisa rot'},
+  {row:29,col:5,unit:'Ki',name:'Lollo grün'},
+  {row:30,col:5,unit:'Ki',name:'Lollo rot'},
+  {row:31,col:5,unit:'Ki',name:'Mixsalat'},
+  {row:33,col:5,unit:'Ki',name:'Ackersalat Haus'},
+  {row:34,col:5,unit:'Ki',name:'Ackersalat Haus 6 Plastik-Schalen'},
+  {row:35,col:5,unit:'Ki',name:'Ackersalat Freiland'},
+  {row:36,col:5,unit:'Ki',name:'Schnittsalat'},
+  {row:37,col:5,unit:'Ki',name:'Schnittsalat 6 Plastik-Schalen'},
+  {row:39,col:5,unit:'Ki',name:'Frisée-Pflücksalat'},
+  {row:40,col:5,unit:'Ki',name:'BabyLeafMix'},
+  {row:41,col:5,unit:'Ki',name:'BabyLeafMix 6 Plastik-Schalen'},
+  {row:42,col:5,unit:'Ki',name:'Asiasalat'},
+  {row:43,col:5,unit:'Ki',name:'Asiasalat 6 Plastik-Schalen'},
+  {row:44,col:5,unit:'Ki',name:'Mangold / Mizuna'},
+  {row:45,col:5,unit:'Ki',name:'Spinatsalat'},
+  {row:46,col:5,unit:'Ki',name:'Spinatsalat 6 Plastik-Schalen'},
+  {row:47,col:5,unit:'Ki',name:'Brunnenkresse'},
+  {row:48,col:5,unit:'Ki',name:'Wildkräutersalat'},
+  {row:49,col:5,unit:'Ki',name:'Wildkräutersalat 6 Plastik-Schalen'},
+  {row:50,col:5,unit:'Ki',name:'Pak Choi 1 kg Mini'},
+  {row:51,col:5,unit:'Ki',name:'Pak Choi 3 kg'},
+  {row:52,col:5,unit:'Ki',name:'Pak Choi 4x2 Stück Folie'},
+  {row:53,col:5,unit:'Ki',name:'Romana Herzen 4x2 Stück Folie'},
+  {row:54,col:5,unit:'Ki',name:'Postelein'},
+  {row:56,col:5,unit:'Ki',name:'Ingwer 1kg / 3kg'},
+  {row:57,col:5,unit:'Ki',name:'Chicorée'},
+  {row:58,col:5,unit:'Ki',name:'Chinakohl'},
+  {row:59,col:5,unit:'Ki',name:'Hokkaido / Butternut'},
+  {row:61,col:5,unit:'Pl',name:'Rosmarin / Jiaogulan (Platte 6T)'},
+  {row:62,col:5,unit:'Pl',name:'Schnittlauch (Platte 6T)'},
+  // Kräuter Platte 8 Töpfe (right section, qty col 10)
+  {row:10,col:10,unit:'Pl',name:'Basilikum (Platte 8T)'},
+  {row:11,col:10,unit:'Pl',name:'Piccolino / Staudenbasilikum (Platte 8T)'},
+  {row:12,col:10,unit:'Pl',name:'Ananassalbei / Bohnenkraut (Platte 8T)'},
+  {row:13,col:10,unit:'Pl',name:'Borretsch / Dill (Platte 8T)'},
+  {row:14,col:10,unit:'Pl',name:'Kerbel / Koriander (Platte 8T)'},
+  {row:15,col:10,unit:'Pl',name:'Liebstock / Majoran (Platte 8T)'},
+  {row:16,col:10,unit:'Pl',name:'Minze spanisch (Platte 8T)'},
+  {row:17,col:10,unit:'Pl',name:'Minze schoko / marok (Platte 8T)'},
+  {row:18,col:10,unit:'Pl',name:'Minze nana / Pfefferminze (Platte 8T)'},
+  {row:19,col:10,unit:'Pl',name:'Oregano / Pimpinelle (Platte 8T)'},
+  {row:20,col:10,unit:'Pl',name:'Petersilie kraus / blatt (Platte 8T)'},
+  {row:21,col:10,unit:'Pl',name:'Rucola / Salbei (Platte 8T)'},
+  {row:22,col:10,unit:'Pl',name:'Sauerampfer / Thymian (Platte 8T)'},
+  {row:23,col:10,unit:'Pl',name:'Zitronenmelisse (Platte 8T)'},
+  // Kräuter Bund (right, qty col 11)
+  {row:25,col:11,unit:'Ki',name:'Rucola 10 Stk.'},
+  {row:26,col:11,unit:'Ki',name:'Rucola in Folie 10 Stk.'},
+  {row:27,col:11,unit:'Ki',name:'Rucola lose 1 kg'},
+  {row:28,col:11,unit:'Ki',name:'Petersilie kraus 20 Stk.'},
+  {row:29,col:11,unit:'Ki',name:'Petersilie kraus Großb. 14 Stk.'},
+  {row:30,col:11,unit:'Ki',name:'Petersilie blatt 20 Stk.'},
+  {row:31,col:11,unit:'Bd',name:'Schnittlauch 10 Stk.'},
+  {row:32,col:11,unit:'Bd',name:'Dill 10 Stk.'},
+  {row:33,col:11,unit:'Ki',name:'Basilikum 10 Stk.'},
+  {row:34,col:11,unit:'Ki',name:'Basilikum lose 1 kg'},
+  {row:35,col:11,unit:'Ki',name:'Grüne Soße 10 Stk.'},
+];
+
+// Default mappings: Hofmarkt product name → Kiemle product name
+const KIEMLE_DEFAULT_MAPPING = {
+  'Tomaten':                  'Strauchtomaten',
+  'Tomaten (Koch-)':          'Tomaten II. / Kochtomaten',
+  'Tomaten San Marzano':      'San Marzano',
+  'Tomaten Schale 250 g':     'Dolcella 16x250g Holzschliff',
+  'Tomaten Schale 500 g':     'Tomaten 9x500g Holzschliff',
+  'Paprika rot':              'Paprika rot',
+  'Paprika gelb':             'Paprika gelb',
+  'Paprika orange':           'Paprika orange',
+  'Spitzpaprika rot':         'Paprika spitz rot/grün',
+  'Spitzpaprika mix':         'Paprika spitz mix',
+  'Auberginen':               'Auberginen',
+  'Peperoni / Chilli':        'Paprika spitz rot/grün',
+  'Gurke (Schlangen-)':       'Schlangengurken 12 Stück',
+  'Gurke (Mini-)':            'Minigurken',
+  'Zucchini':                 'Zucchini grün',
+  'Ackersalat':               'Ackersalat Haus',
+  'Kopfsalat':                'Kopfsalat',
+  'Batavia':                  'Kopfsalat',
+  'Ruccola':                  'Rucola 10 Stk.',
+  'Schnittsalat':             'Schnittsalat',
+  'Pak Choi':                 'Pak Choi 3 kg',
+  'Chicorée':                 'Chicorée',
+  'Chinakohl':                'Chinakohl',
+  'Kürbis':                   'Hokkaido / Butternut',
+  'Ingwer':                   'Ingwer 1kg / 3kg',
+  'Koriander':                'Kerbel / Koriander (Platte 8T)',
+  'Petersilie glatt':         'Petersilie blatt 20 Stk.',
+  'Petersilie krause':        'Petersilie kraus 20 Stk.',
+  'Dill':                     'Dill 10 Stk.',
+  'Schnittlauch':             'Schnittlauch 10 Stk.',
+  'Grüne Soße':               'Grüne Soße 10 Stk.',
+};
+
+// User-saved mapping stored in localStorage
+let kiemleMapping = {};
+
+function loadKiemleMapping() {
+  try {
+    const s = localStorage.getItem('hofmarkt_kiemle_mapping');
+    kiemleMapping = s ? JSON.parse(s) : {...KIEMLE_DEFAULT_MAPPING};
+  } catch(e) { kiemleMapping = {...KIEMLE_DEFAULT_MAPPING}; }
+}
+
+function saveKiemleMapping() {
+  document.querySelectorAll('#kiemle-mapping-body select').forEach(sel => {
+    kiemleMapping[sel.dataset.hofmarkt] = sel.value;
+  });
+  localStorage.setItem('hofmarkt_kiemle_mapping', JSON.stringify(kiemleMapping));
+  closeKiemleMapping();
+  showToast('Kiemle Zuordnung gespeichert ✓');
+}
+
+function openKiemleMapping() {
+  loadKiemleMapping();
+  const kiemleOptions = KIEMLE_PRODUCTS.map(p =>
+    `<option value="${p.name}">${p.name} (${p.unit})</option>`
+  ).join('');
+
+  // Collect all orderable Hofmarkt products
+  const hofmarktProducts = [];
+  document.querySelectorAll('#main .category').forEach(catEl => {
+    const catname = catEl.dataset.catname;
+    catEl.querySelectorAll('.item').forEach(it => {
+      hofmarktProducts.push({catname, name: it.dataset.name});
+    });
+  });
+
+  // Group by category
+  const bycat = {};
+  hofmarktProducts.forEach(p => {
+    if(!bycat[p.catname]) bycat[p.catname] = [];
+    bycat[p.catname].push(p);
+  });
+
+  let html = '';
+  for(const [cat, prods] of Object.entries(bycat)) {
+    html += `<div class="kiemle-group"><div class="kiemle-group-header">${cat}</div>`;
+    prods.forEach(p => {
+      const cur = kiemleMapping[p.name] || '';
+      html += `<div class="kiemle-row">
+        <span class="kiemle-row-name">${p.name}</span>
+        <select data-hofmarkt="${p.name}" onchange="this.classList.toggle('mapped',!!this.value)">
+          <option value="">— kein Kiemle-Artikel —</option>
+          ${KIEMLE_PRODUCTS.map(kp =>
+            `<option value="${kp.name}"${kp.name===cur?' selected':''}>${kp.name} (${kp.unit})</option>`
+          ).join('')}
+        </select>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+  document.getElementById('kiemle-mapping-body').innerHTML = html;
+
+  // color already-mapped selects
+  document.querySelectorAll('#kiemle-mapping-body select').forEach(sel => {
+    sel.classList.toggle('mapped', !!sel.value);
+  });
+
+  document.getElementById('kiemle-modal').classList.remove('hidden');
+}
+
+function closeKiemleMapping() {
+  document.getElementById('kiemle-modal').classList.add('hidden');
+}
+
+// Close mapping modal on backdrop click
+document.addEventListener('click', e => {
+  const modal = document.getElementById('kiemle-modal');
+  if(e.target === modal) closeKiemleMapping();
+});
+
+async function downloadKiemleXLS() {
+  loadKiemleMapping();
+
+  // Load SheetJS dynamically if not present
+  if(!window.XLSX) {
+    await new Promise((res, rej) => {
+      const s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+      s.onload = res; s.onerror = rej;
+      document.head.appendChild(s);
+    });
+  }
+
+  // Collect current order quantities
+  const orderQtys = {}; // hofmarkt name → qty
+  document.querySelectorAll('#main .category .item').forEach(it => {
+    const ins = it.querySelectorAll('.qty-input');
+    if(!ins.length) return;
+    const bestellen = parseFloat(ins[1]?.value) || 0;
+    if(bestellen > 0) orderQtys[it.dataset.name] = bestellen;
+  });
+
+  // Build kiemle row → qty map
+  const rowColQty = {}; // `${row},${col}` → qty
+  for(const [hofName, qty] of Object.entries(orderQtys)) {
+    const kiemleProductName = kiemleMapping[hofName];
+    if(!kiemleProductName) continue;
+    const kProduct = KIEMLE_PRODUCTS.find(p => p.name === kiemleProductName);
+    if(!kProduct) continue;
+    const key = `${kProduct.row},${kProduct.col}`;
+    rowColQty[key] = (rowColQty[key] || 0) + qty;
+  }
+
+  // Fetch the XLS template from GitHub (same folder as index.html)
+  let templateData;
+  try {
+    const resp = await fetch('Bestellformular-Kiemle_2025.xls');
+    if(!resp.ok) throw new Error('not found');
+    templateData = await resp.arrayBuffer();
+  } catch(e) {
+    showToast('Vorlage nicht gefunden – bitte Bestellformular-Kiemle_2025.xls ins gleiche Verzeichnis wie index.html legen', true);
+    return;
+  }
+
+  const wb = XLSX.read(templateData, {type:'array', cellStyles:true});
+  const ws = wb.Sheets[wb.SheetNames[0]];
+
+  // Fill Datum
+  const today = new Date();
+  const dateStr = `${today.getDate().toString().padStart(2,'0')}.${(today.getMonth()+1).toString().padStart(2,'0')}.${today.getFullYear()}`;
+  const datumCell = XLSX.utils.encode_cell({r:6, c:5});
+  ws[datumCell] = ws[datumCell] || {};
+  ws[datumCell].v = dateStr; ws[datumCell].t = 's';
+
+  // Fill Kunde
+  const kundeCell = XLSX.utils.encode_cell({r:6, c:0});
+  ws[kundeCell] = ws[kundeCell] || {};
+  ws[kundeCell].v = "Wilhelm's Hofmarkt"; ws[kundeCell].t = 's';
+
+  // Fill quantities
+  for(const [key, qty] of Object.entries(rowColQty)) {
+    const [row, col] = key.split(',').map(Number);
+    const addr = XLSX.utils.encode_cell({r: row, c: col});
+    ws[addr] = {v: qty, t: 'n'};
+  }
+
+  // Download
+  const wbout = XLSX.write(wb, {bookType:'xls', type:'array'});
+  const blob = new Blob([wbout], {type:'application/vnd.ms-excel'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `Kiemle_Bestellung_${today.getFullYear()}${(today.getMonth()+1).toString().padStart(2,'0')}${today.getDate().toString().padStart(2,'0')}.xls`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Kiemle Bestellformular heruntergeladen ✓');
 }
 
 init();</script>
