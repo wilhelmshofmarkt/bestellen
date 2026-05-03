@@ -497,6 +497,19 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
   </div>
 </div>
 
+<!-- KIEMLE DATE PICKER MODAL -->
+<div id="kiemle-date-modal" class="modal-overlay hidden">
+  <div class="modal-sheet">
+    <h2>📅 Lieferdatum wählen</h2>
+    <p>Für welches Datum soll das Kiemle-Bestellformular gelten?</p>
+    <input type="date" id="kiemle-date-input" style="width:100%;padding:10px;border:1.5px solid #ddd;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:1rem;margin-bottom:16px;outline:none">
+    <div class="modal-actions">
+      <button class="btn-modal-ok" id="kiemle-date-ok" onclick="confirmKiemleDate()">📥 Herunterladen</button>
+      <button class="btn-modal-cancel" onclick="document.getElementById('kiemle-date-modal').classList.add('hidden')">Abbrechen</button>
+    </div>
+  </div>
+</div>
+
 <div id="tab-historie" class="tab-panel">
   <div class="filter-bar">
     <div class="filter-bar-row">
@@ -906,6 +919,13 @@ async function init() {
     rawHistory      = d.history         || [];
     customSuppliers = d.customSuppliers || [];
     supplierChoices = d.supplierChoices || {};
+    // Kiemle Zuordnung aus Apps Script laden (überschreibt localStorage)
+    if(d.kiemleMapping && Object.keys(d.kiemleMapping).length > 0) {
+      kiemleMapping = d.kiemleMapping;
+      localStorage.setItem('hofmarkt_kiemle_mapping', JSON.stringify(kiemleMapping));
+    } else {
+      loadKiemleMapping(); // Fallback: localStorage
+    }
     sheetsOnline = true;
     setStatus(true);
     try { await flushSyncQueue(); } catch(e) {}
@@ -2484,17 +2504,23 @@ const KIEMLE_DEFAULT_MAPPING = {
 let kiemleMapping = {};
 
 function loadKiemleMapping() {
+  // Erst localStorage als Fallback, echte Daten kommen via init() aus Apps Script
   try {
     const s = localStorage.getItem('hofmarkt_kiemle_mapping');
     kiemleMapping = s ? JSON.parse(s) : {...KIEMLE_DEFAULT_MAPPING};
   } catch(e) { kiemleMapping = {...KIEMLE_DEFAULT_MAPPING}; }
 }
 
-function saveKiemleMapping() {
+async function saveKiemleMapping() {
   document.querySelectorAll('#kiemle-mapping-body select').forEach(sel => {
     kiemleMapping[sel.dataset.hofmarkt] = sel.value;
   });
+  // Lokal cachen
   localStorage.setItem('hofmarkt_kiemle_mapping', JSON.stringify(kiemleMapping));
+  // In Apps Script speichern (überschreibt immer)
+  try {
+    await apiPost({action: 'saveKiemleMapping', mapping: kiemleMapping});
+  } catch(e) { /* offline – localStorage reicht */ }
   closeKiemleMapping();
   showToast('Kiemle Zuordnung gespeichert ✓');
 }
@@ -2558,10 +2584,23 @@ document.addEventListener('click', e => {
   if(e.target === modal) closeKiemleMapping();
 });
 
-async function downloadKiemleXLS() {
-  loadKiemleMapping();
+function downloadKiemleXLS() {
+  // Zeige Datum-Auswahl zuerst
+  const inp = document.getElementById('kiemle-date-input');
+  inp.value = new Date().toISOString().slice(0,10);
+  document.getElementById('kiemle-date-modal').classList.remove('hidden');
+}
 
-  // Load SheetJS dynamically if not present
+async function confirmKiemleDate() {
+  const inp = document.getElementById('kiemle-date-input');
+  const dateVal = inp.value;
+  if(!dateVal) { showToast('Bitte Datum wählen', true); return; }
+  document.getElementById('kiemle-date-modal').classList.add('hidden');
+
+  const [y,m,d] = dateVal.split('-');
+  const dateStr = `${d}.${m}.${y}`;
+
+  // SheetJS laden
   if(!window.XLSX) {
     await new Promise((res, rej) => {
       const s = document.createElement('script');
@@ -2571,8 +2610,8 @@ async function downloadKiemleXLS() {
     });
   }
 
-  // Collect current order quantities
-  const orderQtys = {}; // hofmarkt name → qty
+  // Bestellmengen sammeln
+  const orderQtys = {};
   document.querySelectorAll('#main .category .item').forEach(it => {
     const ins = it.querySelectorAll('.qty-input');
     if(!ins.length) return;
@@ -2580,8 +2619,8 @@ async function downloadKiemleXLS() {
     if(bestellen > 0) orderQtys[it.dataset.name] = bestellen;
   });
 
-  // Build kiemle row → qty map
-  const rowColQty = {}; // `${row},${col}` → qty
+  // Hofmarkt → Kiemle-Zeile mappen
+  const rowColQty = {};
   for(const [hofName, qty] of Object.entries(orderQtys)) {
     const kiemleProductName = kiemleMapping[hofName];
     if(!kiemleProductName) continue;
@@ -2591,46 +2630,49 @@ async function downloadKiemleXLS() {
     rowColQty[key] = (rowColQty[key] || 0) + qty;
   }
 
-  // Fetch the XLS template from GitHub (same folder as index.html)
+  // XLS-Vorlage laden
   let templateData;
   try {
     const resp = await fetch('Bestellformular-Kiemle_2025.xls');
     if(!resp.ok) throw new Error('not found');
     templateData = await resp.arrayBuffer();
   } catch(e) {
-    showToast('Vorlage nicht gefunden – bitte Bestellformular-Kiemle_2025.xls ins gleiche Verzeichnis wie index.html legen', true);
+    showToast('Vorlage nicht gefunden – Bestellformular-Kiemle_2025.xls muss im selben Ordner liegen', true);
     return;
   }
 
-  const wb = XLSX.read(templateData, {type:'array', cellStyles:true});
+  // Mit cellStyles + sheetStubs lesen → erhält alle Formatierungen
+  const wb = XLSX.read(templateData, {type:'array', cellStyles:true, sheetStubs:true});
   const ws = wb.Sheets[wb.SheetNames[0]];
 
-  // Fill Datum
-  const today = new Date();
-  const dateStr = `${today.getDate().toString().padStart(2,'0')}.${(today.getMonth()+1).toString().padStart(2,'0')}.${today.getFullYear()}`;
+  // Datum eintragen
   const datumCell = XLSX.utils.encode_cell({r:6, c:5});
-  ws[datumCell] = ws[datumCell] || {};
+  if(!ws[datumCell]) ws[datumCell] = {};
   ws[datumCell].v = dateStr; ws[datumCell].t = 's';
+  delete ws[datumCell].f;
 
-  // Fill Kunde
+  // Kunde eintragen
   const kundeCell = XLSX.utils.encode_cell({r:6, c:0});
-  ws[kundeCell] = ws[kundeCell] || {};
+  if(!ws[kundeCell]) ws[kundeCell] = {};
   ws[kundeCell].v = "Wilhelm's Hofmarkt"; ws[kundeCell].t = 's';
+  delete ws[kundeCell].f;
 
-  // Fill quantities
+  // Mengen eintragen – Style von vorhandener Zelle übernehmen
   for(const [key, qty] of Object.entries(rowColQty)) {
     const [row, col] = key.split(',').map(Number);
     const addr = XLSX.utils.encode_cell({r: row, c: col});
-    ws[addr] = {v: qty, t: 'n'};
+    const existing = ws[addr] || {};
+    ws[addr] = {...existing, v: qty, t: 'n'};
+    delete ws[addr].f;
   }
 
-  // Download
-  const wbout = XLSX.write(wb, {bookType:'xls', type:'array'});
-  const blob = new Blob([wbout], {type:'application/vnd.ms-excel'});
+  // Als XLSX speichern – behält Styles zuverlässig (xls Format verliert sie)
+  const wbout = XLSX.write(wb, {bookType:'xlsx', type:'array', cellStyles:true});
+  const blob = new Blob([wbout], {type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `Kiemle_Bestellung_${today.getFullYear()}${(today.getMonth()+1).toString().padStart(2,'0')}${today.getDate().toString().padStart(2,'0')}.xls`;
+  a.download = `Kiemle_Bestellung_${y}${m}${d}.xlsx`;
   a.click();
   URL.revokeObjectURL(url);
   showToast('Kiemle Bestellformular heruntergeladen ✓');
