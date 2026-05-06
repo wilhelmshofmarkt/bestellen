@@ -489,6 +489,8 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
   <div class="kiemle-sheet">
     <h2>⚙️ Kiemle Zuordnung</h2>
     <p>Welches Hofmarkt-Produkt entspricht welchem Kiemle-Artikel?</p>
+    <input type="search" id="kiemle-search" placeholder="🔍 Suchen…" oninput="filterKiemleRows(this.value)"
+      style="width:100%;box-sizing:border-box;padding:9px 12px;border:1.5px solid #ccc;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:.88rem;margin-bottom:12px;outline:none;">
     <div id="kiemle-mapping-body"></div>
     <div class="kiemle-footer">
       <button class="btn-kiemle-save" onclick="saveKiemleMapping()">✓ Speichern</button>
@@ -2371,8 +2373,10 @@ const KIEMLE_PRODUCTS = [
   {row:33,col:0,unit:'Ki',name:'Tomaten 9 x 500 g in Holzschliff'},
   {row:34,col:0,unit:'Ki',name:'WM-Schalen 9x500g Holzschliff'},
   {row:35,col:0,unit:'Ki',name:'WM-Schalen Mini-Olivtomaten 9x500g'},
-  {row:38,col:0,unit:'Ki',name:'Tomaten II. / Kochtomaten'},
-  {row:39,col:0,unit:'Ki',name:'San Marzano II. / Cuore II.'},
+  {row:38,col:0,unit:'Ki',name:'Tomaten II.'},
+  {row:38,col:1,unit:'Ki',name:'Kochtomaten'},
+  {row:39,col:0,unit:'Ki',name:'San Marzano II.'},
+  {row:39,col:1,unit:'Ki',name:'Cuore II.'},
   // Paprika (left)
   {row:41,col:0,unit:'Ki',name:'Paprika rot'},
   {row:42,col:0,unit:'Ki',name:'Paprika gelb'},
@@ -2382,8 +2386,17 @@ const KIEMLE_PRODUCTS = [
   {row:46,col:0,unit:'Ki',name:'Paprika mix rot/gelb/orange'},
   {row:47,col:0,unit:'Ki',name:'Paprika rot-gelb'},
   {row:49,col:0,unit:'Ki',name:'Paprika spitz mix'},
-  {row:50,col:0,unit:'Ki',name:'Paprika spitz rot/grün'},
+  {row:50,col:0,unit:'Ki',name:'Paprika spitz rot'},
+  {row:50,col:1,unit:'Ki',name:'Paprika spitz grün'},
   {row:57,col:0,unit:'Ki',name:'Paprika II.'},
+  // Peperoni / Jalapeño (left, qty col 0 / 1)
+  {row:51,col:0,unit:'Ki',name:'Peperoni rot 250 g Holzschliff'},
+  {row:51,col:1,unit:'Ki',name:'Peperoni grün 250 g Holzschliff'},
+  {row:52,col:0,unit:'Ki',name:'Peperoni gelb 250 g Holzschliff'},
+  {row:52,col:1,unit:'Ki',name:'Peperoni orange 250 g Holzschliff'},
+  {row:53,col:0,unit:'Ki',name:'Peperoni mix 250 g Holzschliff'},
+  {row:55,col:0,unit:'Ki',name:'Jalapeño rot 500 g Holzschliff'},
+  {row:55,col:1,unit:'Ki',name:'Jalapeño grün 500 g Holzschliff'},
   // Auberginen (left)
   {row:59,col:0,unit:'Ki',name:'Auberginen'},
   {row:60,col:0,unit:'Ki',name:'Auberginen mix'},
@@ -2419,7 +2432,8 @@ const KIEMLE_PRODUCTS = [
   {row:41,col:5,unit:'Ki',name:'BabyLeafMix 6 Plastik-Schalen'},
   {row:42,col:5,unit:'Ki',name:'Asiasalat'},
   {row:43,col:5,unit:'Ki',name:'Asiasalat 6 Plastik-Schalen'},
-  {row:44,col:5,unit:'Ki',name:'Mangold / Mizuna'},
+  {row:44,col:5,unit:'Ki',name:'Mangold'},
+  {row:44,col:6,unit:'Ki',name:'Mizuna'},
   {row:45,col:5,unit:'Ki',name:'Spinatsalat'},
   {row:46,col:5,unit:'Ki',name:'Spinatsalat 6 Plastik-Schalen'},
   {row:47,col:5,unit:'Ki',name:'Brunnenkresse'},
@@ -2430,11 +2444,14 @@ const KIEMLE_PRODUCTS = [
   {row:52,col:5,unit:'Ki',name:'Pak Choi 4x2 Stück Folie'},
   {row:53,col:5,unit:'Ki',name:'Romana Herzen 4x2 Stück Folie'},
   {row:54,col:5,unit:'Ki',name:'Postelein'},
-  {row:56,col:5,unit:'Ki',name:'Ingwer 1 kg / 3 kg'},
+  {row:56,col:5,unit:'Ki',name:'Ingwer 1 kg'},
+  {row:56,col:6,unit:'Ki',name:'Ingwer 3 kg'},
   {row:57,col:5,unit:'Ki',name:'Chicorée'},
   {row:58,col:5,unit:'Ki',name:'Chinakohl'},
-  {row:59,col:5,unit:'Ki',name:'Hokkaido / Butternut'},
-  {row:61,col:5,unit:'Pl',name:'Rosmarin / Jiaogulan (Platte 6T)'},
+  {row:59,col:5,unit:'Ki',name:'Hokkaido'},
+  {row:59,col:6,unit:'Ki',name:'Butternut'},
+  {row:61,col:5,unit:'Pl',name:'Rosmarin (Platte 6T)'},
+  {row:61,col:6,unit:'Pl',name:'Jiaogulan (Platte 6T)'},
   {row:62,col:5,unit:'Pl',name:'Schnittlauch (Platte 6T)'},
   // Kräuter Platte 8 Töpfe (right section, qty col 10)
   {row:10,col:10,unit:'Pl',name:'Basilikum'},
@@ -2479,17 +2496,17 @@ const KIEMLE_PRODUCTS = [
 // Default mappings: Hofmarkt product name → Kiemle product name
 const KIEMLE_DEFAULT_MAPPING = {
   'Tomaten':                  'Strauchtomaten',
-  'Tomaten (Koch-)':          'Tomaten II. / Kochtomaten',
+  'Tomaten (Koch-)':          'Tomaten II.',
   'Tomaten San Marzano':      'San Marzano',
   'Tomaten Schale 250 g':     'Dolcella 16 x 250 g in Holzschliff',
   'Tomaten Schale 500 g':     'Tomaten 9 x 500 g in Holzschliff',
   'Paprika rot':              'Paprika rot',
   'Paprika gelb':             'Paprika gelb',
   'Paprika orange':           'Paprika orange',
-  'Spitzpaprika rot':         'Paprika spitz rot/grün',
+  'Spitzpaprika rot':         'Paprika spitz rot',
   'Spitzpaprika mix':         'Paprika spitz mix',
   'Auberginen':               'Auberginen',
-  'Peperoni / Chilli':        'Paprika spitz rot/grün',
+  'Peperoni / Chilli':        'Peperoni rot 250 g Holzschliff',
   'Gurke (Schlangen-)':       'Schlangengurken 12 Stück',
   'Gurke (Mini-)':            'Minigurken',
   'Zucchini':                 'Zucchini grün',
@@ -2501,8 +2518,8 @@ const KIEMLE_DEFAULT_MAPPING = {
   'Pak Choi':                 'Pak Choi 3 kg',
   'Chicorée':                 'Chicorée',
   'Chinakohl':                'Chinakohl',
-  'Kürbis':                   'Hokkaido / Butternut',
-  'Ingwer':                   'Ingwer 1 kg / 3 kg',
+  'Kürbis':                   'Hokkaido',
+  'Ingwer':                   'Ingwer 1 kg',
   'Koriander':                'Koriander',
   'Petersilie glatt':         'Petersilie blatt 20 Stk.',
   'Petersilie krause':        'Petersilie kraus 20 Stk.',
@@ -2583,6 +2600,21 @@ function openKiemleMapping() {
   });
 
   document.getElementById('kiemle-modal').classList.remove('hidden');
+  const searchEl = document.getElementById('kiemle-search');
+  if(searchEl) { searchEl.value = ''; filterKiemleRows(''); }
+}
+
+function filterKiemleRows(query) {
+  const q = query.toLowerCase();
+  document.querySelectorAll('#kiemle-mapping-body .kiemle-row').forEach(row => {
+    const name = row.querySelector('.kiemle-row-name')?.textContent?.toLowerCase() || '';
+    const sel  = row.querySelector('select')?.value?.toLowerCase() || '';
+    row.style.display = (!q || name.includes(q) || sel.includes(q)) ? '' : 'none';
+  });
+  document.querySelectorAll('#kiemle-mapping-body .kiemle-group').forEach(grp => {
+    const visibleRows = [...grp.querySelectorAll('.kiemle-row')].filter(r => r.style.display !== 'none');
+    grp.style.display = visibleRows.length > 0 ? '' : 'none';
+  });
 }
 
 function closeKiemleMapping() {
@@ -2660,9 +2692,9 @@ async function confirmKiemleDate() {
     'Tomaten 9 x 500 g in Holzschliff':       {x:52,  top:440},
     'WM-Schalen 9 x 500 g in Holzschliff':    {x:52,  top:452},
     'WM-Schalen von Mini-Olivtomaten 9 x 500 g': {x:52, top:464},
-    'Tomaten II. / Kochtomaten':               {x:52,  top:502},
+    'Tomaten II.':                             {x:52,  top:502},
     'Kochtomaten':                             {x:58,  top:502},
-    'San Marzano II. / Cuore II.':             {x:52,  top:514},
+    'San Marzano II.':                         {x:52,  top:514},
     'Cuore II.':                               {x:58,  top:514},
     'Paprika rot':                             {x:52,  top:538},
     'Paprika gelb':                            {x:52,  top:550},
@@ -2672,15 +2704,15 @@ async function confirmKiemleDate() {
     'Paprika mix (rot/gelb/orange)':           {x:52,  top:598},
     'Paprika rot-gelb':                        {x:52,  top:612},
     'Paprika spitz mix':                       {x:52,  top:636},
-    'Paprika spitz rot/grün':                  {x:52,  top:648},
-    'rot/grün (Paprika spitz)':                {x:58,  top:648},
-    'Peperoni rot/grün 250 g':                 {x:52,  top:672},
-    'rot/grün (Peperoni)':                     {x:58,  top:672},
-    'Peperoni gelb/orange 250 g':              {x:52,  top:684},
-    'gelb/orange (Peperoni)':                  {x:58,  top:684},
-    'Peperoni mix 250 g':                      {x:52,  top:696},
-    'Jalapeño rot/grün 500 g':                 {x:52,  top:708},
-    'rot/grün (Jalapeño)':                     {x:58,  top:708},
+    'Paprika spitz rot':                       {x:52,  top:648},
+    'Paprika spitz grün':                      {x:58,  top:648},
+    'Peperoni rot 250 g Holzschliff':          {x:52,  top:672},
+    'Peperoni grün 250 g Holzschliff':         {x:58,  top:672},
+    'Peperoni gelb 250 g Holzschliff':         {x:52,  top:684},
+    'Peperoni orange 250 g Holzschliff':       {x:58,  top:684},
+    'Peperoni mix 250 g Holzschliff':          {x:52,  top:696},
+    'Jalapeño rot 500 g Holzschliff':          {x:52,  top:708},
+    'Jalapeño grün 500 g Holzschliff':         {x:58,  top:708},
     'Paprika II.':                             {x:52,  top:734},
     'Auberginen':                              {x:52,  top:758},
     'Auberginen mix':                          {x:52,  top:770},
@@ -2739,7 +2771,7 @@ async function confirmKiemleDate() {
     'BabyLeafMix in 6 Plastik-Schalen':        {x:240, top:538},
     'Asiasalat':                               {x:240, top:550},
     'Asiasalat in 6 Plastik-Schalen':          {x:240, top:562},
-    'Mangold / Mizuna':                        {x:240, top:574},
+    'Mangold':                                 {x:240, top:574},
     'Mizuna':                                  {x:251, top:574},
     'Spinatsalat':                             {x:240, top:586},
     'Spinatsalat in 6 Plastik-Schalen':        {x:240, top:598},
@@ -2751,14 +2783,14 @@ async function confirmKiemleDate() {
     'Pak Choi 4 x 2 Stück in Folie':           {x:240, top:672},
     'Romana Herzen 4 x 2 Stück in Folie':      {x:240, top:684},
     'Postelein':                               {x:240, top:696},
-    'Ingwer 1 kg / 3 kg':                      {x:240, top:720},
+    'Ingwer 1 kg':                             {x:240, top:720},
     'Ingwer 3 kg':                             {x:251, top:720},
     'Chicorée':                                {x:240, top:734},
     'Chinakohl':                               {x:240, top:746},
-    'Hokkaido / Butternut':                    {x:240, top:758},
+    'Hokkaido':                                {x:240, top:758},
     'Butternut':                               {x:251, top:758},
-    'Rosmarin / Jiaogulan':                    {x:240, top:782},
-    'Jiaogulan':                               {x:251, top:782},
+    'Rosmarin (Platte 6T)':                    {x:240, top:782},
+    'Jiaogulan (Platte 6T)':                   {x:251, top:782},
     'Schnittlauch':                            {x:240, top:794},
     'Rucola 10 Stk.':                          {x:435, top:344},
     'Rucola in Folie 10 Stk.':                 {x:435, top:356},
