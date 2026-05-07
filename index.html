@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+!DOCTYPE html>
 <html lang="de">
 <head>
   <link rel="icon" type="image/svg+xml" href="images-2.svg">
@@ -468,6 +468,7 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
       <button class="btn-print" onclick="printEinkaufszettel()">🖨️ Einkaufszettel drucken</button>
       <button class="btn-print" onclick="shareList('bestellen')" style="background:#1A6BA0;box-shadow:0 3px 0 #0f4a73;margin-top:6px">📤 Einkaufszettel teilen</button>
       <button class="btn-kiemle" onclick="downloadKiemleXLS()">📥 Kiemle Bestellformular</button>
+      <button class="btn-kiemle" onclick="downloadMerzPDF()" style="background:#8a2d1a;box-shadow:0 3px 0 #5a1a0a">📥 Merz Bestellformular</button>
       <button class="btn-kiemle" onclick="openKiemleMapping()" style="background:#3a1f6e;box-shadow:0 3px 0 #1e0f3a">⚙️ Kiemle Zuordnung</button>
       <button class="btn-clear" onclick="clearBestellen()">Bestellmengen löschen</button>
     </div>
@@ -512,7 +513,22 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
   </div>
 </div>
 
-<div id="tab-historie" class="tab-panel">
+<!-- MERZ DATE PICKER MODAL -->
+<div id="merz-date-modal" class="modal-overlay hidden">
+  <div class="modal-sheet">
+    <h2>📅 Merz – Lieferdatum wählen</h2>
+    <p>Für welches Datum soll das Merz-Bestellformular gelten?</p>
+    <div style="display:flex;gap:10px;margin-bottom:12px">
+      <button id="merz-type-rechnung" class="btn-modal-ok" onclick="setMerzDocType('rechnung')" style="flex:1">☑ Rechnung</button>
+      <button id="merz-type-lieferschein" class="btn-modal-ok" onclick="setMerzDocType('lieferschein')" style="flex:1;opacity:.45;background:#666;box-shadow:0 3px 0 #333">☐ Lieferschein</button>
+    </div>
+    <input type="date" id="merz-date-input" style="width:100%;padding:10px;border:1.5px solid #ddd;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:1rem;margin-bottom:16px;outline:none">
+    <div class="modal-actions">
+      <button class="btn-modal-ok" onclick="confirmMerzDate()">📥 Herunterladen</button>
+      <button class="btn-modal-cancel" onclick="document.getElementById('merz-date-modal').classList.add('hidden')">Abbrechen</button>
+    </div>
+  </div>
+</div>
   <div class="filter-bar">
     <div class="filter-bar-row">
       <span class="filter-label">Datum</span>
@@ -2854,6 +2870,217 @@ async function confirmKiemleDate() {
   a.click();
   URL.revokeObjectURL(url);
   showToast('Kiemle Bestellformular heruntergeladen ✓');
+}
+
+// ── MERZ BESTELLFORMULAR ──────────────────────────────────────────────────────
+
+let merzDocType = 'rechnung';
+
+function setMerzDocType(type) {
+  merzDocType = type;
+  const rBtn = document.getElementById('merz-type-rechnung');
+  const lBtn = document.getElementById('merz-type-lieferschein');
+  if(type === 'rechnung') {
+    rBtn.style.opacity = '1'; rBtn.style.background = ''; rBtn.style.boxShadow = '';
+    rBtn.textContent = '☑ Rechnung';
+    lBtn.style.opacity = '.45'; lBtn.style.background = '#666'; lBtn.style.boxShadow = '0 3px 0 #333';
+    lBtn.textContent = '☐ Lieferschein';
+  } else {
+    lBtn.style.opacity = '1'; lBtn.style.background = ''; lBtn.style.boxShadow = '';
+    lBtn.textContent = '☑ Lieferschein';
+    rBtn.style.opacity = '.45'; rBtn.style.background = '#666'; rBtn.style.boxShadow = '0 3px 0 #333';
+    rBtn.textContent = '☐ Rechnung';
+  }
+}
+
+function downloadMerzPDF() {
+  merzDocType = 'rechnung';
+  // Reset toggle UI
+  const rBtn = document.getElementById('merz-type-rechnung');
+  const lBtn = document.getElementById('merz-type-lieferschein');
+  if(rBtn) { rBtn.style.opacity='1'; rBtn.style.background=''; rBtn.textContent='☑ Rechnung'; }
+  if(lBtn) { lBtn.style.opacity='.45'; lBtn.style.background='#666'; lBtn.style.boxShadow='0 3px 0 #333'; lBtn.textContent='☐ Lieferschein'; }
+  // Set today as default
+  const today = new Date();
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth()+1).padStart(2,'0');
+  const dd = String(today.getDate()).padStart(2,'0');
+  document.getElementById('merz-date-input').value = `${yyyy}-${mm}-${dd}`;
+  document.getElementById('merz-date-modal').classList.remove('hidden');
+}
+
+async function confirmMerzDate() {
+  document.getElementById('merz-date-modal').classList.add('hidden');
+  const dateVal = document.getElementById('merz-date-input').value;
+  let dateStr = '';
+  if(dateVal) {
+    const [y,m,d] = dateVal.split('-');
+    dateStr = `${d}.${m}.${y}`;
+  }
+
+  // Load pdf-lib
+  if(!window.PDFLib) {
+    await new Promise((res,rej) => {
+      const s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js';
+      s.onload = res; s.onerror = rej;
+      document.head.appendChild(s);
+    });
+  }
+
+  // Collect order quantities for all Merz-mapped products
+  const orderQtys = {};
+  document.querySelectorAll('#main .category .item').forEach(it => {
+    const ins = it.querySelectorAll('.qty-input');
+    if(!ins.length) return;
+    const bestellen = parseFloat(ins[1]?.value) || 0;
+    if(bestellen > 0) orderQtys[it.dataset.name] = bestellen;
+  });
+
+  // ── MERZ MAPPING: Hofmarkt-Name → Merz-Produktname ───────────────────────
+  // (wird später konfigurierbar – jetzt Standardzuordnung)
+  const MERZ_MAPPING = {
+    'Kopfsalat':         'Kopfsalat',
+    'Eissalat':          'Eissalat',
+    'Kopfsalat rot':     'Kopfsalat rot',
+    'Lollo grün':        'Lollo Bionda',
+    'Lollo rot':         'Lollo Rossa',
+    'Raisa grün':        'Raisa grün',
+    'Raisa rot':         'Raisa rot',
+    'Batavia grün':      'Batavia grün',
+    'Batavia rot':       'Batavia rot',
+    'Chicorée':          'Endivien',
+    'Romana Herzen':     'Romana',
+    'Schnittsalat':      'Salanova Mix',
+    'Ackersalat Haus':   'Ackersalat',
+    'Ackersalat Freiland':'Ackersalat',
+    'Rucola 10 Stk.':   'Rucola',
+    'Pak Choi 3 kg':    'Winterpostelein',
+    'Chinakohl':         'Wirsing',
+    'Karotten':          'Karotten',
+    'Karotten lose':     'Karotten lose',
+    'Zucchini grün':     'Zuccini',
+    'Hokkaido':          'Hokkaido',
+  };
+
+  // ── MERZ PDF POSITIONEN (verifiziert am Probebild) ────────────────────────
+  // PDF: 595.08 x 841.68 pt  |  Scan: 1654 x 2338 px bei 200dpi
+  const PDF_H = 841.68;
+  const sy = 841.68 / 2338;
+  const MENGE_X_RIGHT = 775 * (595.08/1654);  // 278.8pt
+
+  const MERZ_PDF_POS = {
+    'Kopfsalat':        { x: MENGE_X_RIGHT, y: PDF_H - 136*sy },
+    'Eissalat':         { x: MENGE_X_RIGHT, y: PDF_H - 180*sy },
+    'Kopfsalat rot':    { x: MENGE_X_RIGHT, y: PDF_H - 224*sy },
+    'Lollo Bionda':     { x: MENGE_X_RIGHT, y: PDF_H - 268*sy },
+    'Lollo Rossa':      { x: MENGE_X_RIGHT, y: PDF_H - 311*sy },
+    'Raisa grün':       { x: MENGE_X_RIGHT, y: PDF_H - 354*sy },
+    'Raisa rot':        { x: MENGE_X_RIGHT, y: PDF_H - 398*sy },
+    'Batavia grün':     { x: MENGE_X_RIGHT, y: PDF_H - 441*sy },
+    'Batavia rot':      { x: MENGE_X_RIGHT, y: PDF_H - 484*sy },
+    'Endivien':         { x: MENGE_X_RIGHT, y: PDF_H - 528*sy },
+    'Romana':           { x: MENGE_X_RIGHT, y: PDF_H - 572*sy },
+    'Salanova Mix':     { x: MENGE_X_RIGHT, y: PDF_H - 614*sy },
+    'Salanova Crispy':  { x: MENGE_X_RIGHT, y: PDF_H - 658*sy },
+    'Radicchio':        { x: MENGE_X_RIGHT, y: PDF_H - 701*sy },
+    'Ackersalat':       { x: MENGE_X_RIGHT, y: PDF_H - 744*sy },
+    'Blättle-Salat':    { x: MENGE_X_RIGHT, y: PDF_H - 788*sy },
+    'Brunnenkresse':    { x: MENGE_X_RIGHT, y: PDF_H - 830*sy },
+    'Kresse':           { x: MENGE_X_RIGHT, y: PDF_H - 874*sy },
+    'Pflücksalat':      { x: MENGE_X_RIGHT, y: PDF_H - 917*sy },
+    'Rucola':           { x: MENGE_X_RIGHT, y: PDF_H - 960*sy },
+    'Winterpostelein':  { x: MENGE_X_RIGHT, y: PDF_H - 1004*sy },
+    'Kohlrabi':         { x: MENGE_X_RIGHT, y: PDF_H - 1090*sy },
+    'Weißkohl':         { x: MENGE_X_RIGHT, y: PDF_H - 1134*sy },
+    'Rotkohl':          { x: MENGE_X_RIGHT, y: PDF_H - 1176*sy },
+    'Wirsing':          { x: MENGE_X_RIGHT, y: PDF_H - 1220*sy },
+    'Spitzkohl':        { x: MENGE_X_RIGHT, y: PDF_H - 1264*sy },
+    'Broccoli':         { x: MENGE_X_RIGHT, y: PDF_H - 1306*sy },
+    'Grünkohl':         { x: MENGE_X_RIGHT, y: PDF_H - 1350*sy },
+    'Rosenkohl':        { x: MENGE_X_RIGHT, y: PDF_H - 1394*sy },
+    'Bohnen':           { x: MENGE_X_RIGHT, y: PDF_H - 1436*sy },
+    'Hokkaido':         { x: MENGE_X_RIGHT, y: PDF_H - 1480*sy },
+    'Zuccini':          { x: MENGE_X_RIGHT, y: PDF_H - 1522*sy },
+    'Zwiebelbund':      { x: MENGE_X_RIGHT, y: PDF_H - 1566*sy },
+    'Karotten':         { x: MENGE_X_RIGHT, y: PDF_H - 1610*sy },
+    'Karotten lose':    { x: MENGE_X_RIGHT, y: PDF_H - 1652*sy },
+    'Petersilienwurzel':{ x: MENGE_X_RIGHT, y: PDF_H - 1696*sy },
+    'Rote Rüben':       { x: MENGE_X_RIGHT, y: PDF_H - 1738*sy },
+    'Rote Rüben lose':  { x: MENGE_X_RIGHT, y: PDF_H - 1782*sy },
+    'Knollenfenchel':   { x: MENGE_X_RIGHT, y: PDF_H - 1826*sy },
+    'Knollensellerie':  { x: MENGE_X_RIGHT, y: PDF_H - 1868*sy },
+    'Staudensellerie':  { x: MENGE_X_RIGHT, y: PDF_H - 1912*sy },
+    'Lauch':            { x: MENGE_X_RIGHT, y: PDF_H - 1954*sy },
+    'Mangold':          { x: MENGE_X_RIGHT, y: PDF_H - 1998*sy },
+    'Spinat':           { x: MENGE_X_RIGHT, y: PDF_H - 2040*sy },
+  };
+
+  // Checkbox & Felder (verifiziert)
+  const RECHNUNG_X  = 140 * (595.08/1654);
+  const LIEFER_X    = 185.8;
+  const CHECK_Y     = PDF_H - 1460*sy;
+  const DATUM_X     = 88.0;
+  const DATUM_Y     = 293.8;
+  const KUNDE_X     = 90.0;
+  const KUNDE_Y     = 266.4;
+
+  // PDF laden
+  let pdfBytes;
+  try {
+    const resp = await fetch('merz.pdf');
+    if(!resp.ok) throw new Error('not found');
+    pdfBytes = await resp.arrayBuffer();
+  } catch(e) {
+    showToast('PDF-Vorlage nicht gefunden – merz.pdf muss im selben Ordner liegen', true);
+    return;
+  }
+
+  const { PDFDocument, rgb, StandardFonts } = PDFLib;
+  const pdfDoc = await PDFDocument.load(pdfBytes);
+  const page = pdfDoc.getPages()[0];
+  const font = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+  const FONT_SIZE = 9.5;
+  const FONT_TEXT = 9;
+
+  // Rechnung / Lieferschein X
+  if(merzDocType === 'rechnung') {
+    page.drawText('X', { x: RECHNUNG_X, y: CHECK_Y, size: 10, font, color: rgb(0,0,0) });
+  } else {
+    page.drawText('X', { x: LIEFER_X, y: CHECK_Y, size: 10, font, color: rgb(0,0,0) });
+  }
+
+  // Datum
+  page.drawText(dateStr, { x: DATUM_X, y: DATUM_Y, size: FONT_TEXT, font, color: rgb(0,0,0) });
+
+  // Kunde
+  page.drawText("Wilhelm's Hofmarkt", { x: KUNDE_X, y: KUNDE_Y, size: FONT_TEXT, font, color: rgb(0,0,0) });
+
+  // Mengen rechtsbündig
+  for(const [hofName, qty] of Object.entries(orderQtys)) {
+    const merzName = MERZ_MAPPING[hofName];
+    if(!merzName) continue;
+    const pos = MERZ_PDF_POS[merzName];
+    if(!pos) continue;
+    const text = String(Math.round(qty));
+    const textW = font.widthOfTextAtSize(text, FONT_SIZE);
+    page.drawText(text, {
+      x: pos.x - textW,
+      y: pos.y - FONT_SIZE * 0.35,
+      size: FONT_SIZE, font, color: rgb(0,0,0)
+    });
+  }
+
+  const filledBytes = await pdfDoc.save();
+  const blob = new Blob([filledBytes], {type:'application/pdf'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  const [y,m,d] = (dateVal || '').split('-');
+  a.download = `Merz_Bestellung_${y||''}${m||''}${d||''}.pdf`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Merz Bestellformular heruntergeladen ✓');
 }
 
 init();</script>
