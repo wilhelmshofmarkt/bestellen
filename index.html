@@ -288,6 +288,7 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
 
 /* sticky tabs shift when edit banner visible */
 .edit-active .tabs{top:131px}
+
 /* LIEFERANT-SELECT */
 .item-supplier-row{display:flex;align-items:center;gap:6px;padding:2px 0 2px 35px;flex-wrap:wrap}
 .supplier-select{flex:1;min-width:140px;max-width:220px;padding:4px 7px;border:1.5px solid var(--input-border);border-radius:7px;font-family:'DM Sans',sans-serif;font-size:.78rem;background:var(--input-bg);color:var(--text);outline:none;cursor:pointer}
@@ -316,6 +317,135 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
 .template-item:hover,.template-item.selected{border-color:#2D5016;background:var(--chip-active-bg);color:white}
 .template-item-day{font-weight:700;font-size:.88rem;color:#2D5016}
 .template-item-meta{font-size:.73rem;color:var(--muted);margin-top:2px}
+
+/* ═══ ALLGEMEINE NOTIZEN (NEU) ═══ */
+.general-notes-section{
+  background:var(--card);
+  border-radius:14px;
+  margin-top:12px;
+  margin-bottom:12px;
+  box-shadow:0 1px 6px rgba(0,0,0,.06);
+  overflow:hidden;
+  border:2px solid #e8dfc8;
+  transition:border-color .2s;
+}
+.general-notes-section:focus-within{border-color:#D4830A}
+.general-notes-header{
+  display:flex;align-items:center;gap:8px;
+  padding:10px 13px;
+  background:linear-gradient(135deg,#D4830A,#b8690a);
+  color:white;
+}
+.general-notes-header-icon{font-size:1.1rem}
+.general-notes-header-text{font-weight:700;font-size:.9rem}
+.general-notes-body{padding:10px 12px}
+.general-notes-textarea{
+  width:100%;
+  min-height:80px;
+  padding:9px 11px;
+  border:1.5px solid var(--input-border);
+  border-radius:9px;
+  font-family:'DM Sans',sans-serif;
+  font-size:.86rem;
+  background:var(--input-bg);
+  color:var(--text);
+  resize:vertical;
+  outline:none;
+  line-height:1.5;
+  transition:border-color .15s;
+}
+.general-notes-textarea:focus{border-color:#D4830A}
+.general-notes-textarea::placeholder{color:rgba(0,0,0,.28);font-style:italic}
+.general-notes-hint{font-size:.7rem;color:var(--muted);margin-top:5px;padding:0 2px}
+
+/* ═══ EINMALIGE ARTIKEL (NEU) ═══ */
+.onetime-section{
+  background:var(--card);
+  border-radius:14px;
+  margin-top:12px;
+  margin-bottom:12px;
+  box-shadow:0 1px 6px rgba(0,0,0,.06);
+  overflow:hidden;
+  border:2px solid #d4c9b8;
+}
+.onetime-header{
+  display:flex;align-items:center;gap:8px;
+  padding:11px 13px;
+  background:linear-gradient(135deg,#555,#444);
+  color:white;
+  cursor:pointer;
+  user-select:none;
+  -webkit-tap-highlight-color:transparent;
+}
+.onetime-header-icon{font-size:1.1rem}
+.onetime-header-text{font-weight:700;font-size:.9rem;flex:1}
+.onetime-count-badge{font-size:.7rem;background:rgba(255,255,255,.22);padding:2px 8px;border-radius:20px;font-weight:600}
+.onetime-chevron{font-size:.65rem;opacity:.7;transition:transform .2s}
+.onetime-section.open .onetime-chevron{transform:rotate(180deg)}
+.onetime-body{display:none;padding:10px 12px}
+.onetime-section.open .onetime-body{display:block}
+.onetime-add-row{display:flex;gap:7px;margin-bottom:10px;flex-wrap:wrap;align-items:flex-end}
+.onetime-add-row input[type=text]{
+  flex:1;min-width:130px;
+  padding:7px 10px;
+  border:1.5px solid var(--input-border);
+  border-radius:8px;
+  font-family:'DM Sans',sans-serif;
+  font-size:.85rem;
+  background:var(--input-bg);
+  color:var(--text);
+  outline:none;
+}
+.onetime-add-row input[type=text]:focus{border-color:#2D5016}
+.onetime-add-row input[type=number]{
+  width:72px;flex-shrink:0;
+  padding:7px 6px;
+  border:1.5px solid var(--input-border);
+  border-radius:8px;
+  font-family:'DM Sans',sans-serif;
+  font-size:.85rem;
+  background:var(--input-bg);
+  color:var(--text);
+  text-align:center;
+  outline:none;
+  -moz-appearance:textfield;
+}
+.onetime-add-row input[type=number]::-webkit-outer-spin-button,
+.onetime-add-row input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
+.onetime-add-row input[type=number]:focus{border-color:#2D5016}
+.btn-onetime-add{
+  background:#2D5016;color:white;
+  border:none;border-radius:8px;
+  padding:7px 13px;
+  font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:700;
+  cursor:pointer;flex-shrink:0;
+  white-space:nowrap;
+}
+.btn-onetime-add:hover{background:#23400f}
+.onetime-list{display:flex;flex-direction:column;gap:5px}
+.onetime-item{
+  display:flex;align-items:center;gap:8px;
+  padding:6px 9px;
+  background:rgba(0,0,0,.03);
+  border:1px solid rgba(0,0,0,.07);
+  border-radius:8px;
+}
+.onetime-item-name{flex:1;font-size:.86rem;font-weight:500}
+.onetime-item-qty{
+  background:var(--warn);color:white;
+  font-size:.75rem;font-weight:700;
+  padding:2px 8px;border-radius:14px;
+  white-space:nowrap;
+}
+.btn-onetime-del{
+  background:none;border:none;
+  color:#ccc;font-size:.9rem;cursor:pointer;
+  padding:2px 4px;line-height:1;
+  transition:color .15s;
+  flex-shrink:0;
+}
+.btn-onetime-del:hover{color:var(--danger)}
+.onetime-empty{text-align:center;padding:12px;color:var(--muted);font-size:.82rem;font-style:italic}
 
 /* ── DARK MODE OVERRIDES ───────────────────────────────── */
 @media(prefers-color-scheme:dark){
@@ -363,6 +493,14 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
   .item{border-bottom-color:var(--border)}
   .col-headers{background:rgba(255,255,255,.03);border-bottom-color:var(--border)}
   .btn-print{box-shadow:none!important}
+  /* dark: neue Sektionen */
+  .general-notes-section{border-color:var(--border)}
+  .general-notes-textarea{background:var(--input-bg);border-color:var(--input-border);color:var(--text)}
+  .general-notes-textarea::placeholder{color:rgba(255,255,255,.2)}
+  .onetime-section{border-color:var(--border)}
+  .onetime-add-row input[type=text],
+  .onetime-add-row input[type=number]{background:var(--input-bg);border-color:var(--input-border);color:var(--text)}
+  .onetime-item{background:rgba(255,255,255,.04);border-color:var(--border)}
 }
 </style>
 </head>
@@ -457,6 +595,44 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
     </div>
   </div>
   <div id="main"></div>
+
+  <!-- ═══ EINMALIGE ARTIKEL (NEU) ═══ -->
+  <div class="onetime-section" id="onetime-section">
+    <div class="onetime-header" onclick="toggleOnetimeSection()">
+      <span class="onetime-header-icon">➕</span>
+      <span class="onetime-header-text">Einmalige Artikel</span>
+      <span class="onetime-count-badge" id="onetime-count-badge">0</span>
+      <span class="onetime-chevron">▼</span>
+    </div>
+    <div class="onetime-body">
+      <div class="onetime-add-row">
+        <input type="text" id="onetime-name-input" placeholder="Artikelname …" onkeydown="if(event.key==='Enter')addOnetimeItem()">
+        <input type="number" id="onetime-qty-input" placeholder="Menge" min="1" onkeydown="if(event.key==='Enter')addOnetimeItem()">
+        <button class="btn-onetime-add" onclick="addOnetimeItem()">+ Hinzufügen</button>
+      </div>
+      <div class="onetime-list" id="onetime-list">
+        <div class="onetime-empty" id="onetime-empty">Noch keine einmaligen Artikel.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ ALLGEMEINE NOTIZEN (NEU) ═══ -->
+  <div class="general-notes-section">
+    <div class="general-notes-header">
+      <span class="general-notes-header-icon">📝</span>
+      <span class="general-notes-header-text">Notizen zur Bestellung</span>
+    </div>
+    <div class="general-notes-body">
+      <textarea
+        id="general-notes"
+        class="general-notes-textarea"
+        placeholder="Hier kannst du wichtige Hinweise, Sonderwünsche oder Dinge die du nicht vergessen darfst eintragen …"
+        oninput="scheduleAutosave()"
+      ></textarea>
+      <div class="general-notes-hint">Diese Notizen werden beim Speichern mitgeschickt und auf dem Einkaufszettel gedruckt.</div>
+    </div>
+  </div>
+
   <div class="no-results" id="no-results">Keine Artikel gefunden.</div>
 </div>
 
@@ -529,6 +705,8 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
     </div>
   </div>
 </div>
+
+<div id="tab-historie" class="tab-panel">
   <div class="filter-bar">
     <div class="filter-bar-row">
       <span class="filter-label">Datum</span>
@@ -763,10 +941,10 @@ const CATEGORIES = [
 //  STATE
 // ═══════════════════════════════════════════
 let userProducts  = {};
-let rawHistory    = [];   // komplette, ungefilterte Liste
+let rawHistory    = [];
 let sheetsOnline  = false;
-let orderDay      = '';   // gewählter Tag im Bestellen-Tab-Banner
-let selectedDay   = '';   // Tag im Modal
+let orderDay      = '';
+let selectedDay   = '';
 let histDayFilter = '';
 let avgDayFilter  = '';
 
@@ -774,21 +952,31 @@ let avgDayFilter  = '';
 let editMode       = false;
 let editIndex      = null;
 
+// ═══ NEUE STATE-VARIABLEN ═══
+let onetimeItems = [];   // [{name, qty}]
+
+function getGeneralNote() {
+  return document.getElementById('general-notes')?.value || '';
+}
+function setGeneralNote(val) {
+  const el = document.getElementById('general-notes');
+  if (el) el.value = val || '';
+}
+
 // ── LIEFERANTEN ──────────────────────────────
 const DEFAULT_SUPPLIERS = [
   'Gärtnerei Bauer','Sonnenland Schmid','Rebhorn','Tsiorvas','Haap',
   'Kiemle','Kärcher','Merz','Clauss','Felger','Bauerle','Neber',
   'Lang','Schäffer','Binder'
 ];
-let customSuppliers = [];   // vom Nutzer hinzugefügte Lieferanten (aus Sheets)
-let supplierChoices = {};   // { "catid|name" : "Lieferantenname" } – letzte Wahl
+let customSuppliers = [];
+let supplierChoices = {};
 function allSuppliers() {
   return [...DEFAULT_SUPPLIERS, ...customSuppliers.filter(s => !DEFAULT_SUPPLIERS.includes(s))];
 }
 
-// Offline-Sync-Queue: Aktionen die während Offline gesammelt werden
+// Offline-Sync-Queue
 const SYNC_QUEUE_KEY = 'hofmarkt_sync_queue';
-
 function getSyncQueue() {
   try { return JSON.parse(localStorage.getItem(SYNC_QUEUE_KEY) || '[]'); } catch(e) { return []; }
 }
@@ -797,7 +985,6 @@ function saveSyncQueue(q) {
 }
 function enqueueSyncAction(payload) {
   const q = getSyncQueue();
-  // Max 20 Items in Queue – älteste rauswerfen
   if (q.length >= 20) q.shift();
   q.push({...payload, _queuedAt: new Date().toISOString()});
   saveSyncQueue(q);
@@ -805,12 +992,8 @@ function enqueueSyncAction(payload) {
 async function flushSyncQueue() {
   const q = getSyncQueue();
   if (!q.length) return;
-  // Alle parallel mit Gesamt-Timeout von 8s
   const results = await Promise.allSettled(
-    q.map(item => {
-      const {_queuedAt, ...payload} = item;
-      return apiPost(payload);
-    })
+    q.map(item => { const {_queuedAt, ...payload} = item; return apiPost(payload); })
   );
   const failed = q.filter((_, i) => results[i].status === 'rejected');
   saveSyncQueue(failed);
@@ -821,34 +1004,6 @@ async function flushSyncQueue() {
 // ═══════════════════════════════════════════
 //  API
 // ═══════════════════════════════════════════
-function apiGetJsonp(params) {
-  return new Promise((resolve, reject) => {
-    const cbName = '_gs_cb_' + Date.now();
-    const timeout = setTimeout(() => {
-      delete window[cbName];
-      if (script.parentNode) script.parentNode.removeChild(script);
-      reject(new Error('Timeout'));
-    }, 12000);
-
-    window[cbName] = data => {
-      clearTimeout(timeout);
-      delete window[cbName];
-      if (script.parentNode) script.parentNode.removeChild(script);
-      resolve(data);
-    };
-
-    const url = SCRIPT_URL + '?' + new URLSearchParams({...params, callback: cbName, t: Date.now()}).toString();
-    const script = document.createElement('script');
-    script.src = url;
-    script.onerror = () => {
-      clearTimeout(timeout);
-      delete window[cbName];
-      reject(new Error('Script-Ladefehler'));
-    };
-    document.head.appendChild(script);
-  });
-}
-
 async function apiGet(params) {
   const url = SCRIPT_URL + '?' + new URLSearchParams(params).toString() + '&t=' + Date.now();
   const controller = new AbortController();
@@ -900,7 +1055,6 @@ async function init() {
   function finish() {
     try { buildUI(); } catch(e) { console.error('buildUI:', e); }
     document.getElementById('loading').style.display = 'none';
-    // Autosave
     try {
       const snap = restoreAutosave();
       if(snap && snap.items && snap.items.length > 0) {
@@ -920,7 +1074,6 @@ async function init() {
     } catch(e) {}
   }
 
-  // Absolutes Sicherheitsnetz – nach 13s IMMER starten
   const safetyTimer = setTimeout(() => {
     dbg('⚠️ Offline-Modus');
     sheetsOnline = false;
@@ -937,12 +1090,11 @@ async function init() {
     rawHistory      = d.history         || [];
     customSuppliers = d.customSuppliers || [];
     supplierChoices = d.supplierChoices || {};
-    // Kiemle Zuordnung aus Apps Script laden (überschreibt localStorage)
     if(d.kiemleMapping && Object.keys(d.kiemleMapping).length > 0) {
       kiemleMapping = d.kiemleMapping;
       localStorage.setItem('hofmarkt_kiemle_mapping', JSON.stringify(kiemleMapping));
     } else {
-      loadKiemleMapping(); // Fallback: localStorage
+      loadKiemleMapping();
     }
     sheetsOnline = true;
     setStatus(true);
@@ -964,6 +1116,53 @@ function setStatus(ok) {
 }
 
 // ═══════════════════════════════════════════
+//  EINMALIGE ARTIKEL – State & UI
+// ═══════════════════════════════════════════
+function toggleOnetimeSection() {
+  document.getElementById('onetime-section').classList.toggle('open');
+}
+
+function addOnetimeItem() {
+  const nameEl = document.getElementById('onetime-name-input');
+  const qtyEl  = document.getElementById('onetime-qty-input');
+  const name = nameEl.value.trim();
+  const qty  = parseFloat(qtyEl.value) || 1;
+  if (!name) { nameEl.focus(); return; }
+  onetimeItems.push({name, qty});
+  nameEl.value = '';
+  qtyEl.value  = '';
+  nameEl.focus();
+  renderOnetimeList();
+  scheduleAutosave();
+  haptic(20);
+}
+
+function removeOnetimeItem(idx) {
+  onetimeItems.splice(idx, 1);
+  renderOnetimeList();
+  scheduleAutosave();
+}
+
+function renderOnetimeList() {
+  const list  = document.getElementById('onetime-list');
+  const empty = document.getElementById('onetime-empty');
+  const badge = document.getElementById('onetime-count-badge');
+  badge.textContent = onetimeItems.length;
+
+  if (!onetimeItems.length) {
+    list.innerHTML = '<div class="onetime-empty" id="onetime-empty">Noch keine einmaligen Artikel.</div>';
+    return;
+  }
+  list.innerHTML = onetimeItems.map((it, i) => `
+    <div class="onetime-item">
+      <span class="onetime-item-name">${esc(it.name)}</span>
+      <span class="onetime-item-qty">${it.qty}&thinsp;×</span>
+      <button class="btn-onetime-del" onclick="removeOnetimeItem(${i})" title="Löschen">✕</button>
+    </div>
+  `).join('');
+}
+
+// ═══════════════════════════════════════════
 //  EDIT MODE
 // ═══════════════════════════════════════════
 function enterEditMode(histIdx) {
@@ -973,7 +1172,6 @@ function enterEditMode(histIdx) {
   editMode  = true;
   editIndex = histIdx;
 
-  // UI: Banner anzeigen, Speichern-Button anpassen
   const banner = document.getElementById('edit-mode-banner');
   const dt   = new Date(order.savedAt);
   const ds   = dt.toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'});
@@ -986,7 +1184,6 @@ function enterEditMode(histIdx) {
   btn.textContent = '💾 Änderungen speichern';
   btn.classList.add('edit-mode');
 
-  // Tag-Banner vorbelegen
   orderDay = order.weekday || '';
   selectedDay = orderDay;
   document.querySelectorAll('.day-select-chip').forEach(c => {
@@ -1000,52 +1197,42 @@ function enterEditMode(histIdx) {
     document.getElementById('modal-ok-btn').disabled = false;
   }
 
-  // Felder befüllen: erst UI bauen, dann Werte eintragen
   buildUI();
 
-  // Werte aus dem Eintrag in die Inputs laden
   (order.items || []).forEach(it => {
     const itemEl = findItemElement(it.catid, it.plu, it.name);
     if (!itemEl) return;
     const ins = itemEl.querySelectorAll('.qty-input');
     if (ins.length >= 2) {
-      if (it.bestand > 0) {
-        ins[0].value = it.bestand;
-        ins[0].classList.add('filled-bestand');
-      }
-      if (it.bestellen > 0) {
-        ins[1].value = it.bestellen;
-        ins[1].classList.add('filled');
-      }
+      if (it.bestand > 0) { ins[0].value = it.bestand; ins[0].classList.add('filled-bestand'); }
+      if (it.bestellen > 0) { ins[1].value = it.bestellen; ins[1].classList.add('filled'); }
     }
     const notizEl = itemEl.querySelector('.notiz-input');
     if (notizEl && it.notiz) notizEl.value = it.notiz;
-    // Lieferant wiederherstellen
     if (it.supplier) {
       const sel = itemEl.querySelector('.supplier-select');
       if (sel) {
-        // Sicherstellen dass der Lieferant als Option vorhanden ist,
-        // auch wenn er nicht in customSuppliers geladen wurde
         const exists = Array.from(sel.options).some(o => o.value === it.supplier);
         if (!exists) {
           const opt = document.createElement('option');
-          opt.value = it.supplier;
-          opt.textContent = it.supplier;
+          opt.value = it.supplier; opt.textContent = it.supplier;
           sel.appendChild(opt);
-          // Auch in customSuppliers aufnehmen damit er zukünftig in der Liste erscheint
-          if (!DEFAULT_SUPPLIERS.includes(it.supplier) && !customSuppliers.includes(it.supplier)) {
+          if (!DEFAULT_SUPPLIERS.includes(it.supplier) && !customSuppliers.includes(it.supplier))
             customSuppliers.push(it.supplier);
-          }
         }
         sel.value = it.supplier;
         sel.classList.toggle('has-value', !!it.supplier);
       }
     }
-    // Kategorie aufklappen wenn Wert vorhanden
-    if (it.bestand > 0 || it.bestellen > 0 || it.notiz) {
+    if (it.bestand > 0 || it.bestellen > 0 || it.notiz)
       itemEl.closest('.category')?.classList.add('open');
-    }
   });
+
+  // Notizen & einmalige Artikel wiederherstellen
+  setGeneralNote(order.generalNote || '');
+  onetimeItems = (order.oneTimeItems || []).map(it => ({...it}));
+  renderOnetimeList();
+  if (onetimeItems.length) document.getElementById('onetime-section').classList.add('open');
 
   updateSummary();
   switchTab('bestellen');
@@ -1060,15 +1247,17 @@ function cancelEditMode() {
   const btn = document.getElementById('btn-save');
   btn.textContent = '💾 Speichern';
   btn.classList.remove('edit-mode');
-  buildUI(); // felder leeren
+  setGeneralNote('');
+  onetimeItems = [];
+  renderOnetimeList();
+  buildUI();
   showToast('Bearbeitung abgebrochen.');
 }
 
 // ═══════════════════════════════════════════
-//  Helper: Item-Element anhand catid/plu/name finden
+//  Helper: Item-Element finden
 // ═══════════════════════════════════════════
 function findItemElement(catid, plu, name) {
-  // 1. Exakte Suche: catid + name
   let found = null;
   document.querySelectorAll('#main .category').forEach(catEl => {
     if (catEl.dataset.catid !== catid) return;
@@ -1077,7 +1266,6 @@ function findItemElement(catid, plu, name) {
     });
   });
   if (found) return found;
-  // 2. Fallback: nur nach Name suchen (fängt verschobene Artikel wie Rhabarber ab)
   document.querySelectorAll('#main .item').forEach(it => {
     if (it.dataset.name === name) found = it;
   });
@@ -1089,8 +1277,6 @@ function findItemElement(catid, plu, name) {
 // ═══════════════════════════════════════════
 function handleSaveBtn() {
   if (editMode) {
-    // Im Edit-Modus: Modal öffnen damit Tag geändert werden kann
-    // Tag mit dem aktuell eingestellten orderDay vorbelegen
     selectedDay = orderDay || rawHistory[editIndex]?.weekday || '';
     document.querySelectorAll('.day-btn').forEach(b =>
       b.classList.toggle('selected', !!selectedDay && b.dataset.day === selectedDay));
@@ -1102,7 +1288,6 @@ function handleSaveBtn() {
 }
 
 function openDayModal() {
-  // Prüfen: gibt es irgendeinen Wert (Bestand ODER Bestellen)?
   let has = false;
   document.querySelectorAll('#main .item .qty-input').forEach(i => {
     if (parseFloat(i.value) > 0) has = true;
@@ -1110,6 +1295,8 @@ function openDayModal() {
   document.querySelectorAll('#main .item .notiz-input').forEach(i => {
     if (i.value.trim()) has = true;
   });
+  if (onetimeItems.length > 0) has = true;
+  if (getGeneralNote().trim()) has = true;
   if (!has) { showToast('Bitte erst etwas eintragen!', true); return; }
 
   selectedDay = orderDay || '';
@@ -1131,10 +1318,10 @@ function closeModal() {
 }
 
 // ═══════════════════════════════════════════
-//  SPEICHERN (neu + überschreiben)
+//  SPEICHERN
 // ═══════════════════════════════════════════
 async function confirmSave() {
-  // ── VORLAGE LADEN (nur Tag wählen, nicht speichern) ──
+  // ── VORLAGE LADEN (nur Tag wählen) ──
   if (_templateDayPending && _pendingTemplateIdx !== null) {
     const day = selectedDay;
     if (!day) return;
@@ -1166,12 +1353,16 @@ async function confirmSave() {
       if(it.bestand > 0 || it.bestellen > 0)
         itemEl.closest('.category')?.classList.add('open');
     });
+    // Notizen & einmalige Artikel aus Vorlage übernehmen
+    setGeneralNote(order.generalNote || '');
+    onetimeItems = (order.oneTimeItems || []).map(it => ({...it}));
+    renderOnetimeList();
+    if (onetimeItems.length) document.getElementById('onetime-section').classList.add('open');
     updateSummary(); doAutosave();
     showToast(`📋 Vorlage geladen für ${day}!`);
     return;
   }
 
-  // Im Edit-Modus: Tag aus editIndex-Eintrag behalten (selectedDay ggf. überschrieben via Banner)
   const day = editMode ? (orderDay || rawHistory[editIndex]?.weekday || '') : selectedDay;
   if (!day && !editMode) return;
 
@@ -1197,7 +1388,10 @@ async function confirmSave() {
     });
   });
 
-  if (!items.length) {
+  const generalNote  = getGeneralNote().trim();
+  const oneTimeItems = onetimeItems.filter(it => it.name);
+
+  if (!items.length && !generalNote && !oneTimeItems.length) {
     showToast('Bitte erst etwas eintragen!', true);
     btn.disabled = false;
     btn.textContent = editMode ? '💾 Änderungen speichern' : '💾 Speichern';
@@ -1205,47 +1399,43 @@ async function confirmSave() {
   }
 
   if (editMode) {
-    // ── ÜBERSCHREIBEN ──
     const orig = rawHistory[editIndex];
     const updatedOrder = {
       ...orig,
       weekday: day || orig.weekday,
       items,
+      generalNote,
+      oneTimeItems,
       hasBestand:   items.some(i => i.bestand  > 0),
       hasBestellen: items.some(i => i.bestellen > 0),
       editedAt: new Date().toISOString()
     };
     rawHistory[editIndex] = updatedOrder;
-
     try {
       await apiPost({action:'updateOrder', index: editIndex, order: updatedOrder});
       showToast(`✅ Eintrag aktualisiert (${updatedOrder.weekday})!`);
     } catch(e) {
       showToast('⚠️ Lokal aktualisiert – Sheets offline', true);
     }
-
-    // Edit-Modus beenden
     editMode  = false;
     editIndex = null;
     document.getElementById('edit-mode-banner').classList.remove('visible');
     document.body.classList.remove('edit-active');
     btn.textContent = '💾 Speichern';
     btn.classList.remove('edit-mode');
-
   } else {
-    // ── NEU ANLEGEN ──
-    // hasBestand-Flag damit das Apps Script auch reine Bestand-Einträge korrekt speichert
-    const hasBestand  = items.some(i => i.bestand  > 0);
+    const hasBestand   = items.some(i => i.bestand  > 0);
     const hasBestellen = items.some(i => i.bestellen > 0);
     const order = {
       savedAt: new Date().toISOString(),
       weekday: day,
       hasBestand,
       hasBestellen,
-      items
+      items,
+      generalNote,
+      oneTimeItems
     };
     rawHistory.unshift(order);
-
     try {
       await apiPost({action:'saveOrder', order});
       showToast(`✅ Gespeichert für ${day}!`);
@@ -1256,41 +1446,36 @@ async function confirmSave() {
     }
   }
 
-  // Durchschnitt-Tab ggf. aktualisieren
+  // Reset neue Felder
+  setGeneralNote('');
+  onetimeItems = [];
+  renderOnetimeList();
+
   if (document.getElementById('tab-durchschnitt').classList.contains('active')) {
     renderAverages();
   }
-
   buildUI();
   btn.disabled = false;
   btn.textContent = '💾 Speichern';
 }
 
 // ═══════════════════════════════════════════
-//  SOFT-DELETE mit Undo-Toast (kein confirm)
+//  SOFT-DELETE mit Undo-Toast
 // ═══════════════════════════════════════════
 let _undoTimer = null;
-let _pendingDelete = null; // {histIdx, order}
+let _pendingDelete = null;
 
 async function deleteHistoryEntry(histIdx) {
   const order = rawHistory[histIdx];
   if (!order) return;
-
-  // Sofort in der UI ausblenden
   rawHistory[histIdx] = {...order, deleted: true};
   renderHistory(getFilteredHistory());
-
-  // Alten Pending-Delete ohne Undo abschließen
   if (_pendingDelete !== null) {
     clearTimeout(_undoTimer);
     await _commitDelete(_pendingDelete);
   }
-
   _pendingDelete = {histIdx, order};
-
-  // Undo-Toast für 5 Sekunden
   showUndoToast('🗑 Eintrag gelöscht.', async () => {
-    // Undo: Eintrag wiederherstellen
     clearTimeout(_undoTimer);
     if (_pendingDelete) {
       rawHistory[_pendingDelete.histIdx] = _pendingDelete.order;
@@ -1299,23 +1484,17 @@ async function deleteHistoryEntry(histIdx) {
     renderHistory(getFilteredHistory());
     showToast('↩️ Löschen rückgängig gemacht.');
   });
-
   _undoTimer = setTimeout(async () => {
-    if (_pendingDelete) {
-      await _commitDelete(_pendingDelete);
-      _pendingDelete = null;
-    }
+    if (_pendingDelete) { await _commitDelete(_pendingDelete); _pendingDelete = null; }
   }, 5000);
 }
 
 async function _commitDelete({histIdx, order}) {
-  try {
-    await apiPost({action:'deleteOrder', savedAt: order.savedAt});
-  } catch(e) {}
+  try { await apiPost({action:'deleteOrder', savedAt: order.savedAt}); } catch(e) {}
 }
 
 // ═══════════════════════════════════════════
-//  TAG IM BESTELLEN-TAB (Banner)
+//  TAG IM BESTELLEN-TAB
 // ═══════════════════════════════════════════
 function selectOrderDay(btn) {
   orderDay = btn.dataset.day;
@@ -1323,12 +1502,10 @@ function selectOrderDay(btn) {
   btn.classList.add('active');
   document.getElementById('day-banner').classList.add('day-selected');
   document.getElementById('day-banner-hint').style.display = 'none';
-  // Modal vorbelegen
   selectedDay = orderDay;
   document.querySelectorAll('.day-btn').forEach(b =>
     b.classList.toggle('selected', b.dataset.day === orderDay));
   document.getElementById('modal-ok-btn').disabled = false;
-  // Nur Durchschnitts-Hints neu rendern (OHNE buildUI – würde Eingaben löschen!)
   updateAvgHints();
   updateSummary();
 }
@@ -1340,7 +1517,6 @@ function updateAvgHints() {
     const name  = itemEl.dataset.name;
     const k = catid + '|' + name;
     const a = avgMap[k];
-    // Bestehendes Hint-Element finden oder erzeugen
     let hintEl = itemEl.querySelector('.item-avg-hint');
     if (a && a.avgGesamt > 0) {
       const fmt = v => v%1===0 ? String(v) : v.toFixed(1);
@@ -1349,28 +1525,24 @@ function updateAvgHints() {
       if (a.avgBestellen > 0) parts.push(`Best. Ø ${fmt(a.avgBestellen)}`);
       const lbl = orderDay ? `letzten 4 ${orderDay}-Bestellungen` : 'letzten 4 Bestellungen';
       const html = `${lbl}: <span>${parts.join(' · ')}</span>`;
-      if (hintEl) {
-        hintEl.innerHTML = html;
-      } else {
+      if (hintEl) { hintEl.innerHTML = html; }
+      else {
         hintEl = document.createElement('div');
         hintEl.className = 'item-avg-hint';
         hintEl.innerHTML = html;
         itemEl.appendChild(hintEl);
       }
-    } else if (hintEl) {
-      hintEl.remove();
-    }
+    } else if (hintEl) { hintEl.remove(); }
   });
 }
 
 // ═══════════════════════════════════════════
-//  TAG-FILTER CHIPS (Historie & Durchschnitt)
+//  TAG-FILTER CHIPS
 // ═══════════════════════════════════════════
 function toggleDayChip(btn, scope) {
   const container = document.getElementById(scope==='hist' ? 'hist-day-chips' : 'avg-day-chips');
   container.querySelectorAll('.day-chip').forEach(c => c.classList.remove('active'));
   btn.classList.add('active');
-
   if (scope === 'hist') {
     histDayFilter = btn.dataset.day;
     renderHistory(getFilteredHistory());
@@ -1381,7 +1553,7 @@ function toggleDayChip(btn, scope) {
 }
 
 // ═══════════════════════════════════════════
-//  DURCHSCHNITT-MAP (für Item-Hints)
+//  DURCHSCHNITT-MAP
 // ═══════════════════════════════════════════
 function buildAvgMap(day) {
   let pool = day ? rawHistory.filter(o => !o.deleted && o.weekday===day) : rawHistory.filter(o => !o.deleted);
@@ -1403,9 +1575,6 @@ function buildAvgMap(day) {
   return res;
 }
 
-// ═══════════════════════════════════════════
-//  VERGLEICH-MAP (für Pfeile in Übersicht)
-// ═══════════════════════════════════════════
 function buildExtAvgMap(day) {
   let pool = day
     ? rawHistory.filter(o => !o.deleted && o.weekday===day)
@@ -1414,7 +1583,6 @@ function buildExtAvgMap(day) {
   const n4   = Math.min(pool.length, 4);
   const r4   = pool.slice(0, n4);
   const old4 = pool.slice(n4, n4+4);
-
   const sumUp = (orders, n) => {
     const acc = {};
     orders.forEach(o => (o.items||[]).filter(x=>x.bestellen>0).forEach(it => {
@@ -1426,10 +1594,8 @@ function buildExtAvgMap(day) {
     Object.entries(acc).forEach(([k,v]) => r[k] = v/n);
     return r;
   };
-
   const avg4   = sumUp(r4, n4);
   const avgOld = old4.length ? sumUp(old4, old4.length) : null;
-
   const res = {};
   Object.entries(avg4).forEach(([k, avgBest]) => {
     let trend = 'flat';
@@ -1527,7 +1693,6 @@ function itemHTML(p, cat, avgMap) {
   const supOptions = allSuppliers().map(s =>
     `<option value="${esc(s)}"${s===lastSup?' selected':''}>${esc(s)}</option>`
   ).join('');
-  // Eindeutige ID für inline-add
   const safeKey = (cat.id+'__'+p.name).replace(/[^a-zA-Z0-9]/g,'_');
 
   return `
@@ -1590,7 +1755,6 @@ function onSupplierChange(sel, catid, name, safeKey) {
   if (!val) return;
   const k = catid+'|'+name;
   supplierChoices[k] = val;
-  // Letzte Wahl ins Backend persistieren
   apiPost({action:'saveSupplierChoice', key: k, supplier: val}).catch(()=>{});
   updateSummary();
 }
@@ -1609,17 +1773,15 @@ async function addSupplier(safeKey, catid, name) {
     customSuppliers.push(val);
     try { await apiPost({action:'saveCustomSupplier', name: val}); } catch(e) {}
   }
-  // Direkt als Auswahl setzen
   const k = catid+'|'+name;
   supplierChoices[k] = val;
   try { await apiPost({action:'saveSupplierChoice', key: k, supplier: val}); } catch(e) {}
   inp.value = '';
   toggleSupplierAdd(safeKey);
-  buildUI();  // Dropdown neu bauen mit neuem Lieferanten vorausgewählt
+  buildUI();
   showToast(`✅ Lieferant "${val}" hinzugefügt & gewählt.`);
 }
 
-// Lieferant für ein Item aus dem DOM auslesen
 function getItemSupplier(itemEl) {
   return itemEl.querySelector('.supplier-select')?.value || '';
 }
@@ -1627,11 +1789,8 @@ function getItemSupplier(itemEl) {
 function onQty(inp, isBestell) {
   haptic(18);
   const val = parseFloat(inp.value) || 0;
-  if (isBestell) {
-    inp.classList.toggle('filled', val > 0);
-  } else {
-    inp.classList.toggle('filled-bestand', val > 0);
-  }
+  if (isBestell) inp.classList.toggle('filled', val > 0);
+  else inp.classList.toggle('filled-bestand', val > 0);
   updateSummary();
   scheduleAutosave();
 }
@@ -1690,6 +1849,8 @@ function updateSummary(){
       if(bestand>0) {if(!sM[catid])sM[catid]={name:catname,color:catcolor,items:[]};sM[catid].items.push({plu,name,catid,qty:bestand,notiz});st++;}
     });
   });
+  // einmalige Artikel auch mitzählen
+  bt += onetimeItems.length;
   document.getElementById('bestell-count').textContent=bt;
   document.getElementById('gesamt-count').textContent=st;
 
@@ -1700,7 +1861,7 @@ function updateSummary(){
 
 function renderSumList(id, map, type, extAvg){
   const el=document.getElementById(id);
-  if(!Object.keys(map).length){
+  if(!Object.keys(map).length && (type!=='order' || !onetimeItems.length)){
     el.innerHTML=`<div class="summary-empty">${type==='order'?'Noch nichts zu bestellen.':'Kein Bestand erfasst.'}</div>`;
     return;
   }
@@ -1733,6 +1894,19 @@ function renderSumList(id, map, type, extAvg){
       }).join('')}
     </div>`).join('');
 
+  // Einmalige Artikel in der Übersicht
+  if (type === 'order' && onetimeItems.length) {
+    html += `<div class="summary-cat">
+      <div class="summary-cat-label" style="background:#555">➕ Einmalige Artikel</div>
+      ${onetimeItems.map(it => `
+        <div class="summary-row">
+          <span class="sum-plu">—</span>
+          <span class="sum-name">${esc(it.name)}</span>
+          <span class="sum-badge-order">${it.qty}×</span>
+        </div>`).join('')}
+    </div>`;
+  }
+
   if(type==='order' && hasAvg){
     html += `<div class="sum-avg-note">↑↑ >25% über Ø · ↗ leicht über · → Ø · ↘ leicht unter · ↓↓ >25% unter${dayLabel?' · Ø aus letzten 4 '+dayLabel+'-Bestellungen':' · Ø aus letzten 4 Bestellungen'}</div>`;
   }
@@ -1741,6 +1915,9 @@ function renderSumList(id, map, type, extAvg){
 
 function clearBestellen(){
   document.querySelectorAll('#main .qty-input[title="Bestellen"]').forEach(i=>{i.value='';i.classList.remove('filled')});
+  onetimeItems = [];
+  renderOnetimeList();
+  setGeneralNote('');
   updateSummary();
 }
 function clearBestand(){
@@ -1755,7 +1932,7 @@ function getFilteredHistory() {
   const from = document.getElementById('hist-from').value;
   const to   = document.getElementById('hist-to').value;
   return rawHistory.filter(o => {
-    if (o.deleted) return false;  // soft-deleted ausblenden
+    if (o.deleted) return false;
     if (from && o.savedAt < from) return false;
     if (to   && o.savedAt > to+'T23:59:59') return false;
     if (histDayFilter && o.weekday !== histDayFilter) return false;
@@ -1773,10 +1950,8 @@ async function loadHistory(){
     try{
       const r = await apiGet({action:'gethistory', from, to});
       if(r.history && Array.isArray(r.history)){
-        // Merge: geladene Einträge einfügen, bestehende (z.B. lokal gespeicherte) behalten
         const loaded = r.history;
         const loadedKeys = new Set(loaded.map(o => o.savedAt));
-        // Lokale Einträge die noch nicht im Sheet sind (offline gespeichert), behalten
         const localOnly = rawHistory.filter(o => !loadedKeys.has(o.savedAt));
         rawHistory = [...loaded, ...localOnly].sort((a,b) => b.savedAt.localeCompare(a.savedAt));
       }
@@ -1794,15 +1969,11 @@ function renderHistory(orders){
   }
   const gc = id => { const c=CATEGORIES.find(c=>c.id===id); return c?c.color:'#555'; };
 
-  // Wir müssen den echten Index in rawHistory kennen (für Edit/Delete)
   el.innerHTML = orders.map(o => {
-    // Echten Index in rawHistory ermitteln
     const histIdx = rawHistory.indexOf(o);
-
     const dt  = new Date(o.savedAt);
     const ds  = dt.toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'});
     const ts  = dt.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
-    // Alle Items (auch reine Bestand-Einträge)
     const allItems = (o.items||[]).filter(x => x.bestand > 0 || x.bestellen > 0 || x.notiz);
     const bi  = (o.items||[]).filter(x => x.bestellen > 0);
     const byCat = {};
@@ -1815,7 +1986,6 @@ function renderHistory(orders){
     const headerCls   = o.weekday ? '' : ' no-weekday';
     const domId = `he-${histIdx}`;
 
-    // editedAt-Badge
     let editedBadge = '';
     if (o.editedAt) {
       const edt = new Date(o.editedAt);
@@ -1824,11 +1994,29 @@ function renderHistory(orders){
       editedBadge = `<span class="hist-edited-badge">✏️ bearbeitet ${eds}, ${ets} Uhr</span>`;
     }
 
-    // Bestand-count
     const bestandCount = allItems.filter(x => x.bestand > 0).length;
     const metaParts = [];
     if (bi.length > 0) metaParts.push(`${bi.length} Bestell-Artikel`);
     if (bestandCount > 0) metaParts.push(`${bestandCount} Bestand`);
+    if ((o.oneTimeItems||[]).length > 0) metaParts.push(`${o.oneTimeItems.length} einmalige Artikel`);
+
+    // Einmalige Artikel in der Historie anzeigen
+    const onetimeHistHTML = (o.oneTimeItems||[]).length > 0 ? `
+      <div class="hist-cat-label" style="background:#555">➕ Einmalige Artikel</div>
+      ${(o.oneTimeItems||[]).map(it => `
+        <div class="hist-row">
+          <span class="hist-plu">—</span>
+          <span class="hist-name">${esc(it.name)}</span>
+          <span class="hist-badge">Bestellen: ${it.qty}</span>
+        </div>`).join('')}
+    ` : '';
+
+    // Allgemeine Notiz in der Historie anzeigen
+    const noteHistHTML = o.generalNote ? `
+      <div style="padding:6px 13px 8px;font-size:.8rem;background:#fffbf0;border-top:1px solid rgba(0,0,0,.05)">
+        <strong>📝 Notiz:</strong> ${esc(o.generalNote)}
+      </div>
+    ` : '';
 
     return `<div class="history-entry" id="${domId}">
       <div class="history-entry-header${headerCls}" onclick="toggleHistEntry('${domId}')">
@@ -1852,6 +2040,8 @@ function renderHistory(orders){
               ${it.notiz        ? `<span class="hist-notiz">💬 ${it.notiz}</span>`              : ''}
             </div>`).join('')}
         `).join('')}
+        ${onetimeHistHTML}
+        ${noteHistHTML}
         <div class="hist-actions">
           <button class="btn-hist-edit" onclick="enterEditMode(${histIdx})">✏️ Bearbeiten</button>
           <button class="btn-hist-duplicate" onclick="loadOrderAsTemplate(${histIdx})">📋 Duplizieren</button>
@@ -1911,7 +2101,7 @@ function renderAverages(){
 }
 
 // ═══════════════════════════════════════════
-//  EINKAUFSZETTEL DRUCKEN
+//  EINKAUFSZETTEL DRUCKEN (erweitert)
 // ═══════════════════════════════════════════
 function printEinkaufszettel() {
   const allItems = [];
@@ -1928,7 +2118,13 @@ function printEinkaufszettel() {
     });
   });
 
-  if (!allItems.length) { showToast('Keine Bestellmengen eingetragen!', true); return; }
+  const hasRegular   = allItems.length > 0;
+  const hasOnetime   = onetimeItems.length > 0;
+  const generalNote  = getGeneralNote().trim();
+
+  if (!hasRegular && !hasOnetime && !generalNote) {
+    showToast('Keine Bestellmengen oder Notizen eingetragen!', true); return;
+  }
 
   const bySupplier = {};
   allItems.forEach(it => {
@@ -1950,6 +2146,8 @@ function printEinkaufszettel() {
   const supColors = ['#2D5016','#C0392B','#1A6BA0','#7B3FA0','#D4830A','#1E6F3E','#8B6914','#555','#903060'];
 
   let body = '';
+
+  // Reguläre Artikel nach Lieferant
   sortedSup.forEach((sup, idx) => {
     const color = supColors[idx % supColors.length];
     const items = bySupplier[sup].sort((a,b) => a.name.localeCompare(b.name,'de'));
@@ -1963,6 +2161,28 @@ function printEinkaufszettel() {
       if(it.notiz) body += `<div class="notiz">💬 ${it.notiz}</div>`;
     });
   });
+
+  // Einmalige Artikel als eigener Abschnitt
+  if (hasOnetime) {
+    body += `<div class="sup-title" style="color:#555;border-color:#aaa">➕ Einmalige Artikel</div>`;
+    onetimeItems.forEach(it => {
+      body += `<div class="row">
+        <div class="check"></div>
+        <span class="name">${it.name}</span>
+        <span class="qty">${it.qty}&thinsp;×</span>
+      </div>`;
+    });
+  }
+
+  // Allgemeine Notiz als Block am Ende
+  const noteBlock = generalNote ? `
+    <div class="note-block">
+      <div class="note-block-label">📝 Notizen</div>
+      <div class="note-block-text">${generalNote.replace(/\n/g,'<br>')}</div>
+    </div>
+  ` : '';
+
+  const totalCount = allItems.length + onetimeItems.length;
 
   const html = `<!DOCTYPE html><html lang="de"><head><meta charset="UTF-8">
 <title>Einkaufsliste – ${ds}</title>
@@ -1981,19 +2201,24 @@ function printEinkaufszettel() {
   .cat{color:#aaa!important}
   .qty{font-weight:700;font-size:12px;white-space:nowrap}
   .notiz{font-size:10px;color:#555;padding:1px 0 3px 22px;font-style:italic}
+  /* Notiz-Block */
+  .note-block{margin-top:18px;border:2px solid #D4830A;border-radius:6px;padding:10px 12px;background:#fffbf0}
+  .note-block-label{font-weight:700;font-size:11px;color:#D4830A;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+  .note-block-text{font-size:11.5px;color:#333;line-height:1.6;white-space:pre-wrap}
   @page{size:A4 portrait;margin:0;-webkit-print-color-adjust:exact;duplex:simplex}
   @media print{
     html,body{height:auto!important;overflow:visible!important}
     body{padding:10mm 12mm}
+    .note-block{break-inside:avoid}
   }
 </style></head><body>
 <h1>🌿 Einkaufsliste Großmarkt</h1>
-<div class="meta">${ds}, ${ts} Uhr${dayLine} · ${allItems.length} Artikel</div>
+<div class="meta">${ds}, ${ts} Uhr${dayLine} · ${totalCount} Artikel</div>
 <hr>
 ${body}
+${noteBlock}
 <script>
 window.onload = function() {
-  // Kurz warten bis alles gerendert, dann drucken
   setTimeout(function(){ window.print(); }, 120);
 };
 <\/script>
@@ -2012,7 +2237,6 @@ async function shareList(mode) {
   mode = mode || 'bestellen';
   const isBest = mode === 'bestellen';
 
-  // Items sammeln
   const allItems = [];
   document.querySelectorAll('#main .category').forEach(catEl=>{
     const {catname, catid} = catEl.dataset;
@@ -2029,7 +2253,7 @@ async function shareList(mode) {
     });
   });
 
-  if (!allItems.length) {
+  if (!allItems.length && !onetimeItems.length) {
     showToast(isBest ? 'Keine Bestellmengen eingetragen!' : 'Kein Bestand eingetragen!', true);
     return;
   }
@@ -2038,9 +2262,9 @@ async function shareList(mode) {
   const ds = today.toLocaleDateString('de-DE',{weekday:'long',day:'2-digit',month:'2-digit',year:'numeric'});
   const ts = today.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
   const dayLine = orderDay ? ` · Liefertag: ${orderDay}` : '';
+  const generalNote = getGeneralNote().trim();
 
   if (isBest) {
-    // Einkaufszettel: nach Lieferant gruppiert, als Text
     const bySupplier = {};
     allItems.forEach(it => {
       const sup = it.supplier || '— Kein Lieferant —';
@@ -2063,7 +2287,14 @@ async function shareList(mode) {
         text += '\n';
       });
     });
-    text += `\n${'─'.repeat(32)}\n📦 ${allItems.length} Artikel gesamt`;
+    if (onetimeItems.length) {
+      text += `\n➕ Einmalige Artikel\n`;
+      onetimeItems.forEach(it => { text += `  • ${it.name}: ${it.qty}×\n`; });
+    }
+    if (generalNote) {
+      text += `\n${'─'.repeat(32)}\n📝 Notizen:\n${generalNote}\n`;
+    }
+    text += `\n${'─'.repeat(32)}\n📦 ${allItems.length + onetimeItems.length} Artikel gesamt`;
 
     if (navigator.share) {
       await navigator.share({ title: 'Einkaufsliste Großmarkt', text });
@@ -2071,15 +2302,7 @@ async function shareList(mode) {
       await navigator.clipboard.writeText(text);
       showToast('📋 In Zwischenablage kopiert!');
     }
-
   } else {
-    // Bestand: immer als JSON-Datei downloaden (zuverlässig auf Android & iOS)
-    const byCat = {};
-    allItems.forEach(it => {
-      if (!byCat[it.catname]) byCat[it.catname] = [];
-      byCat[it.catname].push(it);
-    });
-
     const exportData = {
       type: 'hofmarkt-bestand',
       exportedAt: today.toISOString(),
@@ -2110,7 +2333,7 @@ async function shareList(mode) {
 function importBestand(input) {
   const file = input.files[0];
   if (!file) return;
-  input.value = ''; // reset so gleiche Datei nochmal wählbar
+  input.value = '';
   const reader = new FileReader();
   reader.onload = e => {
     try {
@@ -2118,7 +2341,6 @@ function importBestand(input) {
       if (data.type !== 'hofmarkt-bestand' || !Array.isArray(data.items)) {
         showToast('❌ Ungültige Datei – kein Hofmarkt-Bestand', true); return;
       }
-      // Felder in UI eintragen
       let loaded = 0, notFound = 0;
       data.items.forEach(it => {
         const itemEl = findItemElement(it.catid, it.plu, it.name);
@@ -2192,18 +2414,16 @@ function haptic(ms=18){
 }
 
 // ═══════════════════════════════════════════
-//  ENTER → nächste Menge (Bestellen-Input)
+//  ENTER → nächste Menge
 // ═══════════════════════════════════════════
 function onQtyKeydown(e, inp) {
   haptic(18);
   if(e.key !== 'Enter') return;
   e.preventDefault();
-  // Alle sichtbaren qty-inputs im #main sammeln
   const all = Array.from(document.querySelectorAll('#main .item:not(.hidden) .qty-input'));
   const idx = all.indexOf(inp);
   if(idx >= 0 && idx < all.length - 1) {
     const next = all[idx + 1];
-    // Kategorie aufklappen falls nötig
     next.closest('.category')?.classList.add('open');
     next.focus();
     next.select();
@@ -2237,11 +2457,17 @@ function doAutosave() {
       }
     });
   });
-  const snap = {savedAt: new Date().toISOString(), weekday: orderDay, items};
+  const snap = {
+    savedAt: new Date().toISOString(),
+    weekday: orderDay,
+    items,
+    generalNote: getGeneralNote(),
+    oneTimeItems: [...onetimeItems]
+  };
   try {
     localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(snap));
     const ind = document.getElementById('autosave-indicator');
-    if(ind && items.length > 0) {
+    if(ind && (items.length > 0 || snap.generalNote || snap.oneTimeItems.length > 0)) {
       const t = new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
       ind.textContent = `💾 Autosave ${t} – ${items.length} Artikel`;
     }
@@ -2254,7 +2480,6 @@ function restoreAutosave() {
     if(!raw) return false;
     const snap = JSON.parse(raw);
     if(!snap || !snap.items || !snap.items.length) return false;
-    // Prüfen ob Autosave frisch ist (max 24h)
     if(snap.savedAt && Date.now() - new Date(snap.savedAt).getTime() > 86400000) return false;
     return snap;
   } catch(e) { return false; }
@@ -2286,11 +2511,18 @@ function applySnapshot(snap) {
     if(it.bestand > 0 || it.bestellen > 0 || it.notiz)
       itemEl.closest('.category')?.classList.add('open');
   });
+  // Neue Felder aus Snapshot
+  if(snap.generalNote) setGeneralNote(snap.generalNote);
+  if(snap.oneTimeItems && snap.oneTimeItems.length) {
+    onetimeItems = snap.oneTimeItems.map(it => ({...it}));
+    renderOnetimeList();
+    document.getElementById('onetime-section').classList.add('open');
+  }
   updateSummary();
 }
 
 // ═══════════════════════════════════════════
-//  VORLAGE LADEN (aus Historie)
+//  VORLAGE LADEN
 // ═══════════════════════════════════════════
 let _templateSelectedIdx = null;
 
@@ -2333,22 +2565,17 @@ function closeTemplateModal() {
 function confirmLoadTemplate() {
   if(_templateSelectedIdx === null) return;
   closeTemplateModal();
-  // Tag-Modal öffnen damit Nutzer den Tag wählt, dann Vorlage anwenden
   _pendingTemplateIdx = _templateSelectedIdx;
   selectedDay = '';
   document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('selected'));
   document.getElementById('modal-ok-btn').disabled = true;
-  // Überschreibe confirmSave temporär nicht – wir nutzen eigenes flag
   document.getElementById('day-modal').classList.remove('hidden');
-  // Flag setzen damit confirmSave weiß: Vorlage laden statt speichern
   _templateDayPending = true;
 }
 
-// Flag für Vorlage-Lademodus
 let _pendingTemplateIdx  = null;
 let _templateDayPending  = false;
 
-// loadOrderAsTemplate: direkt aus Historie → Tag wählen → in Bestellen laden (kein Speichern)
 function loadOrderAsTemplate(histIdx) {
   _pendingTemplateIdx = histIdx;
   _templateDayPending = true;
@@ -2359,10 +2586,7 @@ function loadOrderAsTemplate(histIdx) {
 }
 
 // ── KIEMLE XLS ──────────────────────────────────────────────────
-// Vollständige Liste aller Kiemle-Artikel mit ihrer XLS-Zelle (row, col)
-// col: 0 = linke Spalte qty, 5 = mittlere Spalte qty, 10 = rechte Spalte qty
 const KIEMLE_PRODUCTS = [
-  // Tomaten (left, qty col 0)
   {row:10,col:0,unit:'Ki',name:'Strauchtomaten'},
   {row:11,col:0,unit:'Ki',name:'Strauchtomaten 9 Korb-Schalen'},
   {row:12,col:0,unit:'Ki',name:'Eiertomaten-Rispe'},
@@ -2393,7 +2617,6 @@ const KIEMLE_PRODUCTS = [
   {row:38,col:1,unit:'Ki',name:'Kochtomaten'},
   {row:39,col:0,unit:'Ki',name:'San Marzano II.'},
   {row:39,col:1,unit:'Ki',name:'Cuore II.'},
-  // Paprika (left)
   {row:41,col:0,unit:'Ki',name:'Paprika rot'},
   {row:42,col:0,unit:'Ki',name:'Paprika gelb'},
   {row:43,col:0,unit:'Ki',name:'Paprika orange'},
@@ -2405,7 +2628,6 @@ const KIEMLE_PRODUCTS = [
   {row:50,col:0,unit:'Ki',name:'Paprika spitz rot'},
   {row:50,col:1,unit:'Ki',name:'Paprika spitz grün'},
   {row:57,col:0,unit:'Ki',name:'Paprika II.'},
-  // Peperoni / Jalapeño (left, qty col 0 / 1)
   {row:51,col:0,unit:'Ki',name:'Peperoni rot 250 g Holzschliff'},
   {row:51,col:1,unit:'Ki',name:'Peperoni grün 250 g Holzschliff'},
   {row:52,col:0,unit:'Ki',name:'Peperoni gelb 250 g Holzschliff'},
@@ -2413,12 +2635,10 @@ const KIEMLE_PRODUCTS = [
   {row:53,col:0,unit:'Ki',name:'Peperoni mix 250 g Holzschliff'},
   {row:55,col:0,unit:'Ki',name:'Jalapeño rot 500 g Holzschliff'},
   {row:55,col:1,unit:'Ki',name:'Jalapeño grün 500 g Holzschliff'},
-  // Auberginen (left)
   {row:59,col:0,unit:'Ki',name:'Auberginen'},
   {row:60,col:0,unit:'Ki',name:'Auberginen mix'},
   {row:61,col:0,unit:'Ki',name:'Auberginen gestreift'},
   {row:63,col:0,unit:'Ki',name:'Auberginen II.'},
-  // Gurken / Zucchini (middle, qty col 5)
   {row:10,col:5,unit:'Ki',name:'Minigurken'},
   {row:11,col:5,unit:'Ki',name:'Minigurken 10 Kreuz-Schalen'},
   {row:12,col:5,unit:'Ki',name:'Schlangengurken 12 Stück'},
@@ -2430,7 +2650,6 @@ const KIEMLE_PRODUCTS = [
   {row:20,col:5,unit:'Ki',name:'Zucchini mix'},
   {row:21,col:5,unit:'Ki',name:'Zucchini gelb'},
   {row:22,col:5,unit:'Ki',name:'Zucchiniblüten 10 Stk.'},
-  // Salate (middle)
   {row:25,col:5,unit:'Ki',name:'Kopfsalat'},
   {row:26,col:5,unit:'Ki',name:'Kopfsalat rot'},
   {row:27,col:5,unit:'Ki',name:'Raisa grün'},
@@ -2469,7 +2688,6 @@ const KIEMLE_PRODUCTS = [
   {row:61,col:5,unit:'Pl',name:'Rosmarin (Platte 6T)'},
   {row:61,col:6,unit:'Pl',name:'Jiaogulan (Platte 6T)'},
   {row:62,col:5,unit:'Pl',name:'Schnittlauch (Platte 6T)'},
-  // Kräuter Platte 8 Töpfe (right section, qty col 10)
   {row:10,col:10,unit:'Pl',name:'Basilikum'},
   {row:11,col:10,unit:'Pl',name:'Piccolino'},
   {row:11,col:10,unit:'Pl',name:'Staudenbasilikum'},
@@ -2495,7 +2713,6 @@ const KIEMLE_PRODUCTS = [
   {row:22,col:10,unit:'Pl',name:'Sauerampfer'},
   {row:22,col:10,unit:'Pl',name:'Thymian'},
   {row:23,col:10,unit:'Pl',name:'Zitronenmelisse'},
-  // Kräuter Bund (right, qty col 11)
   {row:25,col:11,unit:'Ki',name:'Rucola 10 Stk.'},
   {row:26,col:11,unit:'Ki',name:'Rucola in Folie 10 Stk.'},
   {row:27,col:11,unit:'Ki',name:'Rucola lose 1 kg'},
@@ -2509,46 +2726,24 @@ const KIEMLE_PRODUCTS = [
   {row:35,col:11,unit:'Ki',name:'Grüne Soße 10 Stk.'},
 ];
 
-// Default mappings: Hofmarkt product name → Kiemle product name
 const KIEMLE_DEFAULT_MAPPING = {
-  'Tomaten':                  'Strauchtomaten',
-  'Tomaten (Koch-)':          'Tomaten II.',
-  'Tomaten San Marzano':      'San Marzano',
-  'Tomaten Schale 250 g':     'Dolcella 16 x 250 g in Holzschliff',
-  'Tomaten Schale 500 g':     'Tomaten 9 x 500 g in Holzschliff',
-  'Paprika rot':              'Paprika rot',
-  'Paprika gelb':             'Paprika gelb',
-  'Paprika orange':           'Paprika orange',
-  'Spitzpaprika rot':         'Paprika spitz rot',
-  'Spitzpaprika mix':         'Paprika spitz mix',
-  'Auberginen':               'Auberginen',
-  'Peperoni / Chilli':        'Peperoni rot 250 g Holzschliff',
-  'Gurke (Schlangen-)':       'Schlangengurken 12 Stück',
-  'Gurke (Mini-)':            'Minigurken',
-  'Zucchini':                 'Zucchini grün',
-  'Ackersalat':               'Ackersalat Haus',
-  'Kopfsalat':                'Kopfsalat',
-  'Batavia':                  'Kopfsalat',
-  'Ruccola':                  'Rucola 10 Stk.',
-  'Schnittsalat':             'Schnittsalat',
-  'Pak Choi':                 'Pak Choi 3 kg',
-  'Chicorée':                 'Chicorée',
-  'Chinakohl':                'Chinakohl',
-  'Kürbis':                   'Hokkaido',
-  'Ingwer':                   'Ingwer 1 kg',
-  'Koriander':                'Koriander',
-  'Petersilie glatt':         'Petersilie blatt 20 Stk.',
-  'Petersilie krause':        'Petersilie kraus 20 Stk.',
-  'Dill':                     'Dill 10 Stk.',
-  'Schnittlauch':             'Schnittlauch 10 Stk.',
-  'Grüne Soße':               'Grüne Soße 10 Stk.',
+  'Tomaten':'Strauchtomaten','Tomaten (Koch-)':'Tomaten II.','Tomaten San Marzano':'San Marzano',
+  'Tomaten Schale 250 g':'Dolcella 16 x 250 g in Holzschliff','Tomaten Schale 500 g':'Tomaten 9 x 500 g in Holzschliff',
+  'Paprika rot':'Paprika rot','Paprika gelb':'Paprika gelb','Paprika orange':'Paprika orange',
+  'Spitzpaprika rot':'Paprika spitz rot','Spitzpaprika mix':'Paprika spitz mix',
+  'Auberginen':'Auberginen','Peperoni / Chilli':'Peperoni rot 250 g Holzschliff',
+  'Gurke (Schlangen-)':'Schlangengurken 12 Stück','Gurke (Mini-)':'Minigurken','Zucchini':'Zucchini grün',
+  'Ackersalat':'Ackersalat Haus','Kopfsalat':'Kopfsalat','Batavia':'Kopfsalat',
+  'Ruccola':'Rucola 10 Stk.','Schnittsalat':'Schnittsalat','Pak Choi':'Pak Choi 3 kg',
+  'Chicorée':'Chicorée','Chinakohl':'Chinakohl','Kürbis':'Hokkaido','Ingwer':'Ingwer 1 kg',
+  'Koriander':'Koriander','Petersilie glatt':'Petersilie blatt 20 Stk.',
+  'Petersilie krause':'Petersilie kraus 20 Stk.','Dill':'Dill 10 Stk.',
+  'Schnittlauch':'Schnittlauch 10 Stk.','Grüne Soße':'Grüne Soße 10 Stk.',
 };
 
-// User-saved mapping stored in localStorage
 let kiemleMapping = {};
 
 function loadKiemleMapping() {
-  // Erst localStorage als Fallback, echte Daten kommen via init() aus Apps Script
   try {
     const s = localStorage.getItem('hofmarkt_kiemle_mapping');
     kiemleMapping = s ? JSON.parse(s) : {...KIEMLE_DEFAULT_MAPPING};
@@ -2559,23 +2754,14 @@ async function saveKiemleMapping() {
   document.querySelectorAll('#kiemle-mapping-body select').forEach(sel => {
     kiemleMapping[sel.dataset.hofmarkt] = sel.value;
   });
-  // Lokal cachen
   localStorage.setItem('hofmarkt_kiemle_mapping', JSON.stringify(kiemleMapping));
-  // In Apps Script speichern (überschreibt immer)
-  try {
-    await apiPost({action: 'saveKiemleMapping', mapping: kiemleMapping});
-  } catch(e) { /* offline – localStorage reicht */ }
+  try { await apiPost({action: 'saveKiemleMapping', mapping: kiemleMapping}); } catch(e) {}
   closeKiemleMapping();
   showToast('Kiemle Zuordnung gespeichert ✓');
 }
 
 function openKiemleMapping() {
   loadKiemleMapping();
-  const kiemleOptions = KIEMLE_PRODUCTS.map(p =>
-    `<option value="${p.name}">${p.name} (${p.unit})</option>`
-  ).join('');
-
-  // Collect all orderable Hofmarkt products
   const hofmarktProducts = [];
   document.querySelectorAll('#main .category').forEach(catEl => {
     const catname = catEl.dataset.catname;
@@ -2583,14 +2769,11 @@ function openKiemleMapping() {
       hofmarktProducts.push({catname, name: it.dataset.name});
     });
   });
-
-  // Group by category
   const bycat = {};
   hofmarktProducts.forEach(p => {
     if(!bycat[p.catname]) bycat[p.catname] = [];
     bycat[p.catname].push(p);
   });
-
   let html = '';
   for(const [cat, prods] of Object.entries(bycat)) {
     html += `<div class="kiemle-group"><div class="kiemle-group-header">${cat}</div>`;
@@ -2609,12 +2792,9 @@ function openKiemleMapping() {
     html += `</div>`;
   }
   document.getElementById('kiemle-mapping-body').innerHTML = html;
-
-  // color already-mapped selects
   document.querySelectorAll('#kiemle-mapping-body select').forEach(sel => {
     sel.classList.toggle('mapped', !!sel.value);
   });
-
   document.getElementById('kiemle-modal').classList.remove('hidden');
   const searchEl = document.getElementById('kiemle-search');
   if(searchEl) { searchEl.value = ''; filterKiemleRows(''); }
@@ -2637,7 +2817,6 @@ function closeKiemleMapping() {
   document.getElementById('kiemle-modal').classList.add('hidden');
 }
 
-// Close mapping modal on backdrop click
 document.addEventListener('click', e => {
   const modal = document.getElementById('kiemle-modal');
   if(e.target === modal) closeKiemleMapping();
@@ -2658,7 +2837,6 @@ async function confirmKiemleDate() {
   const [y,m,d] = dateVal.split('-');
   const dateStr = `${d}.${m}.${y}`;
 
-  // pdf-lib laden
   if(!window.PDFLib) {
     await new Promise((res, rej) => {
       const s = document.createElement('script');
@@ -2668,7 +2846,6 @@ async function confirmKiemleDate() {
     });
   }
 
-  // Bestellmengen sammeln
   const orderQtys = {};
   document.querySelectorAll('#main .category .item').forEach(it => {
     const ins = it.querySelectorAll('.qty-input');
@@ -2677,151 +2854,68 @@ async function confirmKiemleDate() {
     if(bestellen > 0) orderQtys[it.dataset.name] = bestellen;
   });
 
-  // Hofmarkt → Kiemle PDF-Position mappen
-  // Format: { kiemle_name: {x, top} } – top ist pdfplumber-Koordinate (von oben)
   const PAGE_H = 883.89;
-  const Y_OFFSET = 7; // kalibriert
+  const Y_OFFSET = 7;
   const KIEMLE_PDF_POS = {
-    'Strauchtomaten':                          {x:52,  top:160.2},
-    'Strauchtomaten in 9 Korb-Schalen':        {x:52,  top:172.4},
-    'Eiertomaten-Rispe':                       {x:52,  top:184.5},
-    'Aranca-Rispe':                            {x:52,  top:196.7},
-    'Aranca lose':                             {x:52,  top:208.9},
-    'Lycopina':                                {x:52,  top:221.1},
-    'Lycopina in 9 Korb-Schalen':              {x:52,  top:233.3},
-    'Kumato':                                  {x:52,  top:245.5},
-    'San Marzano':                             {x:52,  top:257.7},
-    'San Marzano in 10 Kreuz-Schalen':         {x:52,  top:269.9},
-    'Fleischtomaten':                          {x:52,  top:282.1},
-    'Cuore':                                   {x:52,  top:294.2},
-    'Cuore in 9 Korb-Schalen':                 {x:52,  top:306.4},
-    'Romanella-Rispe':                         {x:52,  top:318.6},
-    'Romanella-Rispe in 10 Kreuz-Schalen':     {x:52,  top:330.8},
-    'Pflaumentomaten-Rispe':                   {x:52,  top:344},
-    'Dolcella-Rispe':                          {x:52,  top:356},
-    'Dolcella 16 x 250 g in Holzschliff':      {x:52,  top:368},
-    'Olivtomaten 16 x 250 g in Holzschliff':   {x:52,  top:380},
-    'Mini-Olivtomaten 16 x 250 g in Holzschliff': {x:52, top:392},
-    'Marzanino 16 x 250 g in Holzschliff':    {x:52,  top:404},
-    'Gelbe Perle 16 x 250 g in Holzschliff':  {x:52,  top:416},
-    'Zebratomaten 16 x 250 g in Holzschliff': {x:52,  top:428},
-    'Tomaten 9 x 500 g in Holzschliff':       {x:52,  top:440},
-    'WM-Schalen 9 x 500 g in Holzschliff':    {x:52,  top:452},
-    'WM-Schalen von Mini-Olivtomaten 9 x 500 g': {x:52, top:464},
-    'Tomaten II.':                             {x:52,  top:502},
-    'Kochtomaten':                             {x:58,  top:502},
-    'San Marzano II.':                         {x:52,  top:514},
-    'Cuore II.':                               {x:58,  top:514},
-    'Paprika rot':                             {x:52,  top:538},
-    'Paprika gelb':                            {x:52,  top:550},
-    'Paprika orange':                          {x:52,  top:562},
-    'Paprika grün':                            {x:52,  top:574},
-    'Paprika mix (rot/gelb/grün)':             {x:52,  top:586},
-    'Paprika mix (rot/gelb/orange)':           {x:52,  top:598},
-    'Paprika rot-gelb':                        {x:52,  top:612},
-    'Paprika spitz mix':                       {x:52,  top:636},
-    'Paprika spitz rot':                       {x:52,  top:648},
-    'Paprika spitz grün':                      {x:58,  top:648},
-    'Peperoni rot 250 g Holzschliff':          {x:52,  top:672},
-    'Peperoni grün 250 g Holzschliff':         {x:58,  top:672},
-    'Peperoni gelb 250 g Holzschliff':         {x:52,  top:684},
-    'Peperoni orange 250 g Holzschliff':       {x:58,  top:684},
-    'Peperoni mix 250 g Holzschliff':          {x:52,  top:696},
-    'Jalapeño rot 500 g Holzschliff':          {x:52,  top:708},
-    'Jalapeño grün 500 g Holzschliff':         {x:58,  top:708},
-    'Paprika II.':                             {x:52,  top:734},
-    'Auberginen':                              {x:52,  top:758},
-    'Auberginen mix':                          {x:52,  top:770},
-    'Auberginen gestreift':                    {x:52,  top:782},
-    'Auberginen II.':                          {x:52,  top:806},
-    'Basilikum':                               {x:426, top:160.2},
-    'Piccolino':                               {x:426, top:172.4},
-    'Staudenbasilikum':                        {x:452, top:172.4},
-    'Ananassalbei':                            {x:426, top:184.5},
-    'Bohnenkraut':                             {x:452, top:184.5},
-    'Borretsch':                               {x:426, top:196.7},
-    'Dill':                                    {x:452, top:196.7},
-    'Kerbel':                                  {x:426, top:208.9},
-    'Koriander':                               {x:452, top:208.9},
-    'Liebstock':                               {x:426, top:221.1},
-    'Majoran':                                 {x:452, top:221.1},
-    'Minze spanisch':                          {x:426, top:233.3},
-    'Minze schoko':                            {x:426, top:245.5},
-    'marok':                                   {x:452, top:245.5},
-    'Minze nana':                              {x:426, top:257.7},
-    'Pfefferminze':                            {x:452, top:257.7},
-    'Oregano':                                 {x:426, top:270},
-    'Pimpinelle':                              {x:452, top:270},
-    'Petersilie kraus':                        {x:426, top:282.1},
-    'Petersilie blatt':                        {x:452, top:282.1},
-    'Rucola':                                  {x:426, top:294.2},
-    'Salbei':                                  {x:452, top:294.2},
-    'Sauerampfer':                             {x:426, top:306.4},
-    'Thymian':                                 {x:452, top:306.4},
-    'Zitronenmelisse':                         {x:426, top:318.6},
-    'Minigurken':                              {x:240, top:160.2},
-    'Minigurken in 10 Kreuz-Schalen':          {x:240, top:172.4},
-    'Schlangengurken 12 Stück':                {x:240, top:184.5},
-    'Krumme Minigurken':                       {x:240, top:196.7},
-    'Krumme Schlangengurken':                  {x:240, top:208.9},
-    'Minigurken II.':                          {x:240, top:233.3},
-    'Schlangengurken II.':                     {x:240, top:245.5},
-    'Zucchini grün':                           {x:240, top:270},
-    'Zucchini mix':                            {x:240, top:282.1},
-    'Zucchini gelb':                           {x:240, top:294.2},
-    'Zucchiniblüten 10 Stk.':                  {x:240, top:306.4},
-    'Kopfsalat':                               {x:240, top:344},
-    'Kopfsalat rot':                           {x:240, top:356},
-    'Raisa grün':                              {x:240, top:368},
-    'Raisa rot':                               {x:240, top:380},
-    'Lollo grün':                              {x:240, top:392},
-    'Lollo rot':                               {x:240, top:404},
-    'Mixsalat':                                {x:240, top:416},
-    'Ackersalat Haus':                         {x:240, top:440},
-    'Ackersalat Haus in 6 Plastik-Schalen':    {x:240, top:452},
-    'Ackersalat Freiland':                     {x:240, top:464},
-    'Schnittsalat':                            {x:240, top:478},
-    'Schnittsalat in 6 Plastik-Schalen':       {x:240, top:490},
-    'Frisée-Pflücksalat':                      {x:240, top:514},
-    'BabyLeafMix':                             {x:240, top:526},
-    'BabyLeafMix in 6 Plastik-Schalen':        {x:240, top:538},
-    'Asiasalat':                               {x:240, top:550},
-    'Asiasalat in 6 Plastik-Schalen':          {x:240, top:562},
-    'Mangold':                                 {x:240, top:574},
-    'Mizuna':                                  {x:251, top:574},
-    'Spinatsalat':                             {x:240, top:586},
-    'Spinatsalat in 6 Plastik-Schalen':        {x:240, top:598},
-    'Brunnenkresse':                           {x:240, top:612},
-    'Wildkräutersalat':                        {x:240, top:624},
-    'Wildkräutersalat in 6 Plastik-Schalen':   {x:240, top:636},
-    'Pak Choi 1 kg Mini':                      {x:240, top:648},
-    'Pak Choi 3 kg':                           {x:240, top:660},
-    'Pak Choi 4 x 2 Stück in Folie':           {x:240, top:672},
-    'Romana Herzen 4 x 2 Stück in Folie':      {x:240, top:684},
-    'Postelein':                               {x:240, top:696},
-    'Ingwer 1 kg':                             {x:240, top:720},
-    'Ingwer 3 kg':                             {x:251, top:720},
-    'Chicorée':                                {x:240, top:734},
-    'Chinakohl':                               {x:240, top:746},
-    'Hokkaido':                                {x:240, top:758},
-    'Butternut':                               {x:251, top:758},
-    'Rosmarin (Platte 6T)':                    {x:240, top:782},
-    'Jiaogulan (Platte 6T)':                   {x:251, top:782},
-    'Schnittlauch':                            {x:240, top:794},
-    'Rucola 10 Stk.':                          {x:435, top:344},
-    'Rucola in Folie 10 Stk.':                 {x:435, top:356},
-    'Rucola lose 1 kg':                        {x:435, top:368},
-    'Petersilie kraus 20 Stk.':                {x:435, top:380},
-    'Petersilie kraus Großb. 14 Stk.':         {x:435, top:392},
-    'Petersilie blatt 20 Stk.':                {x:435, top:404},
-    'Schnittlauch 10 Stk.':                    {x:435, top:416},
-    'Dill 10 Stk.':                            {x:435, top:428},
-    'Basilikum 10 Stk.':                       {x:435, top:440},
-    'Basilikum lose 1 kg':                     {x:435, top:452},
-    'Grüne Soße 10 Stk.':                      {x:435, top:464},
+    'Strauchtomaten':{x:52,top:160.2},'Strauchtomaten in 9 Korb-Schalen':{x:52,top:172.4},
+    'Eiertomaten-Rispe':{x:52,top:184.5},'Aranca-Rispe':{x:52,top:196.7},'Aranca lose':{x:52,top:208.9},
+    'Lycopina':{x:52,top:221.1},'Lycopina in 9 Korb-Schalen':{x:52,top:233.3},'Kumato':{x:52,top:245.5},
+    'San Marzano':{x:52,top:257.7},'San Marzano in 10 Kreuz-Schalen':{x:52,top:269.9},
+    'Fleischtomaten':{x:52,top:282.1},'Cuore':{x:52,top:294.2},'Cuore in 9 Korb-Schalen':{x:52,top:306.4},
+    'Romanella-Rispe':{x:52,top:318.6},'Romanella-Rispe in 10 Kreuz-Schalen':{x:52,top:330.8},
+    'Pflaumentomaten-Rispe':{x:52,top:344},'Dolcella-Rispe':{x:52,top:356},
+    'Dolcella 16 x 250 g in Holzschliff':{x:52,top:368},'Olivtomaten 16 x 250 g in Holzschliff':{x:52,top:380},
+    'Mini-Olivtomaten 16 x 250 g in Holzschliff':{x:52,top:392},'Marzanino 16 x 250 g in Holzschliff':{x:52,top:404},
+    'Gelbe Perle 16 x 250 g in Holzschliff':{x:52,top:416},'Zebratomaten 16 x 250 g in Holzschliff':{x:52,top:428},
+    'Tomaten 9 x 500 g in Holzschliff':{x:52,top:440},'WM-Schalen 9 x 500 g in Holzschliff':{x:52,top:452},
+    'WM-Schalen von Mini-Olivtomaten 9 x 500 g':{x:52,top:464},'Tomaten II.':{x:52,top:502},
+    'Kochtomaten':{x:58,top:502},'San Marzano II.':{x:52,top:514},'Cuore II.':{x:58,top:514},
+    'Paprika rot':{x:52,top:538},'Paprika gelb':{x:52,top:550},'Paprika orange':{x:52,top:562},
+    'Paprika grün':{x:52,top:574},'Paprika mix (rot/gelb/grün)':{x:52,top:586},'Paprika mix (rot/gelb/orange)':{x:52,top:598},
+    'Paprika rot-gelb':{x:52,top:612},'Paprika spitz mix':{x:52,top:636},'Paprika spitz rot':{x:52,top:648},
+    'Paprika spitz grün':{x:58,top:648},'Peperoni rot 250 g Holzschliff':{x:52,top:672},
+    'Peperoni grün 250 g Holzschliff':{x:58,top:672},'Peperoni gelb 250 g Holzschliff':{x:52,top:684},
+    'Peperoni orange 250 g Holzschliff':{x:58,top:684},'Peperoni mix 250 g Holzschliff':{x:52,top:696},
+    'Jalapeño rot 500 g Holzschliff':{x:52,top:708},'Jalapeño grün 500 g Holzschliff':{x:58,top:708},
+    'Paprika II.':{x:52,top:734},'Auberginen':{x:52,top:758},'Auberginen mix':{x:52,top:770},
+    'Auberginen gestreift':{x:52,top:782},'Auberginen II.':{x:52,top:806},
+    'Basilikum':{x:426,top:160.2},'Piccolino':{x:426,top:172.4},'Staudenbasilikum':{x:452,top:172.4},
+    'Ananassalbei':{x:426,top:184.5},'Bohnenkraut':{x:452,top:184.5},'Borretsch':{x:426,top:196.7},
+    'Dill':{x:452,top:196.7},'Kerbel':{x:426,top:208.9},'Koriander':{x:452,top:208.9},
+    'Liebstock':{x:426,top:221.1},'Majoran':{x:452,top:221.1},'Minze spanisch':{x:426,top:233.3},
+    'Minze schoko':{x:426,top:245.5},'marok':{x:452,top:245.5},'Minze nana':{x:426,top:257.7},
+    'Pfefferminze':{x:452,top:257.7},'Oregano':{x:426,top:270},'Pimpinelle':{x:452,top:270},
+    'Petersilie kraus':{x:426,top:282.1},'Petersilie blatt':{x:452,top:282.1},'Rucola':{x:426,top:294.2},
+    'Salbei':{x:452,top:294.2},'Sauerampfer':{x:426,top:306.4},'Thymian':{x:452,top:306.4},
+    'Zitronenmelisse':{x:426,top:318.6},'Minigurken':{x:240,top:160.2},
+    'Minigurken in 10 Kreuz-Schalen':{x:240,top:172.4},'Schlangengurken 12 Stück':{x:240,top:184.5},
+    'Krumme Minigurken':{x:240,top:196.7},'Krumme Schlangengurken':{x:240,top:208.9},
+    'Minigurken II.':{x:240,top:233.3},'Schlangengurken II.':{x:240,top:245.5},
+    'Zucchini grün':{x:240,top:270},'Zucchini mix':{x:240,top:282.1},'Zucchini gelb':{x:240,top:294.2},
+    'Zucchiniblüten 10 Stk.':{x:240,top:306.4},'Kopfsalat':{x:240,top:344},'Kopfsalat rot':{x:240,top:356},
+    'Raisa grün':{x:240,top:368},'Raisa rot':{x:240,top:380},'Lollo grün':{x:240,top:392},
+    'Lollo rot':{x:240,top:404},'Mixsalat':{x:240,top:416},'Ackersalat Haus':{x:240,top:440},
+    'Ackersalat Haus in 6 Plastik-Schalen':{x:240,top:452},'Ackersalat Freiland':{x:240,top:464},
+    'Schnittsalat':{x:240,top:478},'Schnittsalat in 6 Plastik-Schalen':{x:240,top:490},
+    'Frisée-Pflücksalat':{x:240,top:514},'BabyLeafMix':{x:240,top:526},
+    'BabyLeafMix in 6 Plastik-Schalen':{x:240,top:538},'Asiasalat':{x:240,top:550},
+    'Asiasalat in 6 Plastik-Schalen':{x:240,top:562},'Mangold':{x:240,top:574},'Mizuna':{x:251,top:574},
+    'Spinatsalat':{x:240,top:586},'Spinatsalat in 6 Plastik-Schalen':{x:240,top:598},
+    'Brunnenkresse':{x:240,top:612},'Wildkräutersalat':{x:240,top:624},
+    'Wildkräutersalat in 6 Plastik-Schalen':{x:240,top:636},'Pak Choi 1 kg Mini':{x:240,top:648},
+    'Pak Choi 3 kg':{x:240,top:660},'Pak Choi 4 x 2 Stück in Folie':{x:240,top:672},
+    'Romana Herzen 4 x 2 Stück in Folie':{x:240,top:684},'Postelein':{x:240,top:696},
+    'Ingwer 1 kg':{x:240,top:720},'Ingwer 3 kg':{x:251,top:720},'Chicorée':{x:240,top:734},
+    'Chinakohl':{x:240,top:746},'Hokkaido':{x:240,top:758},'Butternut':{x:251,top:758},
+    'Rosmarin (Platte 6T)':{x:240,top:782},'Jiaogulan (Platte 6T)':{x:251,top:782},
+    'Schnittlauch':{x:240,top:794},'Rucola 10 Stk.':{x:435,top:344},'Rucola in Folie 10 Stk.':{x:435,top:356},
+    'Rucola lose 1 kg':{x:435,top:368},'Petersilie kraus 20 Stk.':{x:435,top:380},
+    'Petersilie kraus Großb. 14 Stk.':{x:435,top:392},'Petersilie blatt 20 Stk.':{x:435,top:404},
+    'Schnittlauch 10 Stk.':{x:435,top:416},'Dill 10 Stk.':{x:435,top:428},
+    'Basilikum 10 Stk.':{x:435,top:440},'Basilikum lose 1 kg':{x:435,top:452},
+    'Grüne Soße 10 Stk.':{x:435,top:464},
   };
 
-  // PDF laden
   let pdfBytes;
   try {
     const resp = await fetch('Bestellblock-fuer-Homepage_2025.pdf');
@@ -2837,16 +2931,10 @@ async function confirmKiemleDate() {
   const page = pdfDoc.getPages()[0];
   const font = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
 
-  // Großmarkt X
   page.drawText('X', { x: 465, y: PAGE_H - 124, size: 8, font, color: rgb(0,0,0) });
-
-  // Kunde
   page.drawText("Wilhelm's Hofmarkt", { x: 80, y: PAGE_H - 134, size: 9, font, color: rgb(0,0,0) });
-
-  // Datum
   page.drawText(dateStr, { x: 350, y: PAGE_H - 134, size: 9, font, color: rgb(0,0,0) });
 
-  // Mengen einzeichnen
   for(const [hofName, qty] of Object.entries(orderQtys)) {
     const kiemleName = kiemleMapping[hofName];
     if(!kiemleName) continue;
@@ -2854,11 +2942,7 @@ async function confirmKiemleDate() {
     if(!pos) continue;
     const text = String(qty);
     const textW = font.widthOfTextAtSize(text, 8);
-    page.drawText(text, {
-      x: pos.x + 10 - textW,  // rechtsbündig
-      y: PAGE_H - pos.top - Y_OFFSET,
-      size: 8, font, color: rgb(0,0,0)
-    });
+    page.drawText(text, { x: pos.x + 10 - textW, y: PAGE_H - pos.top - Y_OFFSET, size: 8, font, color: rgb(0,0,0) });
   }
 
   const filledBytes = await pdfDoc.save();
@@ -2872,8 +2956,7 @@ async function confirmKiemleDate() {
   showToast('Kiemle Bestellformular heruntergeladen ✓');
 }
 
-// ── MERZ BESTELLFORMULAR ──────────────────────────────────────────────────────
-
+// ── MERZ ────────────────────────────────────────────────────────
 let merzDocType = 'rechnung';
 
 function setMerzDocType(type) {
@@ -2881,208 +2964,90 @@ function setMerzDocType(type) {
   const rBtn = document.getElementById('merz-type-rechnung');
   const lBtn = document.getElementById('merz-type-lieferschein');
   if(type === 'rechnung') {
-    rBtn.style.opacity = '1'; rBtn.style.background = ''; rBtn.style.boxShadow = '';
-    rBtn.textContent = '☑ Rechnung';
-    lBtn.style.opacity = '.45'; lBtn.style.background = '#666'; lBtn.style.boxShadow = '0 3px 0 #333';
-    lBtn.textContent = '☐ Lieferschein';
+    rBtn.style.opacity='1';rBtn.style.background='';rBtn.style.boxShadow='';rBtn.textContent='☑ Rechnung';
+    lBtn.style.opacity='.45';lBtn.style.background='#666';lBtn.style.boxShadow='0 3px 0 #333';lBtn.textContent='☐ Lieferschein';
   } else {
-    lBtn.style.opacity = '1'; lBtn.style.background = ''; lBtn.style.boxShadow = '';
-    lBtn.textContent = '☑ Lieferschein';
-    rBtn.style.opacity = '.45'; rBtn.style.background = '#666'; rBtn.style.boxShadow = '0 3px 0 #333';
-    rBtn.textContent = '☐ Rechnung';
+    lBtn.style.opacity='1';lBtn.style.background='';lBtn.style.boxShadow='';lBtn.textContent='☑ Lieferschein';
+    rBtn.style.opacity='.45';rBtn.style.background='#666';rBtn.style.boxShadow='0 3px 0 #333';rBtn.textContent='☐ Rechnung';
   }
 }
 
 function downloadMerzPDF() {
   merzDocType = 'rechnung';
-  // Reset toggle UI
-  const rBtn = document.getElementById('merz-type-rechnung');
-  const lBtn = document.getElementById('merz-type-lieferschein');
-  if(rBtn) { rBtn.style.opacity='1'; rBtn.style.background=''; rBtn.textContent='☑ Rechnung'; }
-  if(lBtn) { lBtn.style.opacity='.45'; lBtn.style.background='#666'; lBtn.style.boxShadow='0 3px 0 #333'; lBtn.textContent='☐ Lieferschein'; }
-  // Set today as default
-  const today = new Date();
-  const yyyy = today.getFullYear();
-  const mm = String(today.getMonth()+1).padStart(2,'0');
-  const dd = String(today.getDate()).padStart(2,'0');
-  document.getElementById('merz-date-input').value = `${yyyy}-${mm}-${dd}`;
+  const rBtn=document.getElementById('merz-type-rechnung');
+  const lBtn=document.getElementById('merz-type-lieferschein');
+  if(rBtn){rBtn.style.opacity='1';rBtn.style.background='';rBtn.textContent='☑ Rechnung';}
+  if(lBtn){lBtn.style.opacity='.45';lBtn.style.background='#666';lBtn.style.boxShadow='0 3px 0 #333';lBtn.textContent='☐ Lieferschein';}
+  const today=new Date();
+  const yyyy=today.getFullYear(),mm=String(today.getMonth()+1).padStart(2,'0'),dd=String(today.getDate()).padStart(2,'0');
+  document.getElementById('merz-date-input').value=`${yyyy}-${mm}-${dd}`;
   document.getElementById('merz-date-modal').classList.remove('hidden');
 }
 
 async function confirmMerzDate() {
   document.getElementById('merz-date-modal').classList.add('hidden');
-  const dateVal = document.getElementById('merz-date-input').value;
-  let dateStr = '';
-  if(dateVal) {
-    const [y,m,d] = dateVal.split('-');
-    dateStr = `${d}.${m}.${y}`;
-  }
+  const dateVal=document.getElementById('merz-date-input').value;
+  let dateStr='';
+  if(dateVal){const[y,m,d]=dateVal.split('-');dateStr=`${d}.${m}.${y}`;}
 
-  // Load pdf-lib
-  if(!window.PDFLib) {
-    await new Promise((res,rej) => {
-      const s = document.createElement('script');
-      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js';
-      s.onload = res; s.onerror = rej;
-      document.head.appendChild(s);
+  if(!window.PDFLib){
+    await new Promise((res,rej)=>{
+      const s=document.createElement('script');
+      s.src='https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js';
+      s.onload=res;s.onerror=rej;document.head.appendChild(s);
     });
   }
 
-  // Collect order quantities for all Merz-mapped products
-  const orderQtys = {};
-  document.querySelectorAll('#main .category .item').forEach(it => {
-    const ins = it.querySelectorAll('.qty-input');
-    if(!ins.length) return;
-    const bestellen = parseFloat(ins[1]?.value) || 0;
-    if(bestellen > 0) orderQtys[it.dataset.name] = bestellen;
+  const orderQtys={};
+  document.querySelectorAll('#main .category .item').forEach(it=>{
+    const ins=it.querySelectorAll('.qty-input');if(!ins.length)return;
+    const bestellen=parseFloat(ins[1]?.value)||0;
+    if(bestellen>0)orderQtys[it.dataset.name]=bestellen;
   });
 
-  // ── MERZ MAPPING: Hofmarkt-Name → Merz-Produktname ───────────────────────
-  // (wird später konfigurierbar – jetzt Standardzuordnung)
-  const MERZ_MAPPING = {
-    'Kopfsalat':         'Kopfsalat',
-    'Eissalat':          'Eissalat',
-    'Kopfsalat rot':     'Kopfsalat rot',
-    'Lollo grün':        'Lollo Bionda',
-    'Lollo rot':         'Lollo Rossa',
-    'Raisa grün':        'Raisa grün',
-    'Raisa rot':         'Raisa rot',
-    'Batavia grün':      'Batavia grün',
-    'Batavia rot':       'Batavia rot',
-    'Chicorée':          'Endivien',
-    'Romana Herzen':     'Romana',
-    'Schnittsalat':      'Salanova Mix',
-    'Ackersalat Haus':   'Ackersalat',
-    'Ackersalat Freiland':'Ackersalat',
-    'Rucola 10 Stk.':   'Rucola',
-    'Pak Choi 3 kg':    'Winterpostelein',
-    'Chinakohl':         'Wirsing',
-    'Karotten':          'Karotten',
-    'Karotten lose':     'Karotten lose',
-    'Zucchini grün':     'Zuccini',
-    'Hokkaido':          'Hokkaido',
-  };
+  const MERZ_MAPPING={'Kopfsalat':'Kopfsalat','Eissalat':'Eissalat','Kopfsalat rot':'Kopfsalat rot','Lollo grün':'Lollo Bionda','Lollo rot':'Lollo Rossa','Raisa grün':'Raisa grün','Raisa rot':'Raisa rot','Batavia grün':'Batavia grün','Batavia rot':'Batavia rot','Chicorée':'Endivien','Romana Herzen':'Romana','Schnittsalat':'Salanova Mix','Ackersalat Haus':'Ackersalat','Ackersalat Freiland':'Ackersalat','Rucola 10 Stk.':'Rucola','Pak Choi 3 kg':'Winterpostelein','Chinakohl':'Wirsing','Karotten':'Karotten','Karotten lose':'Karotten lose','Zucchini grün':'Zuccini','Hokkaido':'Hokkaido'};
 
-  // ── MERZ PDF POSITIONEN (verifiziert am Probebild) ────────────────────────
-  // PDF: 595.08 x 841.68 pt  |  Scan: 1654 x 2338 px bei 200dpi
-  const PDF_H = 841.68;
-  const sy = 841.68 / 2338;
-  const MENGE_X_RIGHT = 775 * (595.08/1654);  // 278.8pt
+  const PDF_H=841.68;const sy=841.68/2338;const MENGE_X_RIGHT=775*(595.08/1654);
+  const MERZ_PDF_POS={'Kopfsalat':{x:MENGE_X_RIGHT,y:PDF_H-136*sy},'Eissalat':{x:MENGE_X_RIGHT,y:PDF_H-180*sy},'Kopfsalat rot':{x:MENGE_X_RIGHT,y:PDF_H-224*sy},'Lollo Bionda':{x:MENGE_X_RIGHT,y:PDF_H-268*sy},'Lollo Rossa':{x:MENGE_X_RIGHT,y:PDF_H-311*sy},'Raisa grün':{x:MENGE_X_RIGHT,y:PDF_H-354*sy},'Raisa rot':{x:MENGE_X_RIGHT,y:PDF_H-398*sy},'Batavia grün':{x:MENGE_X_RIGHT,y:PDF_H-441*sy},'Batavia rot':{x:MENGE_X_RIGHT,y:PDF_H-484*sy},'Endivien':{x:MENGE_X_RIGHT,y:PDF_H-528*sy},'Romana':{x:MENGE_X_RIGHT,y:PDF_H-572*sy},'Salanova Mix':{x:MENGE_X_RIGHT,y:PDF_H-614*sy},'Salanova Crispy':{x:MENGE_X_RIGHT,y:PDF_H-658*sy},'Radicchio':{x:MENGE_X_RIGHT,y:PDF_H-701*sy},'Ackersalat':{x:MENGE_X_RIGHT,y:PDF_H-744*sy},'Blättle-Salat':{x:MENGE_X_RIGHT,y:PDF_H-788*sy},'Brunnenkresse':{x:MENGE_X_RIGHT,y:PDF_H-830*sy},'Kresse':{x:MENGE_X_RIGHT,y:PDF_H-874*sy},'Pflücksalat':{x:MENGE_X_RIGHT,y:PDF_H-917*sy},'Rucola':{x:MENGE_X_RIGHT,y:PDF_H-960*sy},'Winterpostelein':{x:MENGE_X_RIGHT,y:PDF_H-1004*sy},'Kohlrabi':{x:MENGE_X_RIGHT,y:PDF_H-1090*sy},'Weißkohl':{x:MENGE_X_RIGHT,y:PDF_H-1134*sy},'Rotkohl':{x:MENGE_X_RIGHT,y:PDF_H-1176*sy},'Wirsing':{x:MENGE_X_RIGHT,y:PDF_H-1220*sy},'Spitzkohl':{x:MENGE_X_RIGHT,y:PDF_H-1264*sy},'Broccoli':{x:MENGE_X_RIGHT,y:PDF_H-1306*sy},'Grünkohl':{x:MENGE_X_RIGHT,y:PDF_H-1350*sy},'Rosenkohl':{x:MENGE_X_RIGHT,y:PDF_H-1394*sy},'Bohnen':{x:MENGE_X_RIGHT,y:PDF_H-1436*sy},'Hokkaido':{x:MENGE_X_RIGHT,y:PDF_H-1480*sy},'Zuccini':{x:MENGE_X_RIGHT,y:PDF_H-1522*sy},'Zwiebelbund':{x:MENGE_X_RIGHT,y:PDF_H-1566*sy},'Karotten':{x:MENGE_X_RIGHT,y:PDF_H-1610*sy},'Karotten lose':{x:MENGE_X_RIGHT,y:PDF_H-1652*sy},'Petersilienwurzel':{x:MENGE_X_RIGHT,y:PDF_H-1696*sy},'Rote Rüben':{x:MENGE_X_RIGHT,y:PDF_H-1738*sy},'Rote Rüben lose':{x:MENGE_X_RIGHT,y:PDF_H-1782*sy},'Knollenfenchel':{x:MENGE_X_RIGHT,y:PDF_H-1826*sy},'Knollensellerie':{x:MENGE_X_RIGHT,y:PDF_H-1868*sy},'Staudensellerie':{x:MENGE_X_RIGHT,y:PDF_H-1912*sy},'Lauch':{x:MENGE_X_RIGHT,y:PDF_H-1954*sy},'Mangold':{x:MENGE_X_RIGHT,y:PDF_H-1998*sy},'Spinat':{x:MENGE_X_RIGHT,y:PDF_H-2040*sy}};
 
-  const MERZ_PDF_POS = {
-    'Kopfsalat':        { x: MENGE_X_RIGHT, y: PDF_H - 136*sy },
-    'Eissalat':         { x: MENGE_X_RIGHT, y: PDF_H - 180*sy },
-    'Kopfsalat rot':    { x: MENGE_X_RIGHT, y: PDF_H - 224*sy },
-    'Lollo Bionda':     { x: MENGE_X_RIGHT, y: PDF_H - 268*sy },
-    'Lollo Rossa':      { x: MENGE_X_RIGHT, y: PDF_H - 311*sy },
-    'Raisa grün':       { x: MENGE_X_RIGHT, y: PDF_H - 354*sy },
-    'Raisa rot':        { x: MENGE_X_RIGHT, y: PDF_H - 398*sy },
-    'Batavia grün':     { x: MENGE_X_RIGHT, y: PDF_H - 441*sy },
-    'Batavia rot':      { x: MENGE_X_RIGHT, y: PDF_H - 484*sy },
-    'Endivien':         { x: MENGE_X_RIGHT, y: PDF_H - 528*sy },
-    'Romana':           { x: MENGE_X_RIGHT, y: PDF_H - 572*sy },
-    'Salanova Mix':     { x: MENGE_X_RIGHT, y: PDF_H - 614*sy },
-    'Salanova Crispy':  { x: MENGE_X_RIGHT, y: PDF_H - 658*sy },
-    'Radicchio':        { x: MENGE_X_RIGHT, y: PDF_H - 701*sy },
-    'Ackersalat':       { x: MENGE_X_RIGHT, y: PDF_H - 744*sy },
-    'Blättle-Salat':    { x: MENGE_X_RIGHT, y: PDF_H - 788*sy },
-    'Brunnenkresse':    { x: MENGE_X_RIGHT, y: PDF_H - 830*sy },
-    'Kresse':           { x: MENGE_X_RIGHT, y: PDF_H - 874*sy },
-    'Pflücksalat':      { x: MENGE_X_RIGHT, y: PDF_H - 917*sy },
-    'Rucola':           { x: MENGE_X_RIGHT, y: PDF_H - 960*sy },
-    'Winterpostelein':  { x: MENGE_X_RIGHT, y: PDF_H - 1004*sy },
-    'Kohlrabi':         { x: MENGE_X_RIGHT, y: PDF_H - 1090*sy },
-    'Weißkohl':         { x: MENGE_X_RIGHT, y: PDF_H - 1134*sy },
-    'Rotkohl':          { x: MENGE_X_RIGHT, y: PDF_H - 1176*sy },
-    'Wirsing':          { x: MENGE_X_RIGHT, y: PDF_H - 1220*sy },
-    'Spitzkohl':        { x: MENGE_X_RIGHT, y: PDF_H - 1264*sy },
-    'Broccoli':         { x: MENGE_X_RIGHT, y: PDF_H - 1306*sy },
-    'Grünkohl':         { x: MENGE_X_RIGHT, y: PDF_H - 1350*sy },
-    'Rosenkohl':        { x: MENGE_X_RIGHT, y: PDF_H - 1394*sy },
-    'Bohnen':           { x: MENGE_X_RIGHT, y: PDF_H - 1436*sy },
-    'Hokkaido':         { x: MENGE_X_RIGHT, y: PDF_H - 1480*sy },
-    'Zuccini':          { x: MENGE_X_RIGHT, y: PDF_H - 1522*sy },
-    'Zwiebelbund':      { x: MENGE_X_RIGHT, y: PDF_H - 1566*sy },
-    'Karotten':         { x: MENGE_X_RIGHT, y: PDF_H - 1610*sy },
-    'Karotten lose':    { x: MENGE_X_RIGHT, y: PDF_H - 1652*sy },
-    'Petersilienwurzel':{ x: MENGE_X_RIGHT, y: PDF_H - 1696*sy },
-    'Rote Rüben':       { x: MENGE_X_RIGHT, y: PDF_H - 1738*sy },
-    'Rote Rüben lose':  { x: MENGE_X_RIGHT, y: PDF_H - 1782*sy },
-    'Knollenfenchel':   { x: MENGE_X_RIGHT, y: PDF_H - 1826*sy },
-    'Knollensellerie':  { x: MENGE_X_RIGHT, y: PDF_H - 1868*sy },
-    'Staudensellerie':  { x: MENGE_X_RIGHT, y: PDF_H - 1912*sy },
-    'Lauch':            { x: MENGE_X_RIGHT, y: PDF_H - 1954*sy },
-    'Mangold':          { x: MENGE_X_RIGHT, y: PDF_H - 1998*sy },
-    'Spinat':           { x: MENGE_X_RIGHT, y: PDF_H - 2040*sy },
-  };
+  const RECHNUNG_X=140*(595.08/1654),LIEFER_X=185.8,CHECK_Y=PDF_H-1460*sy;
+  const DATUM_X=88.0,DATUM_Y=293.8,KUNDE_X=90.0,KUNDE_Y=266.4;
 
-  // Checkbox & Felder (verifiziert)
-  const RECHNUNG_X  = 140 * (595.08/1654);
-  const LIEFER_X    = 185.8;
-  const CHECK_Y     = PDF_H - 1460*sy;
-  const DATUM_X     = 88.0;
-  const DATUM_Y     = 293.8;
-  const KUNDE_X     = 90.0;
-  const KUNDE_Y     = 266.4;
-
-  // PDF laden
   let pdfBytes;
-  try {
-    const resp = await fetch('merz.pdf');
-    if(!resp.ok) throw new Error('not found');
-    pdfBytes = await resp.arrayBuffer();
-  } catch(e) {
-    showToast('PDF-Vorlage nicht gefunden – merz.pdf muss im selben Ordner liegen', true);
-    return;
+  try{const resp=await fetch('merz.pdf');if(!resp.ok)throw new Error('not found');pdfBytes=await resp.arrayBuffer();}
+  catch(e){showToast('PDF-Vorlage nicht gefunden – merz.pdf muss im selben Ordner liegen',true);return;}
+
+  const{PDFDocument,rgb,StandardFonts}=PDFLib;
+  const pdfDoc=await PDFDocument.load(pdfBytes);
+  const page=pdfDoc.getPages()[0];
+  const font=await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+  const FONT_SIZE=9.5,FONT_TEXT=9;
+
+  if(merzDocType==='rechnung')page.drawText('X',{x:RECHNUNG_X,y:CHECK_Y,size:10,font,color:rgb(0,0,0)});
+  else page.drawText('X',{x:LIEFER_X,y:CHECK_Y,size:10,font,color:rgb(0,0,0)});
+  page.drawText(dateStr,{x:DATUM_X,y:DATUM_Y,size:FONT_TEXT,font,color:rgb(0,0,0)});
+  page.drawText("Wilhelm's Hofmarkt",{x:KUNDE_X,y:KUNDE_Y,size:FONT_TEXT,font,color:rgb(0,0,0)});
+
+  for(const[hofName,qty]of Object.entries(orderQtys)){
+    const merzName=MERZ_MAPPING[hofName];if(!merzName)continue;
+    const pos=MERZ_PDF_POS[merzName];if(!pos)continue;
+    const text=String(Math.round(qty));
+    const textW=font.widthOfTextAtSize(text,FONT_SIZE);
+    page.drawText(text,{x:pos.x-textW,y:pos.y-FONT_SIZE*0.35,size:FONT_SIZE,font,color:rgb(0,0,0)});
   }
 
-  const { PDFDocument, rgb, StandardFonts } = PDFLib;
-  const pdfDoc = await PDFDocument.load(pdfBytes);
-  const page = pdfDoc.getPages()[0];
-  const font = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
-  const FONT_SIZE = 9.5;
-  const FONT_TEXT = 9;
-
-  // Rechnung / Lieferschein X
-  if(merzDocType === 'rechnung') {
-    page.drawText('X', { x: RECHNUNG_X, y: CHECK_Y, size: 10, font, color: rgb(0,0,0) });
-  } else {
-    page.drawText('X', { x: LIEFER_X, y: CHECK_Y, size: 10, font, color: rgb(0,0,0) });
-  }
-
-  // Datum
-  page.drawText(dateStr, { x: DATUM_X, y: DATUM_Y, size: FONT_TEXT, font, color: rgb(0,0,0) });
-
-  // Kunde
-  page.drawText("Wilhelm's Hofmarkt", { x: KUNDE_X, y: KUNDE_Y, size: FONT_TEXT, font, color: rgb(0,0,0) });
-
-  // Mengen rechtsbündig
-  for(const [hofName, qty] of Object.entries(orderQtys)) {
-    const merzName = MERZ_MAPPING[hofName];
-    if(!merzName) continue;
-    const pos = MERZ_PDF_POS[merzName];
-    if(!pos) continue;
-    const text = String(Math.round(qty));
-    const textW = font.widthOfTextAtSize(text, FONT_SIZE);
-    page.drawText(text, {
-      x: pos.x - textW,
-      y: pos.y - FONT_SIZE * 0.35,
-      size: FONT_SIZE, font, color: rgb(0,0,0)
-    });
-  }
-
-  const filledBytes = await pdfDoc.save();
-  const blob = new Blob([filledBytes], {type:'application/pdf'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  const [y,m,d] = (dateVal || '').split('-');
-  a.download = `Merz_Bestellung_${y||''}${m||''}${d||''}.pdf`;
-  a.click();
-  URL.revokeObjectURL(url);
+  const filledBytes=await pdfDoc.save();
+  const blob=new Blob([filledBytes],{type:'application/pdf'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  const[y,m,d]=(dateVal||'').split('-');
+  a.download=`Merz_Bestellung_${y||''}${m||''}${d||''}.pdf`;
+  a.click();URL.revokeObjectURL(url);
   showToast('Merz Bestellformular heruntergeladen ✓');
 }
 
-init();</script>
+init();
+</script>
 </body>
 </html>
