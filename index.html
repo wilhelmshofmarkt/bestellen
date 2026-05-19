@@ -188,6 +188,23 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
 .kiemle-row-name{font-size:.82rem;flex:1;color:var(--text)}
 .kiemle-row select{flex:1;padding:4px 7px;border:1.5px solid var(--input-border);border-radius:7px;font-family:'DM Sans',sans-serif;font-size:.77rem;background:var(--input-bg);color:var(--text);outline:none;max-width:200px}
 .kiemle-row select.mapped{border-color:#5B3A8E;background:#f3effe;color:#3a1f6e;font-weight:600}
+/* Searchable dropdown */
+.map-dd{position:relative;flex:1;max-width:200px}
+.map-dd-input{width:100%;padding:4px 24px 4px 7px;border:1.5px solid var(--input-border);border-radius:7px;font-family:'DM Sans',sans-serif;font-size:.77rem;background:var(--input-bg);color:var(--text);outline:none;cursor:pointer;box-sizing:border-box;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.map-dd-input.mapped{border-color:#5B3A8E;background:#f3effe;color:#3a1f6e;font-weight:600}
+.map-dd-input.merz-mapped{border-color:#8a2d1a;background:#fef3f0;color:#5a1a0a;font-weight:600}
+.map-dd-arrow{position:absolute;right:6px;top:50%;transform:translateY(-50%);font-size:.6rem;color:var(--muted);pointer-events:none}
+.map-dd-panel{display:none;position:fixed;background:var(--card);border:1.5px solid #ccc;border-radius:9px;box-shadow:0 6px 24px rgba(0,0,0,.18);z-index:2000;width:240px;overflow:hidden;flex-direction:column}
+.map-dd-panel.open{display:flex}
+.map-dd-search{padding:7px 9px;border:none;border-bottom:1px solid rgba(0,0,0,.1);font-family:'DM Sans',sans-serif;font-size:.82rem;outline:none;background:var(--input-bg);color:var(--text);width:100%;box-sizing:border-box}
+.map-dd-list{overflow-y:auto;max-height:220px}
+.map-dd-option{padding:6px 11px;font-family:'DM Sans',sans-serif;font-size:.8rem;cursor:pointer;color:var(--text);border-bottom:1px solid rgba(0,0,0,.04)}
+.map-dd-option:last-child{border-bottom:none}
+.map-dd-option:hover,.map-dd-option.focused{background:rgba(0,0,0,.06)}
+.map-dd-option.is-selected{font-weight:700;color:#5B3A8E}
+.map-dd-option.is-selected.merz{color:#8a2d1a}
+.map-dd-option.clear-opt{color:var(--muted);font-style:italic}
+.map-dd-empty{padding:10px 11px;font-size:.8rem;color:var(--muted);font-style:italic;text-align:center}
 .kiemle-footer{display:flex;gap:9px;margin-top:16px}
 .btn-kiemle-save{flex:1;background:#5B3A8E;color:white;border:none;border-radius:10px;padding:11px;font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:700;cursor:pointer}
 .btn-kiemle-cancel{background:transparent;color:var(--muted);border:1.5px solid #ddd;border-radius:10px;padding:11px 16px;font-family:'DM Sans',sans-serif;font-size:.86rem;cursor:pointer}
@@ -666,7 +683,7 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
   <div class="kiemle-sheet">
     <h2>⚙️ Kiemle Zuordnung</h2>
     <p>Welches Hofmarkt-Produkt entspricht welchem Kiemle-Artikel?</p>
-    <input type="search" id="kiemle-search" placeholder="🔍 Suchen…" oninput="filterKiemleRows(this.value)"
+    <input type="search" id="kiemle-search" placeholder="🔍 Hofmarkt-Artikel filtern…" oninput="filterKiemleRows(this.value)"
       style="width:100%;box-sizing:border-box;padding:9px 12px;border:1.5px solid #ccc;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:.88rem;margin-bottom:12px;outline:none;">
     <div id="kiemle-mapping-body"></div>
     <div class="kiemle-footer">
@@ -742,7 +759,7 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
   <div class="kiemle-sheet">
     <h2 style="color:#8a2d1a">&#9881;&#65039; Merz Zuordnung</h2>
     <p>Welches Hofmarkt-Produkt entspricht welchem Merz-Artikel?</p>
-    <input type="search" id="merz-search" placeholder="&#128269; Suchen..." oninput="filterMerzRows(this.value)"
+    <input type="search" id="merz-search" placeholder="&#128269; Hofmarkt-Artikel filtern…" oninput="filterMerzRows(this.value)"
       style="width:100%;box-sizing:border-box;padding:9px 12px;border:1.5px solid #ccc;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:.88rem;margin-bottom:12px;outline:none;">
     <div id="merz-mapping-body"></div>
     <div class="kiemle-footer">
@@ -2812,57 +2829,175 @@ async function saveKiemleMapping() {
   showToast('Kiemle Zuordnung gespeichert ✓');
 }
 
-function openKiemleMapping() {
-  loadKiemleMapping();
-  const hofmarktProducts = [];
-  document.querySelectorAll('#main .category').forEach(catEl => {
-    const catname = catEl.dataset.catname;
-    catEl.querySelectorAll('.item').forEach(it => {
-      hofmarktProducts.push({catname, name: it.dataset.name});
-    });
-  });
-  const bycat = {};
-  hofmarktProducts.forEach(p => {
-    if(!bycat[p.catname]) bycat[p.catname] = [];
-    bycat[p.catname].push(p);
-  });
+// ── SEARCHABLE DROPDOWN FÜR ZUORDNUNG ───────────────────────────
+let _activeMapDD = null;
+
+function buildMappingRows(bodyId, products_bycat, currentMapping, options, accentClass, placeholder) {
   let html = '';
-  for(const [cat, prods] of Object.entries(bycat)) {
-    html += `<div class="kiemle-group"><div class="kiemle-group-header">${cat}</div>`;
+  for(const [cat, prods] of Object.entries(products_bycat)) {
+    html += `<div class="kiemle-group"><div class="kiemle-group-header" style="${accentClass}">${cat}</div>`;
     prods.forEach(p => {
-      const cur = kiemleMapping[p.name] || '';
-      html += `<div class="kiemle-row">
+      const cur = currentMapping[p.name] || '';
+      const label = cur || placeholder;
+      const isMapped = !!cur;
+      html += `<div class="kiemle-row" data-rowname="${p.name.toLowerCase()}">
         <span class="kiemle-row-name">${p.name}</span>
-        <select data-hofmarkt="${p.name}" onchange="this.classList.toggle('mapped',!!this.value)">
-          <option value="">— kein Kiemle-Artikel —</option>
-          ${KIEMLE_PRODUCTS.map(kp =>
-            `<option value="${kp.name}"${kp.name===cur?' selected':''}>${kp.name} (${kp.unit})</option>`
-          ).join('')}
-        </select>
+        <div class="map-dd" data-hofmarkt="${p.name}" data-value="${cur}">
+          <div class="map-dd-input ${isMapped ? (accentClass.includes('8a2d') ? 'merz-mapped' : 'mapped') : ''}"
+               onclick="openMapDD(this)">${label}</div>
+          <span class="map-dd-arrow">▼</span>
+          <div class="map-dd-panel" data-options='${JSON.stringify(options).replace(/'/g,"&#39;")}' data-accent="${accentClass.includes('8a2d') ? 'merz' : 'kiemle'}">
+            <input class="map-dd-search" type="search" placeholder="Suchen…" oninput="filterMapDD(this)" onclick="event.stopPropagation()">
+            <div class="map-dd-list"></div>
+          </div>
+        </div>
       </div>`;
     });
     html += `</div>`;
   }
-  document.getElementById('kiemle-mapping-body').innerHTML = html;
-  document.querySelectorAll('#kiemle-mapping-body select').forEach(sel => {
-    sel.classList.toggle('mapped', !!sel.value);
-  });
-  document.getElementById('kiemle-modal').classList.remove('hidden');
-  const searchEl = document.getElementById('kiemle-search');
-  if(searchEl) { searchEl.value = ''; filterKiemleRows(''); }
+  return html;
 }
 
-function filterKiemleRows(query) {
+function openMapDD(inputEl) {
+  const dd = inputEl.closest('.map-dd');
+  const panel = dd.querySelector('.map-dd-panel');
+
+  // Schließe anderes offenes Panel
+  if(_activeMapDD && _activeMapDD !== panel) {
+    _activeMapDD.classList.remove('open');
+    _activeMapDD = null;
+  }
+
+  if(panel.classList.contains('open')) {
+    panel.classList.remove('open');
+    _activeMapDD = null;
+    return;
+  }
+
+  // Position berechnen
+  const rect = inputEl.getBoundingClientRect();
+  panel.style.top  = (rect.bottom + 4) + 'px';
+  panel.style.left = Math.max(4, rect.left) + 'px';
+
+  // Optionen rendern falls noch leer
+  const list = panel.querySelector('.map-dd-list');
+  if(!list.children.length) renderMapDDOptions(panel, '');
+
+  panel.classList.add('open');
+  _activeMapDD = panel;
+  setTimeout(() => panel.querySelector('.map-dd-search')?.focus(), 60);
+}
+
+function renderMapDDOptions(panel, query) {
   const q = query.toLowerCase();
-  document.querySelectorAll('#kiemle-mapping-body .kiemle-row').forEach(row => {
-    const name = row.querySelector('.kiemle-row-name')?.textContent?.toLowerCase() || '';
-    const sel  = row.querySelector('select')?.value?.toLowerCase() || '';
-    row.style.display = (!q || name.includes(q) || sel.includes(q)) ? '' : 'none';
+  const opts = JSON.parse(panel.dataset.options);
+  const dd   = panel.closest('.map-dd');
+  const cur  = dd.dataset.value || '';
+  const accent = panel.dataset.accent;
+  const list = panel.querySelector('.map-dd-list');
+
+  const filtered = opts.filter(o => !q || o.toLowerCase().includes(q));
+  let html = `<div class="map-dd-option clear-opt" onclick="selectMapDD(this,'')">— kein Artikel —</div>`;
+  if(!filtered.length) {
+    html += `<div class="map-dd-empty">Kein Treffer</div>`;
+  } else {
+    filtered.forEach(o => {
+      const sel = o === cur ? ` is-selected${accent==='merz'?' merz':''}` : '';
+      html += `<div class="map-dd-option${sel}" onclick="selectMapDD(this,'${o.replace(/'/g,"\'")}')">${o}</div>`;
+    });
+  }
+  list.innerHTML = html;
+}
+
+function filterMapDD(searchInput) {
+  const panel = searchInput.closest('.map-dd-panel');
+  renderMapDDOptions(panel, searchInput.value);
+}
+
+function selectMapDD(optEl, value) {
+  const panel = optEl.closest('.map-dd-panel');
+  const dd    = panel.closest('.map-dd');
+  const inputEl = dd.querySelector('.map-dd-input');
+  const accent  = panel.dataset.accent;
+  const placeholder = accent === 'merz' ? '— kein Merz-Artikel —' : '— kein Kiemle-Artikel —';
+
+  dd.dataset.value = value;
+  inputEl.textContent = value || placeholder;
+  const mappedClass = accent === 'merz' ? 'merz-mapped' : 'mapped';
+  inputEl.classList.toggle(mappedClass, !!value);
+
+  panel.classList.remove('open');
+  _activeMapDD = null;
+  panel.querySelector('.map-dd-search').value = '';
+}
+
+// Globales Schließen bei Klick außerhalb
+document.addEventListener('click', e => {
+  if(_activeMapDD && !e.target.closest('.map-dd')) {
+    _activeMapDD.classList.remove('open');
+    _activeMapDD = null;
+  }
+});
+
+function getHofmarktProductsBycat() {
+  const bycat = {};
+  document.querySelectorAll('#main .category').forEach(catEl => {
+    const catname = catEl.dataset.catname;
+    catEl.querySelectorAll('.item').forEach(it => {
+      if(!bycat[catname]) bycat[catname] = [];
+      bycat[catname].push({name: it.dataset.name});
+    });
   });
-  document.querySelectorAll('#kiemle-mapping-body .kiemle-group').forEach(grp => {
-    const visibleRows = [...grp.querySelectorAll('.kiemle-row')].filter(r => r.style.display !== 'none');
-    grp.style.display = visibleRows.length > 0 ? '' : 'none';
+  return bycat;
+}
+
+function readMappingFromDD(bodyId) {
+  const mapping = {};
+  document.querySelectorAll(`#${bodyId} .map-dd`).forEach(dd => {
+    const k = dd.dataset.hofmarkt;
+    const v = dd.dataset.value || '';
+    mapping[k] = v;
   });
+  return mapping;
+}
+
+function filterMappingRows(bodyId, query) {
+  const q = query.toLowerCase();
+  document.querySelectorAll(`#${bodyId} .kiemle-row`).forEach(row => {
+    const name = (row.dataset.rowname || '').toLowerCase();
+    const val  = (row.querySelector('.map-dd')?.dataset?.value || '').toLowerCase();
+    row.style.display = (!q || name.includes(q) || val.includes(q)) ? '' : 'none';
+  });
+  document.querySelectorAll(`#${bodyId} .kiemle-group`).forEach(grp => {
+    const visible = [...grp.querySelectorAll('.kiemle-row')].filter(r => r.style.display !== 'none');
+    grp.style.display = visible.length ? '' : 'none';
+  });
+}
+
+function openKiemleMapping() {
+  loadKiemleMapping();
+  const bycat = getHofmarktProductsBycat();
+  const opts = KIEMLE_PRODUCTS.map(kp => `${kp.name} (${kp.unit})`);
+  // Mapping: key=hofmarktName, value=kiemleArtikel mit Unit
+  // Aber gespeichert wird nur der Name → wir brauchen opts ohne unit fürs value
+  // → baue opts als Namen (ohne unit) für value, zeige mit unit
+  const optsNames = KIEMLE_PRODUCTS.map(kp => kp.name);
+  const html = buildMappingRows('kiemle-mapping-body', bycat, kiemleMapping, optsNames,
+    'background:#5B3A8E', '— kein Kiemle-Artikel —');
+  document.getElementById('kiemle-mapping-body').innerHTML = html;
+  document.getElementById('kiemle-modal').classList.remove('hidden');
+  const searchEl = document.getElementById('kiemle-search');
+  if(searchEl) { searchEl.value = ''; filterMappingRows('kiemle-mapping-body', ''); }
+}
+
+function filterKiemleRows(q) { filterMappingRows('kiemle-mapping-body', q); }
+
+async function saveKiemleMapping() {
+  kiemleMapping = readMappingFromDD('kiemle-mapping-body');
+  localStorage.setItem('hofmarkt_kiemle_mapping', JSON.stringify(kiemleMapping));
+  try { await apiPost({action: 'saveKiemleMapping', mapping: kiemleMapping}); } catch(e) {}
+  closeKiemleMapping();
+  showToast('Kiemle Zuordnung gespeichert ✓');
 }
 
 function closeKiemleMapping() {
@@ -3047,9 +3182,7 @@ function loadMerzMapping() {
 }
 
 async function saveMerzMapping() {
-  document.querySelectorAll('#merz-mapping-body select').forEach(sel => {
-    merzMapping[sel.dataset.hofmarkt] = sel.value;
-  });
+  merzMapping = readMappingFromDD('merz-mapping-body');
   localStorage.setItem('hofmarkt_merz_mapping', JSON.stringify(merzMapping));
   try { await apiPost({action: 'saveMerzMapping', mapping: merzMapping}); } catch(e) {}
   closeMerzMapping();
@@ -3065,53 +3198,16 @@ function loadMerzMappingFromServer(serverData) {
 
 function openMerzMapping() {
   loadMerzMapping();
-  const hofmarktProducts = [];
-  document.querySelectorAll('#main .category').forEach(catEl => {
-    const catname = catEl.dataset.catname;
-    catEl.querySelectorAll('.item').forEach(it => {
-      hofmarktProducts.push({catname, name: it.dataset.name});
-    });
-  });
-  const bycat = {};
-  hofmarktProducts.forEach(p => {
-    if(!bycat[p.catname]) bycat[p.catname] = [];
-    bycat[p.catname].push(p);
-  });
-  let html = '';
-  for(const [cat, prods] of Object.entries(bycat)) {
-    html += `<div class="kiemle-group"><div class="kiemle-group-header" style="background:#8a2d1a">${cat}</div>`;
-    prods.forEach(p => {
-      const cur = merzMapping[p.name] || '';
-      html += `<div class="kiemle-row">
-        <span class="kiemle-row-name">${p.name}</span>
-        <select data-hofmarkt="${p.name}" onchange="this.classList.toggle('merz-mapped',!!this.value)" style="border-color:${cur?'#8a2d1a':''}; background:${cur?'#fef3f0':''}; color:${cur?'#5a1a0a':''}; font-weight:${cur?'600':'400'}">
-          <option value="">— kein Merz-Artikel —</option>
-          ${MERZ_PRODUCTS.map(mp =>
-            `<option value="${mp}"${mp===cur?' selected':''}>${mp}</option>`
-          ).join('')}
-        </select>
-      </div>`;
-    });
-    html += `</div>`;
-  }
+  const bycat = getHofmarktProductsBycat();
+  const html = buildMappingRows('merz-mapping-body', bycat, merzMapping, MERZ_PRODUCTS,
+    'background:#8a2d1a', '— kein Merz-Artikel —');
   document.getElementById('merz-mapping-body').innerHTML = html;
   document.getElementById('merz-modal').classList.remove('hidden');
   const searchEl = document.getElementById('merz-search');
-  if(searchEl) { searchEl.value = ''; filterMerzRows(''); }
+  if(searchEl) { searchEl.value = ''; filterMappingRows('merz-mapping-body', ''); }
 }
 
-function filterMerzRows(query) {
-  const q = query.toLowerCase();
-  document.querySelectorAll('#merz-mapping-body .kiemle-row').forEach(row => {
-    const name = row.querySelector('.kiemle-row-name')?.textContent?.toLowerCase() || '';
-    const sel  = row.querySelector('select')?.value?.toLowerCase() || '';
-    row.style.display = (!q || name.includes(q) || sel.includes(q)) ? '' : 'none';
-  });
-  document.querySelectorAll('#merz-mapping-body .kiemle-group').forEach(grp => {
-    const visibleRows = [...grp.querySelectorAll('.kiemle-row')].filter(r => r.style.display !== 'none');
-    grp.style.display = visibleRows.length > 0 ? '' : 'none';
-  });
-}
+function filterMerzRows(q) { filterMappingRows('merz-mapping-body', q); }
 
 function closeMerzMapping() {
   document.getElementById('merz-modal').classList.add('hidden');
@@ -3196,8 +3292,8 @@ async function confirmMerzDate() {
     'Mangold':103.0,'Spinat':89.6,
   };
   // Checkbox-Positionen (Mitte der Checkbox-Felder)
-  const CB_RECHNUNG_X    = 52.8,  CB_RECHNUNG_Y    = 318.5;
-  const CB_LIEFERSCHEIN_X = 181.8, CB_LIEFERSCHEIN_Y = 318.5;
+  const CB_RECHNUNG_X    = 52.8,  CB_RECHNUNG_Y    = 323.7;
+  const CB_LIEFERSCHEIN_X = 185.0, CB_LIEFERSCHEIN_Y = 323.7;
   // Datum-Feld (Baseline innerhalb des Feldes)
   const DATUM_X = 76, DATUM_Y = 293.0;
 
