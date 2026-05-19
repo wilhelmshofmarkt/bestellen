@@ -645,7 +645,7 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
       <button class="btn-print" onclick="shareList('bestellen')" style="background:#1A6BA0;box-shadow:0 3px 0 #0f4a73;margin-top:6px">📤 Einkaufszettel teilen</button>
       <button class="btn-kiemle" onclick="downloadKiemleXLS()">📥 Kiemle Bestellformular</button>
       <button class="btn-kiemle" onclick="downloadMerzPDF()" style="background:#8a2d1a;box-shadow:0 3px 0 #5a1a0a">📥 Merz Bestellformular</button>
-      <button class="btn-kiemle" onclick="openKiemleMapping()" style="background:#3a1f6e;box-shadow:0 3px 0 #1e0f3a">⚙️ Kiemle Zuordnung</button>
+      <button class="btn-kiemle" onclick="openZuordnungMenu()" style="background:#2c4a7a;box-shadow:0 3px 0 #162840">⚙️ Zuordnung / Konfiguration</button>
       <button class="btn-clear" onclick="clearBestellen()">Bestellmengen löschen</button>
     </div>
     <div class="summary-section gesamt-section">
@@ -693,15 +693,61 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
 <div id="merz-date-modal" class="modal-overlay hidden">
   <div class="modal-sheet">
     <h2>📅 Merz – Lieferdatum wählen</h2>
-    <p>Für welches Datum soll das Merz-Bestellformular gelten?</p>
-    <div style="display:flex;gap:10px;margin-bottom:12px">
-      <button id="merz-type-rechnung" class="btn-modal-ok" onclick="setMerzDocType('rechnung')" style="flex:1">☑ Rechnung</button>
-      <button id="merz-type-lieferschein" class="btn-modal-ok" onclick="setMerzDocType('lieferschein')" style="flex:1;opacity:.45;background:#666;box-shadow:0 3px 0 #333">☐ Lieferschein</button>
+    <p>Dokumenttyp und Datum für das Merz-Bestellformular wählen.</p>
+    <div style="display:flex;gap:10px;margin-bottom:14px">
+      <label style="display:flex;align-items:center;gap:8px;flex:1;padding:10px 12px;border:2px solid #ddd;border-radius:10px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:600;transition:all .15s" id="merz-check-label-rechnung">
+        <input type="checkbox" id="merz-check-rechnung" checked onchange="updateMerzCheckStyle()" style="width:16px;height:16px;cursor:pointer;accent-color:#8a2d1a">
+        Rechnung
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;flex:1;padding:10px 12px;border:2px solid #ddd;border-radius:10px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:600;transition:all .15s" id="merz-check-label-lieferschein">
+        <input type="checkbox" id="merz-check-lieferschein" onchange="updateMerzCheckStyle()" style="width:16px;height:16px;cursor:pointer;accent-color:#8a2d1a">
+        Lieferschein
+      </label>
     </div>
     <input type="date" id="merz-date-input" style="width:100%;padding:10px;border:1.5px solid #ddd;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:1rem;margin-bottom:16px;outline:none">
     <div class="modal-actions">
-      <button class="btn-modal-ok" onclick="confirmMerzDate()">📥 Herunterladen</button>
+      <button class="btn-modal-ok" style="background:#8a2d1a;box-shadow:0 3px 0 #5a1a0a" onclick="confirmMerzDate()">📥 Herunterladen</button>
       <button class="btn-modal-cancel" onclick="document.getElementById('merz-date-modal').classList.add('hidden')">Abbrechen</button>
+    </div>
+  </div>
+</div>
+
+<!-- ZUORDNUNG MENU MODAL -->
+<div id="zuordnung-menu-modal" class="modal-overlay hidden" onclick="if(event.target===this)closeZuordnungMenu()">
+  <div class="modal-sheet" style="padding-bottom:28px">
+    <h2>&#9881;&#65039; Zuordnung / Konfiguration</h2>
+    <p>Welche Zuordnung möchtest du bearbeiten?</p>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-top:4px">
+      <button onclick="closeZuordnungMenu();openKiemleMapping()" style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:#5B3A8E;color:white;border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:700;cursor:pointer;box-shadow:0 3px 0 #3a1f6e;text-align:left">
+        <span style="font-size:1.3rem">&#128995;</span>
+        <span>
+          <span style="display:block">Kiemle Zuordnung</span>
+          <span style="font-size:.74rem;opacity:.75;font-weight:400">Hofmarkt-Produkte &#8594; Kiemle-Artikel zuordnen</span>
+        </span>
+      </button>
+      <button onclick="closeZuordnungMenu();openMerzMapping()" style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:#8a2d1a;color:white;border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:700;cursor:pointer;box-shadow:0 3px 0 #5a1a0a;text-align:left">
+        <span style="font-size:1.3rem">&#128997;</span>
+        <span>
+          <span style="display:block">Merz Zuordnung</span>
+          <span style="font-size:.74rem;opacity:.75;font-weight:400">Hofmarkt-Produkte &#8594; Merz-Artikel zuordnen</span>
+        </span>
+      </button>
+    </div>
+    <button class="btn-modal-cancel" onclick="closeZuordnungMenu()" style="width:100%;margin-top:14px">Abbrechen</button>
+  </div>
+</div>
+
+<!-- MERZ MAPPING MODAL -->
+<div id="merz-modal" class="kiemle-modal hidden">
+  <div class="kiemle-sheet">
+    <h2 style="color:#8a2d1a">&#9881;&#65039; Merz Zuordnung</h2>
+    <p>Welches Hofmarkt-Produkt entspricht welchem Merz-Artikel?</p>
+    <input type="search" id="merz-search" placeholder="&#128269; Suchen..." oninput="filterMerzRows(this.value)"
+      style="width:100%;box-sizing:border-box;padding:9px 12px;border:1.5px solid #ccc;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:.88rem;margin-bottom:12px;outline:none;">
+    <div id="merz-mapping-body"></div>
+    <div class="kiemle-footer">
+      <button class="btn-kiemle-save" style="background:#8a2d1a" onclick="saveMerzMapping()">&#10003; Speichern</button>
+      <button class="btn-kiemle-cancel" onclick="closeMerzMapping()">Abbrechen</button>
     </div>
   </div>
 </div>
@@ -2956,28 +3002,131 @@ async function confirmKiemleDate() {
   showToast('Kiemle Bestellformular heruntergeladen ✓');
 }
 
-// ── MERZ ────────────────────────────────────────────────────────
-let merzDocType = 'rechnung';
+// ── ZUORDNUNG MENU ───────────────────────────────────────────────
+function openZuordnungMenu() {
+  document.getElementById('zuordnung-menu-modal').classList.remove('hidden');
+}
+function closeZuordnungMenu() {
+  document.getElementById('zuordnung-menu-modal').classList.add('hidden');
+}
 
-function setMerzDocType(type) {
-  merzDocType = type;
-  const rBtn = document.getElementById('merz-type-rechnung');
-  const lBtn = document.getElementById('merz-type-lieferschein');
-  if(type === 'rechnung') {
-    rBtn.style.opacity='1';rBtn.style.background='';rBtn.style.boxShadow='';rBtn.textContent='☑ Rechnung';
-    lBtn.style.opacity='.45';lBtn.style.background='#666';lBtn.style.boxShadow='0 3px 0 #333';lBtn.textContent='☐ Lieferschein';
-  } else {
-    lBtn.style.opacity='1';lBtn.style.background='';lBtn.style.boxShadow='';lBtn.textContent='☑ Lieferschein';
-    rBtn.style.opacity='.45';rBtn.style.background='#666';rBtn.style.boxShadow='0 3px 0 #333';rBtn.textContent='☐ Rechnung';
+// ── MERZ MAPPING ─────────────────────────────────────────────────
+const MERZ_PRODUCTS = [
+  'Kopfsalat','Eissalat','Kopfsalat rot','Lollo Bionda','Lollo Rossa','Raisa grün','Raisa rot',
+  'Batavia grün','Batavia rot','Endivien','Romana','Salanova Mix','Salanova Crispy','Radicchio',
+  'Ackersalat','Blättle-Salat','Brunnenkresse','Kresse','Pflücksalat','Rucola','Winterpostelein',
+  'Kohlrabi','Weißkohl','Rotkohl','Wirsing','Spitzkohl','Broccoli','Grünkohl','Rosenkohl',
+  'Bohnen','Hokkaido','Zuccini','Zwiebelbund','Karotten','Karotten lose','Petersilienwurzel',
+  'Rote Rüben','Rote Rüben lose','Knollenfenchel','Knollensellerie','Staudensellerie','Lauch',
+  'Mangold','Spinat'
+];
+
+const MERZ_DEFAULT_MAPPING = {
+  'Kopfsalat':'Kopfsalat','Eissalat':'Eissalat','Kopfsalat rot':'Kopfsalat rot',
+  'Lollo grün':'Lollo Bionda','Lollo rot':'Lollo Rossa','Raisa grün':'Raisa grün','Raisa rot':'Raisa rot',
+  'Batavia grün':'Batavia grün','Batavia rot':'Batavia rot','Chicorée':'Endivien',
+  'Romana Herzen':'Romana','Schnittsalat':'Salanova Mix','Ackersalat Haus':'Ackersalat',
+  'Ackersalat Freiland':'Ackersalat','Rucola 10 Stk.':'Rucola','Pak Choi 3 kg':'Winterpostelein',
+  'Chinakohl':'Wirsing','Karotten':'Karotten','Karotten lose':'Karotten lose',
+  'Zucchini grün':'Zuccini','Hokkaido':'Hokkaido'
+};
+
+let merzMapping = {};
+
+function loadMerzMapping() {
+  try {
+    const s = localStorage.getItem('hofmarkt_merz_mapping');
+    merzMapping = s ? JSON.parse(s) : {...MERZ_DEFAULT_MAPPING};
+  } catch(e) { merzMapping = {...MERZ_DEFAULT_MAPPING}; }
+}
+
+async function saveMerzMapping() {
+  document.querySelectorAll('#merz-mapping-body select').forEach(sel => {
+    merzMapping[sel.dataset.hofmarkt] = sel.value;
+  });
+  localStorage.setItem('hofmarkt_merz_mapping', JSON.stringify(merzMapping));
+  try { await apiPost({action: 'saveMerzMapping', mapping: merzMapping}); } catch(e) {}
+  closeMerzMapping();
+  showToast('Merz Zuordnung gespeichert ✓');
+}
+
+function openMerzMapping() {
+  loadMerzMapping();
+  const hofmarktProducts = [];
+  document.querySelectorAll('#main .category').forEach(catEl => {
+    const catname = catEl.dataset.catname;
+    catEl.querySelectorAll('.item').forEach(it => {
+      hofmarktProducts.push({catname, name: it.dataset.name});
+    });
+  });
+  const bycat = {};
+  hofmarktProducts.forEach(p => {
+    if(!bycat[p.catname]) bycat[p.catname] = [];
+    bycat[p.catname].push(p);
+  });
+  let html = '';
+  for(const [cat, prods] of Object.entries(bycat)) {
+    html += `<div class="kiemle-group"><div class="kiemle-group-header" style="background:#8a2d1a">${cat}</div>`;
+    prods.forEach(p => {
+      const cur = merzMapping[p.name] || '';
+      html += `<div class="kiemle-row">
+        <span class="kiemle-row-name">${p.name}</span>
+        <select data-hofmarkt="${p.name}" onchange="this.classList.toggle('merz-mapped',!!this.value)" style="border-color:${cur?'#8a2d1a':''}; background:${cur?'#fef3f0':''}; color:${cur?'#5a1a0a':''}; font-weight:${cur?'600':'400'}">
+          <option value="">— kein Merz-Artikel —</option>
+          ${MERZ_PRODUCTS.map(mp =>
+            `<option value="${mp}"${mp===cur?' selected':''}>${mp}</option>`
+          ).join('')}
+        </select>
+      </div>`;
+    });
+    html += `</div>`;
   }
+  document.getElementById('merz-mapping-body').innerHTML = html;
+  document.getElementById('merz-modal').classList.remove('hidden');
+  const searchEl = document.getElementById('merz-search');
+  if(searchEl) { searchEl.value = ''; filterMerzRows(''); }
+}
+
+function filterMerzRows(query) {
+  const q = query.toLowerCase();
+  document.querySelectorAll('#merz-mapping-body .kiemle-row').forEach(row => {
+    const name = row.querySelector('.kiemle-row-name')?.textContent?.toLowerCase() || '';
+    const sel  = row.querySelector('select')?.value?.toLowerCase() || '';
+    row.style.display = (!q || name.includes(q) || sel.includes(q)) ? '' : 'none';
+  });
+  document.querySelectorAll('#merz-mapping-body .kiemle-group').forEach(grp => {
+    const visibleRows = [...grp.querySelectorAll('.kiemle-row')].filter(r => r.style.display !== 'none');
+    grp.style.display = visibleRows.length > 0 ? '' : 'none';
+  });
+}
+
+function closeMerzMapping() {
+  document.getElementById('merz-modal').classList.add('hidden');
+}
+
+document.addEventListener('click', e => {
+  const modal = document.getElementById('merz-modal');
+  if(e.target === modal) closeMerzMapping();
+});
+
+// ── MERZ PDF ─────────────────────────────────────────────────────
+function updateMerzCheckStyle() {
+  const rChecked = document.getElementById('merz-check-rechnung')?.checked;
+  const lChecked = document.getElementById('merz-check-lieferschein')?.checked;
+  const rLabel = document.getElementById('merz-check-label-rechnung');
+  const lLabel = document.getElementById('merz-check-label-lieferschein');
+  if(rLabel) rLabel.style.borderColor = rChecked ? '#8a2d1a' : '#ddd';
+  if(rLabel) rLabel.style.background  = rChecked ? '#fef3f0' : '';
+  if(lLabel) lLabel.style.borderColor = lChecked ? '#8a2d1a' : '#ddd';
+  if(lLabel) lLabel.style.background  = lChecked ? '#fef3f0' : '';
 }
 
 function downloadMerzPDF() {
-  merzDocType = 'rechnung';
-  const rBtn=document.getElementById('merz-type-rechnung');
-  const lBtn=document.getElementById('merz-type-lieferschein');
-  if(rBtn){rBtn.style.opacity='1';rBtn.style.background='';rBtn.textContent='☑ Rechnung';}
-  if(lBtn){lBtn.style.opacity='.45';lBtn.style.background='#666';lBtn.style.boxShadow='0 3px 0 #333';lBtn.textContent='☐ Lieferschein';}
+  const rCheck = document.getElementById('merz-check-rechnung');
+  const lCheck = document.getElementById('merz-check-lieferschein');
+  if(rCheck) rCheck.checked = true;
+  if(lCheck) lCheck.checked = false;
+  updateMerzCheckStyle();
   const today=new Date();
   const yyyy=today.getFullYear(),mm=String(today.getMonth()+1).padStart(2,'0'),dd=String(today.getDate()).padStart(2,'0');
   document.getElementById('merz-date-input').value=`${yyyy}-${mm}-${dd}`;
@@ -2985,6 +3134,14 @@ function downloadMerzPDF() {
 }
 
 async function confirmMerzDate() {
+  const wantRechnung    = document.getElementById('merz-check-rechnung')?.checked;
+  const wantLieferschein = document.getElementById('merz-check-lieferschein')?.checked;
+
+  if(!wantRechnung && !wantLieferschein) {
+    showToast('Bitte mindestens einen Dokumenttyp wählen.', true);
+    return;
+  }
+
   document.getElementById('merz-date-modal').classList.add('hidden');
   const dateVal=document.getElementById('merz-date-input').value;
   let dateStr='';
@@ -2998,14 +3155,14 @@ async function confirmMerzDate() {
     });
   }
 
+  loadMerzMapping();
+
   const orderQtys={};
   document.querySelectorAll('#main .category .item').forEach(it=>{
     const ins=it.querySelectorAll('.qty-input');if(!ins.length)return;
     const bestellen=parseFloat(ins[1]?.value)||0;
     if(bestellen>0)orderQtys[it.dataset.name]=bestellen;
   });
-
-  const MERZ_MAPPING={'Kopfsalat':'Kopfsalat','Eissalat':'Eissalat','Kopfsalat rot':'Kopfsalat rot','Lollo grün':'Lollo Bionda','Lollo rot':'Lollo Rossa','Raisa grün':'Raisa grün','Raisa rot':'Raisa rot','Batavia grün':'Batavia grün','Batavia rot':'Batavia rot','Chicorée':'Endivien','Romana Herzen':'Romana','Schnittsalat':'Salanova Mix','Ackersalat Haus':'Ackersalat','Ackersalat Freiland':'Ackersalat','Rucola 10 Stk.':'Rucola','Pak Choi 3 kg':'Winterpostelein','Chinakohl':'Wirsing','Karotten':'Karotten','Karotten lose':'Karotten lose','Zucchini grün':'Zuccini','Hokkaido':'Hokkaido'};
 
   const PDF_H=841.68;const sy=841.68/2338;const MENGE_X_RIGHT=775*(595.08/1654);
   const MERZ_PDF_POS={'Kopfsalat':{x:MENGE_X_RIGHT,y:PDF_H-136*sy},'Eissalat':{x:MENGE_X_RIGHT,y:PDF_H-180*sy},'Kopfsalat rot':{x:MENGE_X_RIGHT,y:PDF_H-224*sy},'Lollo Bionda':{x:MENGE_X_RIGHT,y:PDF_H-268*sy},'Lollo Rossa':{x:MENGE_X_RIGHT,y:PDF_H-311*sy},'Raisa grün':{x:MENGE_X_RIGHT,y:PDF_H-354*sy},'Raisa rot':{x:MENGE_X_RIGHT,y:PDF_H-398*sy},'Batavia grün':{x:MENGE_X_RIGHT,y:PDF_H-441*sy},'Batavia rot':{x:MENGE_X_RIGHT,y:PDF_H-484*sy},'Endivien':{x:MENGE_X_RIGHT,y:PDF_H-528*sy},'Romana':{x:MENGE_X_RIGHT,y:PDF_H-572*sy},'Salanova Mix':{x:MENGE_X_RIGHT,y:PDF_H-614*sy},'Salanova Crispy':{x:MENGE_X_RIGHT,y:PDF_H-658*sy},'Radicchio':{x:MENGE_X_RIGHT,y:PDF_H-701*sy},'Ackersalat':{x:MENGE_X_RIGHT,y:PDF_H-744*sy},'Blättle-Salat':{x:MENGE_X_RIGHT,y:PDF_H-788*sy},'Brunnenkresse':{x:MENGE_X_RIGHT,y:PDF_H-830*sy},'Kresse':{x:MENGE_X_RIGHT,y:PDF_H-874*sy},'Pflücksalat':{x:MENGE_X_RIGHT,y:PDF_H-917*sy},'Rucola':{x:MENGE_X_RIGHT,y:PDF_H-960*sy},'Winterpostelein':{x:MENGE_X_RIGHT,y:PDF_H-1004*sy},'Kohlrabi':{x:MENGE_X_RIGHT,y:PDF_H-1090*sy},'Weißkohl':{x:MENGE_X_RIGHT,y:PDF_H-1134*sy},'Rotkohl':{x:MENGE_X_RIGHT,y:PDF_H-1176*sy},'Wirsing':{x:MENGE_X_RIGHT,y:PDF_H-1220*sy},'Spitzkohl':{x:MENGE_X_RIGHT,y:PDF_H-1264*sy},'Broccoli':{x:MENGE_X_RIGHT,y:PDF_H-1306*sy},'Grünkohl':{x:MENGE_X_RIGHT,y:PDF_H-1350*sy},'Rosenkohl':{x:MENGE_X_RIGHT,y:PDF_H-1394*sy},'Bohnen':{x:MENGE_X_RIGHT,y:PDF_H-1436*sy},'Hokkaido':{x:MENGE_X_RIGHT,y:PDF_H-1480*sy},'Zuccini':{x:MENGE_X_RIGHT,y:PDF_H-1522*sy},'Zwiebelbund':{x:MENGE_X_RIGHT,y:PDF_H-1566*sy},'Karotten':{x:MENGE_X_RIGHT,y:PDF_H-1610*sy},'Karotten lose':{x:MENGE_X_RIGHT,y:PDF_H-1652*sy},'Petersilienwurzel':{x:MENGE_X_RIGHT,y:PDF_H-1696*sy},'Rote Rüben':{x:MENGE_X_RIGHT,y:PDF_H-1738*sy},'Rote Rüben lose':{x:MENGE_X_RIGHT,y:PDF_H-1782*sy},'Knollenfenchel':{x:MENGE_X_RIGHT,y:PDF_H-1826*sy},'Knollensellerie':{x:MENGE_X_RIGHT,y:PDF_H-1868*sy},'Staudensellerie':{x:MENGE_X_RIGHT,y:PDF_H-1912*sy},'Lauch':{x:MENGE_X_RIGHT,y:PDF_H-1954*sy},'Mangold':{x:MENGE_X_RIGHT,y:PDF_H-1998*sy},'Spinat':{x:MENGE_X_RIGHT,y:PDF_H-2040*sy}};
@@ -3014,37 +3171,46 @@ async function confirmMerzDate() {
   const DATUM_X=88.0,DATUM_Y=293.8,KUNDE_X=90.0,KUNDE_Y=266.4;
 
   let pdfBytes;
-  try{const resp=await fetch('merz.pdf');if(!resp.ok)throw new Error('not found');pdfBytes=await resp.arrayBuffer();}
-  catch(e){showToast('PDF-Vorlage nicht gefunden – merz.pdf muss im selben Ordner liegen',true);return;}
+  try{const resp=await fetch('Merz bestellungen.tmp.pdf');if(!resp.ok)throw new Error('not found');pdfBytes=await resp.arrayBuffer();}
+  catch(e){showToast('PDF-Vorlage nicht gefunden – "Merz bestellungen.tmp.pdf" muss im selben Ordner liegen',true);return;}
 
   const{PDFDocument,rgb,StandardFonts}=PDFLib;
-  const pdfDoc=await PDFDocument.load(pdfBytes);
-  const page=pdfDoc.getPages()[0];
-  const font=await pdfDoc.embedFont(StandardFonts.HelveticaBold);
   const FONT_SIZE=9.5,FONT_TEXT=9;
-
-  if(merzDocType==='rechnung')page.drawText('X',{x:RECHNUNG_X,y:CHECK_Y,size:10,font,color:rgb(0,0,0)});
-  else page.drawText('X',{x:LIEFER_X,y:CHECK_Y,size:10,font,color:rgb(0,0,0)});
-  page.drawText(dateStr,{x:DATUM_X,y:DATUM_Y,size:FONT_TEXT,font,color:rgb(0,0,0)});
-  page.drawText("Wilhelm's Hofmarkt",{x:KUNDE_X,y:KUNDE_Y,size:FONT_TEXT,font,color:rgb(0,0,0)});
-
-  for(const[hofName,qty]of Object.entries(orderQtys)){
-    const merzName=MERZ_MAPPING[hofName];if(!merzName)continue;
-    const pos=MERZ_PDF_POS[merzName];if(!pos)continue;
-    const text=String(Math.round(qty));
-    const textW=font.widthOfTextAtSize(text,FONT_SIZE);
-    page.drawText(text,{x:pos.x-textW,y:pos.y-FONT_SIZE*0.35,size:FONT_SIZE,font,color:rgb(0,0,0)});
-  }
-
-  const filledBytes=await pdfDoc.save();
-  const blob=new Blob([filledBytes],{type:'application/pdf'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  a.href=url;
   const[y,m,d]=(dateVal||'').split('-');
-  a.download=`Merz_Bestellung_${y||''}${m||''}${d||''}.pdf`;
-  a.click();URL.revokeObjectURL(url);
-  showToast('Merz Bestellformular heruntergeladen ✓');
+  const typesToGenerate = [];
+  if(wantRechnung)    typesToGenerate.push('rechnung');
+  if(wantLieferschein) typesToGenerate.push('lieferschein');
+
+  for(const docType of typesToGenerate) {
+    const pdfDoc=await PDFDocument.load(pdfBytes);
+    const page=pdfDoc.getPages()[0];
+    const font=await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+
+    if(docType==='rechnung') page.drawText('X',{x:RECHNUNG_X,y:CHECK_Y,size:10,font,color:rgb(0,0,0)});
+    else page.drawText('X',{x:LIEFER_X,y:CHECK_Y,size:10,font,color:rgb(0,0,0)});
+    page.drawText(dateStr,{x:DATUM_X,y:DATUM_Y,size:FONT_TEXT,font,color:rgb(0,0,0)});
+    page.drawText("Wilhelm's Hofmarkt",{x:KUNDE_X,y:KUNDE_Y,size:FONT_TEXT,font,color:rgb(0,0,0)});
+
+    for(const[hofName,qty]of Object.entries(orderQtys)){
+      const merzName=merzMapping[hofName];if(!merzName)continue;
+      const pos=MERZ_PDF_POS[merzName];if(!pos)continue;
+      const text=String(Math.round(qty));
+      const textW=font.widthOfTextAtSize(text,FONT_SIZE);
+      page.drawText(text,{x:pos.x-textW,y:pos.y-FONT_SIZE*0.35,size:FONT_SIZE,font,color:rgb(0,0,0)});
+    }
+
+    const filledBytes=await pdfDoc.save();
+    const blob=new Blob([filledBytes],{type:'application/pdf'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;
+    const suffix = docType === 'rechnung' ? 'Rechnung' : 'Lieferschein';
+    a.download=`Merz_Bestellung_${suffix}_${y||''}${m||''}${d||''}.pdf`;
+    a.click();
+    URL.revokeObjectURL(url);
+    await new Promise(r=>setTimeout(r,300));
+  }
+  showToast(typesToGenerate.length > 1 ? 'Merz PDFs heruntergeladen ✓' : 'Merz Bestellformular heruntergeladen ✓');
 }
 
 init();
