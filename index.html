@@ -3134,7 +3134,7 @@ function downloadMerzPDF() {
 }
 
 async function confirmMerzDate() {
-  const wantRechnung    = document.getElementById('merz-check-rechnung')?.checked;
+  const wantRechnung     = document.getElementById('merz-check-rechnung')?.checked;
   const wantLieferschein = document.getElementById('merz-check-lieferschein')?.checked;
 
   if(!wantRechnung && !wantLieferschein) {
@@ -3143,72 +3143,134 @@ async function confirmMerzDate() {
   }
 
   document.getElementById('merz-date-modal').classList.add('hidden');
-  const dateVal=document.getElementById('merz-date-input').value;
-  let dateStr='';
-  if(dateVal){const[y,m,d]=dateVal.split('-');dateStr=`${d}.${m}.${y}`;}
+  const dateVal = document.getElementById('merz-date-input').value;
+  let dateStr = '';
+  if(dateVal){ const[yy,mm,dd]=dateVal.split('-'); dateStr=`${dd}.${mm}.${yy}`; }
 
   if(!window.PDFLib){
     await new Promise((res,rej)=>{
       const s=document.createElement('script');
       s.src='https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js';
-      s.onload=res;s.onerror=rej;document.head.appendChild(s);
+      s.onload=res; s.onerror=rej; document.head.appendChild(s);
     });
   }
 
   loadMerzMapping();
 
-  const orderQtys={};
-  document.querySelectorAll('#main .category .item').forEach(it=>{
-    const ins=it.querySelectorAll('.qty-input');if(!ins.length)return;
-    const bestellen=parseFloat(ins[1]?.value)||0;
-    if(bestellen>0)orderQtys[it.dataset.name]=bestellen;
+  const orderQtys = {};
+  document.querySelectorAll('#main .category .item').forEach(it => {
+    const ins = it.querySelectorAll('.qty-input'); if(!ins.length) return;
+    const bestellen = parseFloat(ins[1]?.value) || 0;
+    if(bestellen > 0) orderQtys[it.dataset.name] = bestellen;
   });
 
-  const PDF_H=841.68;const sy=841.68/2338;const MENGE_X_RIGHT=775*(595.08/1654);
-  const MERZ_PDF_POS={'Kopfsalat':{x:MENGE_X_RIGHT,y:PDF_H-136*sy},'Eissalat':{x:MENGE_X_RIGHT,y:PDF_H-180*sy},'Kopfsalat rot':{x:MENGE_X_RIGHT,y:PDF_H-224*sy},'Lollo Bionda':{x:MENGE_X_RIGHT,y:PDF_H-268*sy},'Lollo Rossa':{x:MENGE_X_RIGHT,y:PDF_H-311*sy},'Raisa grün':{x:MENGE_X_RIGHT,y:PDF_H-354*sy},'Raisa rot':{x:MENGE_X_RIGHT,y:PDF_H-398*sy},'Batavia grün':{x:MENGE_X_RIGHT,y:PDF_H-441*sy},'Batavia rot':{x:MENGE_X_RIGHT,y:PDF_H-484*sy},'Endivien':{x:MENGE_X_RIGHT,y:PDF_H-528*sy},'Romana':{x:MENGE_X_RIGHT,y:PDF_H-572*sy},'Salanova Mix':{x:MENGE_X_RIGHT,y:PDF_H-614*sy},'Salanova Crispy':{x:MENGE_X_RIGHT,y:PDF_H-658*sy},'Radicchio':{x:MENGE_X_RIGHT,y:PDF_H-701*sy},'Ackersalat':{x:MENGE_X_RIGHT,y:PDF_H-744*sy},'Blättle-Salat':{x:MENGE_X_RIGHT,y:PDF_H-788*sy},'Brunnenkresse':{x:MENGE_X_RIGHT,y:PDF_H-830*sy},'Kresse':{x:MENGE_X_RIGHT,y:PDF_H-874*sy},'Pflücksalat':{x:MENGE_X_RIGHT,y:PDF_H-917*sy},'Rucola':{x:MENGE_X_RIGHT,y:PDF_H-960*sy},'Winterpostelein':{x:MENGE_X_RIGHT,y:PDF_H-1004*sy},'Kohlrabi':{x:MENGE_X_RIGHT,y:PDF_H-1090*sy},'Weißkohl':{x:MENGE_X_RIGHT,y:PDF_H-1134*sy},'Rotkohl':{x:MENGE_X_RIGHT,y:PDF_H-1176*sy},'Wirsing':{x:MENGE_X_RIGHT,y:PDF_H-1220*sy},'Spitzkohl':{x:MENGE_X_RIGHT,y:PDF_H-1264*sy},'Broccoli':{x:MENGE_X_RIGHT,y:PDF_H-1306*sy},'Grünkohl':{x:MENGE_X_RIGHT,y:PDF_H-1350*sy},'Rosenkohl':{x:MENGE_X_RIGHT,y:PDF_H-1394*sy},'Bohnen':{x:MENGE_X_RIGHT,y:PDF_H-1436*sy},'Hokkaido':{x:MENGE_X_RIGHT,y:PDF_H-1480*sy},'Zuccini':{x:MENGE_X_RIGHT,y:PDF_H-1522*sy},'Zwiebelbund':{x:MENGE_X_RIGHT,y:PDF_H-1566*sy},'Karotten':{x:MENGE_X_RIGHT,y:PDF_H-1610*sy},'Karotten lose':{x:MENGE_X_RIGHT,y:PDF_H-1652*sy},'Petersilienwurzel':{x:MENGE_X_RIGHT,y:PDF_H-1696*sy},'Rote Rüben':{x:MENGE_X_RIGHT,y:PDF_H-1738*sy},'Rote Rüben lose':{x:MENGE_X_RIGHT,y:PDF_H-1782*sy},'Knollenfenchel':{x:MENGE_X_RIGHT,y:PDF_H-1826*sy},'Knollensellerie':{x:MENGE_X_RIGHT,y:PDF_H-1868*sy},'Staudensellerie':{x:MENGE_X_RIGHT,y:PDF_H-1912*sy},'Lauch':{x:MENGE_X_RIGHT,y:PDF_H-1954*sy},'Mangold':{x:MENGE_X_RIGHT,y:PDF_H-1998*sy},'Spinat':{x:MENGE_X_RIGHT,y:PDF_H-2040*sy}};
-
-  const RECHNUNG_X=140*(595.08/1654),LIEFER_X=185.8,CHECK_Y=PDF_H-1460*sy;
-  const DATUM_X=88.0,DATUM_Y=293.8,KUNDE_X=90.0,KUNDE_Y=266.4;
+  // ── Exakte Feldnamen aus dem echten PDF (per PyMuPDF vermessen) ──
+  // Jeder Eintrag: Merz-Produktname → PDF-Formularfeldname (Menge-Spalte)
+  const MERZ_FIELD = {
+    'Kopfsalat':        'Text-Fe9COnQbge',
+    'Eissalat':         'Text-HGJw0Ke2hz',
+    'Kopfsalat rot':    'Text-Qz-Bbzzvnx',
+    'Lollo Bionda':     'Text-ZWRdbaNXbe',
+    'Lollo Rossa':      'Text-ZM8FFI4jOi',
+    'Raisa grün':       'Text-W9K3bUc_AL',
+    'Raisa rot':        'Text-MaKvQh0eTv',
+    'Batavia grün':     'Text-lENLh00p1M',
+    'Batavia rot':      'Text-DbU08Wa5Kw',
+    'Endivien':         'Text-E03B_yDX3h',
+    'Romana':           'Text-E20S7DBC9o',
+    'Salanova Mix':     'Text-hs3aSHbgvZ',
+    'Salanova Crispy':  'Text-vISyYA2w0t',
+    'Radicchio':        'Text-HS5PZ1tPlz',
+    'Ackersalat':       'Text--3RIkLR9o1',
+    'Blättle-Salat':    'Text-8McEGUA4RF',
+    'Brunnenkresse':    'Text-ufrmMipAGk',
+    'Kresse':           'Text-N0WVrtGULy',
+    'Pflücksalat':      'Text-y9_FXtYhgd',
+    'Rucola':           'Text-TAudjrK5sf',
+    'Winterpostelein':  'Text-ufB5LcO713',
+    'Kohlrabi':         'Text-fsFCAtFCbU',
+    'Weißkohl':         'Text-fg1zWO0nVl',
+    'Rotkohl':          'Text-v_9DcId6R5',
+    'Wirsing':          'Text-XwzKYeg_tr',
+    'Spitzkohl':        'Text-VuNkUBLFsG',
+    'Broccoli':         'Text-iF03RrLXRk',
+    'Grünkohl':         'Text-oAP3MujNLG',
+    'Rosenkohl':        'Text-DI8i7yWz0u',
+    'Bohnen':           'Text-1x13Bs2A-p',
+    'Hokkaido':         'Text-mzPhilBeds',
+    'Zuccini':          'Text-9Rd-darNnW',
+    'Zwiebelbund':      'Text-QDCpVc3o4L',
+    'Karotten':         'Text-91SdHLzWAq',
+    'Karotten lose':    'Text-Wr-IF-JfbR',
+    'Petersilienwurzel':'Text-4jmj3wCyzX',
+    'Rote Rüben':       'Text-TaurOcmaeU',
+    'Rote Rüben lose':  'Text-TiEFn_f9RB',
+    'Knollenfenchel':   'Text-us-n4F5YIN',
+    'Knollensellerie':  'Text-S4y1BDBE7T',
+    'Staudensellerie':  'Text-jCQfaSG51N',
+    'Lauch':            'Text-Vm0kctyfDT',
+    'Mangold':          'Text-zf2PufWlSv',
+    'Spinat':           'Text-srQQgEcfpT',
+  };
+  // Checkbox-Feldnamen (Rechnung / Lieferschein)
+  const FIELD_RECHNUNG    = 'CheckBox-1RcnFyIvrA';
+  const FIELD_LIEFERSCHEIN = 'CheckBox-9-X4QWPa4e';
+  // Datum- und Kunde-Feld
+  const FIELD_DATUM  = 'Date-VZmIMKyBGA';
+  const FIELD_KUNDE  = 'Paragraph-KVssI-dNMO';
 
   let pdfBytes;
-  try{const resp=await fetch('Merz bestellungen.tmp.pdf');if(!resp.ok)throw new Error('not found');pdfBytes=await resp.arrayBuffer();}
-  catch(e){showToast('PDF-Vorlage nicht gefunden – "Merz bestellungen.tmp.pdf" muss im selben Ordner liegen',true);return;}
+  try {
+    const resp = await fetch('Merz bestellungen.tmp.pdf');
+    if(!resp.ok) throw new Error('not found');
+    pdfBytes = await resp.arrayBuffer();
+  } catch(e) {
+    showToast('PDF-Vorlage nicht gefunden – "Merz bestellungen.tmp.pdf" muss im selben Ordner liegen', true);
+    return;
+  }
 
-  const{PDFDocument,rgb,StandardFonts}=PDFLib;
-  const FONT_SIZE=9.5,FONT_TEXT=9;
-  const[y,m,d]=(dateVal||'').split('-');
+  const { PDFDocument } = PDFLib;
+  const [yy, mm, dd] = (dateVal||'').split('-');
   const typesToGenerate = [];
-  if(wantRechnung)    typesToGenerate.push('rechnung');
+  if(wantRechnung)     typesToGenerate.push('rechnung');
   if(wantLieferschein) typesToGenerate.push('lieferschein');
 
   for(const docType of typesToGenerate) {
-    const pdfDoc=await PDFDocument.load(pdfBytes);
-    const page=pdfDoc.getPages()[0];
-    const font=await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+    const pdfDoc = await PDFDocument.load(pdfBytes, { ignoreEncryption: true });
+    const form   = pdfDoc.getForm();
 
-    if(docType==='rechnung') page.drawText('X',{x:RECHNUNG_X,y:CHECK_Y,size:10,font,color:rgb(0,0,0)});
-    else page.drawText('X',{x:LIEFER_X,y:CHECK_Y,size:10,font,color:rgb(0,0,0)});
-    page.drawText(dateStr,{x:DATUM_X,y:DATUM_Y,size:FONT_TEXT,font,color:rgb(0,0,0)});
-    page.drawText("Wilhelm's Hofmarkt",{x:KUNDE_X,y:KUNDE_Y,size:FONT_TEXT,font,color:rgb(0,0,0)});
+    // Datum & Kunde setzen
+    try { form.getTextField(FIELD_DATUM).setText(dateStr); } catch(e){}
+    try { form.getTextField(FIELD_KUNDE).setText("Wilhelm's Hofmarkt"); } catch(e){}
 
-    for(const[hofName,qty]of Object.entries(orderQtys)){
-      const merzName=merzMapping[hofName];if(!merzName)continue;
-      const pos=MERZ_PDF_POS[merzName];if(!pos)continue;
-      const text=String(Math.round(qty));
-      const textW=font.widthOfTextAtSize(text,FONT_SIZE);
-      page.drawText(text,{x:pos.x-textW,y:pos.y-FONT_SIZE*0.35,size:FONT_SIZE,font,color:rgb(0,0,0)});
+    // Checkboxen setzen
+    try {
+      const cbR = form.getCheckBox(FIELD_RECHNUNG);
+      const cbL = form.getCheckBox(FIELD_LIEFERSCHEIN);
+      if(docType === 'rechnung') { cbR.check(); cbL.uncheck(); }
+      else                       { cbL.check(); cbR.uncheck(); }
+    } catch(e){}
+
+    // Mengen eintragen
+    for(const [hofName, qty] of Object.entries(orderQtys)) {
+      const merzName = merzMapping[hofName]; if(!merzName) continue;
+      const fieldName = MERZ_FIELD[merzName]; if(!fieldName) continue;
+      try { form.getTextField(fieldName).setText(String(Math.round(qty))); } catch(e){}
     }
 
-    const filledBytes=await pdfDoc.save();
-    const blob=new Blob([filledBytes],{type:'application/pdf'});
-    const url=URL.createObjectURL(blob);
-    const a=document.createElement('a');
-    a.href=url;
+    // Formular einfrieren (flatten) damit Werte gedruckt werden
+    form.flatten();
+
+    const filledBytes = await pdfDoc.save();
+    const blob = new Blob([filledBytes], { type: 'application/pdf' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url;
     const suffix = docType === 'rechnung' ? 'Rechnung' : 'Lieferschein';
-    a.download=`Merz_Bestellung_${suffix}_${y||''}${m||''}${d||''}.pdf`;
+    a.download = `Merz_Bestellung_${suffix}_${yy||''}${mm||''}${dd||''}.pdf`;
     a.click();
     URL.revokeObjectURL(url);
-    await new Promise(r=>setTimeout(r,300));
+    await new Promise(r => setTimeout(r, 300));
   }
   showToast(typesToGenerate.length > 1 ? 'Merz PDFs heruntergeladen ✓' : 'Merz Bestellformular heruntergeladen ✓');
 }
