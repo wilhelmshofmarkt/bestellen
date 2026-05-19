@@ -1142,6 +1142,14 @@ async function init() {
     } else {
       loadKiemleMapping();
     }
+    if(d.merzMapping && Object.keys(d.merzMapping).length > 0) {
+      // Nur nicht-leere Werte aus dem Backend über Defaults legen
+      const clean = Object.fromEntries(Object.entries(d.merzMapping).filter(([,v])=>!!v));
+      merzMapping = {...MERZ_DEFAULT_MAPPING, ...clean};
+      localStorage.setItem('hofmarkt_merz_mapping', JSON.stringify(clean));
+    } else {
+      loadMerzMapping();
+    }
     sheetsOnline = true;
     setStatus(true);
     try { await flushSyncQueue(); } catch(e) {}
@@ -3036,15 +3044,21 @@ let merzMapping = {};
 function loadMerzMapping() {
   try {
     const s = localStorage.getItem('hofmarkt_merz_mapping');
-    merzMapping = s ? JSON.parse(s) : {...MERZ_DEFAULT_MAPPING};
+    const saved = s ? JSON.parse(s) : {};
+    // Leere Strings filtern, dann über Defaults legen
+    const cleanSaved = Object.fromEntries(Object.entries(saved).filter(([,v]) => !!v));
+    merzMapping = {...MERZ_DEFAULT_MAPPING, ...cleanSaved};
   } catch(e) { merzMapping = {...MERZ_DEFAULT_MAPPING}; }
 }
 
 async function saveMerzMapping() {
+  // Nur nicht-leere Zuordnungen speichern (leere würden Defaults überschreiben)
+  const newMapping = {};
   document.querySelectorAll('#merz-mapping-body select').forEach(sel => {
-    merzMapping[sel.dataset.hofmarkt] = sel.value;
+    if (sel.value) newMapping[sel.dataset.hofmarkt] = sel.value;
   });
-  localStorage.setItem('hofmarkt_merz_mapping', JSON.stringify(merzMapping));
+  merzMapping = {...MERZ_DEFAULT_MAPPING, ...newMapping};
+  localStorage.setItem('hofmarkt_merz_mapping', JSON.stringify(newMapping));
   try { await apiPost({action: 'saveMerzMapping', mapping: merzMapping}); } catch(e) {}
   closeMerzMapping();
   showToast('Merz Zuordnung gespeichert ✓');
