@@ -1142,14 +1142,6 @@ async function init() {
     } else {
       loadKiemleMapping();
     }
-    if(d.merzMapping && Object.keys(d.merzMapping).length > 0) {
-      // Nur nicht-leere Werte aus dem Backend über Defaults legen
-      const clean = Object.fromEntries(Object.entries(d.merzMapping).filter(([,v])=>!!v));
-      merzMapping = {...MERZ_DEFAULT_MAPPING, ...clean};
-      localStorage.setItem('hofmarkt_merz_mapping', JSON.stringify(clean));
-    } else {
-      loadMerzMapping();
-    }
     sheetsOnline = true;
     setStatus(true);
     try { await flushSyncQueue(); } catch(e) {}
@@ -3044,21 +3036,15 @@ let merzMapping = {};
 function loadMerzMapping() {
   try {
     const s = localStorage.getItem('hofmarkt_merz_mapping');
-    const saved = s ? JSON.parse(s) : {};
-    // Leere Strings filtern, dann über Defaults legen
-    const cleanSaved = Object.fromEntries(Object.entries(saved).filter(([,v]) => !!v));
-    merzMapping = {...MERZ_DEFAULT_MAPPING, ...cleanSaved};
+    merzMapping = s ? JSON.parse(s) : {...MERZ_DEFAULT_MAPPING};
   } catch(e) { merzMapping = {...MERZ_DEFAULT_MAPPING}; }
 }
 
 async function saveMerzMapping() {
-  // Nur nicht-leere Zuordnungen speichern (leere würden Defaults überschreiben)
-  const newMapping = {};
   document.querySelectorAll('#merz-mapping-body select').forEach(sel => {
-    if (sel.value) newMapping[sel.dataset.hofmarkt] = sel.value;
+    merzMapping[sel.dataset.hofmarkt] = sel.value;
   });
-  merzMapping = {...MERZ_DEFAULT_MAPPING, ...newMapping};
-  localStorage.setItem('hofmarkt_merz_mapping', JSON.stringify(newMapping));
+  localStorage.setItem('hofmarkt_merz_mapping', JSON.stringify(merzMapping));
   try { await apiPost({action: 'saveMerzMapping', mapping: merzMapping}); } catch(e) {}
   closeMerzMapping();
   showToast('Merz Zuordnung gespeichert ✓');
@@ -3178,60 +3164,29 @@ async function confirmMerzDate() {
     if(bestellen > 0) orderQtys[it.dataset.name] = bestellen;
   });
 
-  // ── Exakte Feldnamen aus dem echten PDF (per PyMuPDF vermessen) ──
-  // Jeder Eintrag: Merz-Produktname → PDF-Formularfeldname (Menge-Spalte)
-  const MERZ_FIELD = {
-    'Kopfsalat':        'Text-Fe9COnQbge',
-    'Eissalat':         'Text-HGJw0Ke2hz',
-    'Kopfsalat rot':    'Text-Qz-Bbzzvnx',
-    'Lollo Bionda':     'Text-ZWRdbaNXbe',
-    'Lollo Rossa':      'Text-ZM8FFI4jOi',
-    'Raisa grün':       'Text-W9K3bUc_AL',
-    'Raisa rot':        'Text-MaKvQh0eTv',
-    'Batavia grün':     'Text-lENLh00p1M',
-    'Batavia rot':      'Text-DbU08Wa5Kw',
-    'Endivien':         'Text-E03B_yDX3h',
-    'Romana':           'Text-E20S7DBC9o',
-    'Salanova Mix':     'Text-hs3aSHbgvZ',
-    'Salanova Crispy':  'Text-vISyYA2w0t',
-    'Radicchio':        'Text-HS5PZ1tPlz',
-    'Ackersalat':       'Text--3RIkLR9o1',
-    'Blättle-Salat':    'Text-8McEGUA4RF',
-    'Brunnenkresse':    'Text-ufrmMipAGk',
-    'Kresse':           'Text-N0WVrtGULy',
-    'Pflücksalat':      'Text-y9_FXtYhgd',
-    'Rucola':           'Text-TAudjrK5sf',
-    'Winterpostelein':  'Text-ufB5LcO713',
-    'Kohlrabi':         'Text-fsFCAtFCbU',
-    'Weißkohl':         'Text-fg1zWO0nVl',
-    'Rotkohl':          'Text-v_9DcId6R5',
-    'Wirsing':          'Text-XwzKYeg_tr',
-    'Spitzkohl':        'Text-VuNkUBLFsG',
-    'Broccoli':         'Text-iF03RrLXRk',
-    'Grünkohl':         'Text-oAP3MujNLG',
-    'Rosenkohl':        'Text-DI8i7yWz0u',
-    'Bohnen':           'Text-1x13Bs2A-p',
-    'Hokkaido':         'Text-mzPhilBeds',
-    'Zuccini':          'Text-9Rd-darNnW',
-    'Zwiebelbund':      'Text-QDCpVc3o4L',
-    'Karotten':         'Text-91SdHLzWAq',
-    'Karotten lose':    'Text-Wr-IF-JfbR',
-    'Petersilienwurzel':'Text-4jmj3wCyzX',
-    'Rote Rüben':       'Text-TaurOcmaeU',
-    'Rote Rüben lose':  'Text-TiEFn_f9RB',
-    'Knollenfenchel':   'Text-us-n4F5YIN',
-    'Knollensellerie':  'Text-S4y1BDBE7T',
-    'Staudensellerie':  'Text-jCQfaSG51N',
-    'Lauch':            'Text-Vm0kctyfDT',
-    'Mangold':          'Text-zf2PufWlSv',
-    'Spinat':           'Text-srQQgEcfpT',
+  // ── Exakt vermessene Y-Koordinaten (Baseline, pdf-lib Koordinatensystem: Y von unten) ──
+  // Menge-Spalte horizontal zentriert bei x=291
+  const MERZ_CX = 291;
+  const MERZ_POS = {
+    'Kopfsalat':790.3,'Eissalat':775.0,'Kopfsalat rot':759.6,'Lollo Bionda':743.6,
+    'Lollo Rossa':727.0,'Raisa grün':710.3,'Raisa rot':695.0,'Batavia grün':681.0,
+    'Batavia rot':665.6,'Endivien':649.0,'Romana':633.6,'Salanova Mix':617.6,
+    'Salanova Crispy':602.3,'Radicchio':587.0,'Ackersalat':571.6,
+    'Blättle-Salat':556.3,'Brunnenkresse':540.3,'Kresse':525.0,
+    'Pflücksalat':509.6,'Rucola':494.7,'Winterpostelein':478.7,
+    'Kohlrabi':432.2,'Weißkohl':416.8,'Rotkohl':400.5,'Wirsing':385.2,
+    'Spitzkohl':369.2,'Broccoli':353.2,'Grünkohl':337.8,'Rosenkohl':323.0,
+    'Bohnen':307.0,'Hokkaido':291.0,'Zuccini':275.6,'Zwiebelbund':260.3,
+    'Karotten':244.3,'Karotten lose':229.6,'Petersilienwurzel':213.0,
+    'Rote Rüben':197.6,'Rote Rüben lose':182.3,'Knollenfenchel':167.0,
+    'Knollensellerie':151.0,'Staudensellerie':135.6,'Lauch':119.6,
+    'Mangold':103.0,'Spinat':89.6,
   };
-  // Checkbox-Feldnamen (Rechnung / Lieferschein)
-  const FIELD_RECHNUNG    = 'CheckBox-1RcnFyIvrA';
-  const FIELD_LIEFERSCHEIN = 'CheckBox-9-X4QWPa4e';
-  // Datum- und Kunde-Feld
-  const FIELD_DATUM  = 'Date-VZmIMKyBGA';
-  const FIELD_KUNDE  = 'Paragraph-KVssI-dNMO';
+  // Checkbox-Positionen (Mitte der Checkbox-Felder)
+  const CB_RECHNUNG_X    = 52.8,  CB_RECHNUNG_Y    = 318.5;
+  const CB_LIEFERSCHEIN_X = 181.8, CB_LIEFERSCHEIN_Y = 318.5;
+  // Datum-Feld (Baseline innerhalb des Feldes)
+  const DATUM_X = 76, DATUM_Y = 293.0;
 
   let pdfBytes;
   try {
@@ -3243,7 +3198,7 @@ async function confirmMerzDate() {
     return;
   }
 
-  const { PDFDocument } = PDFLib;
+  const { PDFDocument, StandardFonts, rgb } = PDFLib;
   const [yy, mm, dd] = (dateVal||'').split('-');
   const typesToGenerate = [];
   if(wantRechnung)     typesToGenerate.push('rechnung');
@@ -3251,29 +3206,39 @@ async function confirmMerzDate() {
 
   for(const docType of typesToGenerate) {
     const pdfDoc = await PDFDocument.load(pdfBytes, { ignoreEncryption: true });
-    const form   = pdfDoc.getForm();
 
-    // Datum & Kunde setzen
-    try { form.getTextField(FIELD_DATUM).setText(dateStr); } catch(e){}
-    try { form.getTextField(FIELD_KUNDE).setText("Wilhelm's Hofmarkt"); } catch(e){}
+    // Formular abflachen damit drawText zuverlässig funktioniert
+    try { pdfDoc.getForm().flatten(); } catch(e){}
 
-    // Checkboxen setzen
-    try {
-      const cbR = form.getCheckBox(FIELD_RECHNUNG);
-      const cbL = form.getCheckBox(FIELD_LIEFERSCHEIN);
-      if(docType === 'rechnung') { cbR.check(); cbL.uncheck(); }
-      else                       { cbL.check(); cbR.uncheck(); }
-    } catch(e){}
+    const page = pdfDoc.getPages()[0];
+    const font = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+    const black = rgb(0,0,0);
+    const FONT_SIZE = 12;
 
-    // Mengen eintragen
-    for(const [hofName, qty] of Object.entries(orderQtys)) {
-      const merzName = merzMapping[hofName]; if(!merzName) continue;
-      const fieldName = MERZ_FIELD[merzName]; if(!fieldName) continue;
-      try { form.getTextField(fieldName).setText(String(Math.round(qty))); } catch(e){}
+    // Datum eintragen
+    if(dateStr) {
+      page.drawText(dateStr, { x: DATUM_X, y: DATUM_Y, size: FONT_SIZE, font, color: black });
     }
 
-    // Formular einfrieren (flatten) damit Werte gedruckt werden
-    form.flatten();
+    // Checkbox setzen (X in das richtige Feld)
+    if(docType === 'rechnung') {
+      page.drawText('X', { x: CB_RECHNUNG_X - 3, y: CB_RECHNUNG_Y - 2, size: 12, font, color: black });
+    } else {
+      page.drawText('X', { x: 177.8, y: CB_LIEFERSCHEIN_Y - 2, size: 12, font, color: black });
+    }
+
+    // Mengen eintragen (zentriert in Menge-Spalte)
+    for(const [hofName, qty] of Object.entries(orderQtys)) {
+      const merzName = merzMapping[hofName]; if(!merzName) continue;
+      const posY = MERZ_POS[merzName]; if(!posY) continue;
+      const text = String(Math.round(qty));
+      const tw = font.widthOfTextAtSize(text, FONT_SIZE);
+      page.drawText(text, {
+        x: MERZ_CX - tw / 2,
+        y: posY,
+        size: FONT_SIZE, font, color: black
+      });
+    }
 
     const filledBytes = await pdfDoc.save();
     const blob = new Blob([filledBytes], { type: 'application/pdf' });
