@@ -1125,6 +1125,8 @@ async function init() {
     dbg('⚠️ Offline-Modus');
     sheetsOnline = false;
     setStatus(false);
+    loadKiemleMapping();
+    loadMerzMapping();
     finish();
   }, 13000);
 
@@ -1157,6 +1159,8 @@ async function init() {
     sheetsOnline = false;
     setStatus(false);
     dbg('Offline: ' + e.message);
+    loadKiemleMapping();
+    loadMerzMapping();
   }
 
   finish();
@@ -2904,7 +2908,10 @@ async function confirmKiemleDate() {
     const ins = it.querySelectorAll('.qty-input');
     if(!ins.length) return;
     const bestellen = parseFloat(ins[1]?.value) || 0;
-    if(bestellen > 0) orderQtys[it.dataset.name] = bestellen;
+    if(bestellen <= 0) return;
+    const supplier = (it.querySelector('.supplier-select')?.value || '').toLowerCase();
+    if(!supplier.includes('kiemle')) return;
+    orderQtys[it.dataset.name] = bestellen;
   });
 
   const PAGE_H = 883.89;
@@ -3131,7 +3138,7 @@ function updateMerzCheckStyle() {
 function downloadMerzPDF() {
   const rCheck = document.getElementById('merz-check-rechnung');
   const lCheck = document.getElementById('merz-check-lieferschein');
-  if(rCheck) rCheck.checked = true;
+  if(rCheck) rCheck.checked = false;
   if(lCheck) lCheck.checked = false;
   updateMerzCheckStyle();
   const today=new Date();
@@ -3144,10 +3151,14 @@ async function confirmMerzDate() {
   const wantRechnung     = document.getElementById('merz-check-rechnung')?.checked;
   const wantLieferschein = document.getElementById('merz-check-lieferschein')?.checked;
 
+  // Kein Pflichtfeld: wenn nichts ausgewählt, Rechnung als Standard
   if(!wantRechnung && !wantLieferschein) {
-    showToast('Bitte mindestens einen Dokumenttyp wählen.', true);
-    return;
+    const rCheck = document.getElementById('merz-check-rechnung');
+    if(rCheck) rCheck.checked = true;
+    updateMerzCheckStyle();
   }
+  const wantRechnungFinal     = document.getElementById('merz-check-rechnung')?.checked ?? true;
+  const wantLieferscheinFinal = document.getElementById('merz-check-lieferschein')?.checked ?? false;
 
   document.getElementById('merz-date-modal').classList.add('hidden');
   const dateVal = document.getElementById('merz-date-input').value;
@@ -3162,13 +3173,16 @@ async function confirmMerzDate() {
     });
   }
 
-  loadMerzMapping();
+  // merzMapping ist beim Start bereits geladen – kein erneutes loadMerzMapping() nötig
 
   const orderQtys = {};
   document.querySelectorAll('#main .category .item').forEach(it => {
     const ins = it.querySelectorAll('.qty-input'); if(!ins.length) return;
     const bestellen = parseFloat(ins[1]?.value) || 0;
-    if(bestellen > 0) orderQtys[it.dataset.name] = bestellen;
+    if(bestellen <= 0) return;
+    const supplier = (it.querySelector('.supplier-select')?.value || '').toLowerCase();
+    if(!supplier.includes('merz')) return;
+    orderQtys[it.dataset.name] = bestellen;
   });
 
   // ── Exakt vermessene Y-Koordinaten (Baseline, pdf-lib Koordinatensystem: Y von unten) ──
@@ -3208,8 +3222,8 @@ async function confirmMerzDate() {
   const { PDFDocument, StandardFonts, rgb } = PDFLib;
   const [yy, mm, dd] = (dateVal||'').split('-');
   const typesToGenerate = [];
-  if(wantRechnung)     typesToGenerate.push('rechnung');
-  if(wantLieferschein) typesToGenerate.push('lieferschein');
+  if(wantRechnungFinal)     typesToGenerate.push('rechnung');
+  if(wantLieferscheinFinal) typesToGenerate.push('lieferschein');
 
   for(const docType of typesToGenerate) {
     const pdfDoc = await PDFDocument.load(pdfBytes, { ignoreEncryption: true });
