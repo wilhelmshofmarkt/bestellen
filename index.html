@@ -697,7 +697,7 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
     <p>Dokumenttyp und Datum für das Merz-Bestellformular wählen.</p>
     <div style="display:flex;gap:10px;margin-bottom:14px">
       <label style="display:flex;align-items:center;gap:8px;flex:1;padding:10px 12px;border:2px solid #ddd;border-radius:10px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:600;transition:all .15s" id="merz-check-label-rechnung">
-        <input type="checkbox" id="merz-check-rechnung" checked onchange="updateMerzCheckStyle()" style="width:16px;height:16px;cursor:pointer;accent-color:#8a2d1a">
+        <input type="checkbox" id="merz-check-rechnung" onchange="updateMerzCheckStyle()" style="width:16px;height:16px;cursor:pointer;accent-color:#8a2d1a">
         Rechnung
       </label>
       <label style="display:flex;align-items:center;gap:8px;flex:1;padding:10px 12px;border:2px solid #ddd;border-radius:10px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:600;transition:all .15s" id="merz-check-label-lieferschein">
@@ -2914,6 +2914,11 @@ async function confirmKiemleDate() {
     orderQtys[it.dataset.name] = bestellen;
   });
 
+  if(Object.keys(orderQtys).length === 0) {
+    showToast('Keine Artikel mit Lieferant „Kiemle" gefunden.', true);
+    return;
+  }
+
   const PAGE_H = 883.89;
   const Y_OFFSET = 7;
   const KIEMLE_PDF_POS = {
@@ -3148,11 +3153,9 @@ function downloadMerzPDF() {
 }
 
 async function confirmMerzDate() {
-  const wantRechnung     = document.getElementById('merz-check-rechnung')?.checked;
-  const wantLieferschein = document.getElementById('merz-check-lieferschein')?.checked;
-
   // Kein Pflichtfeld: wenn nichts ausgewählt, Rechnung als Standard
-  if(!wantRechnung && !wantLieferschein) {
+  if(!document.getElementById('merz-check-rechnung')?.checked &&
+     !document.getElementById('merz-check-lieferschein')?.checked) {
     const rCheck = document.getElementById('merz-check-rechnung');
     if(rCheck) rCheck.checked = true;
     updateMerzCheckStyle();
@@ -3184,6 +3187,11 @@ async function confirmMerzDate() {
     if(!supplier.includes('merz')) return;
     orderQtys[it.dataset.name] = bestellen;
   });
+
+  if(Object.keys(orderQtys).length === 0) {
+    showToast('Keine Artikel mit Lieferant „Merz" gefunden.', true);
+    return;
+  }
 
   // ── Exakt vermessene Y-Koordinaten (Baseline, pdf-lib Koordinatensystem: Y von unten) ──
   // Menge-Spalte horizontal zentriert bei x=291
