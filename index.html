@@ -175,6 +175,22 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
 .btn-print:active{transform:translateY(2px);box-shadow:0 1px 0 #000}
 .btn-kiemle{background:#5B3A8E;color:white;border:none;border-radius:8px;padding:8px 14px;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;margin:6px 14px 4px;box-shadow:0 3px 0 #3a1f6e;transition:all .1s}
 .btn-kiemle:active{transform:translateY(2px);box-shadow:0 1px 0 #3a1f6e}
+.btn-bestellmenu{background:#2D5016;color:white;border:none;border-radius:10px;padding:10px 14px;font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;margin:10px 14px 4px;box-shadow:0 3px 0 #1a3a0a;transition:all .1s;width:calc(100% - 28px)}
+.btn-bestellmenu:active{transform:translateY(2px);box-shadow:0 1px 0 #1a3a0a}
+.bestellmenu-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:3000;display:flex;align-items:flex-end;justify-content:center}
+.bestellmenu-overlay.hidden{display:none}
+.bestellmenu-sheet{background:var(--card, #fff);border-radius:22px 22px 0 0;padding:20px 0 32px;width:100%;max-width:520px;box-shadow:0 -4px 32px rgba(0,0,0,.18);max-height:92vh;overflow-y:auto}
+.bestellmenu-handle{width:38px;height:4px;border-radius:2px;background:rgba(0,0,0,.14);margin:0 auto 18px}
+.bestellmenu-title{font-family:'DM Sans',sans-serif;font-size:1.05rem;font-weight:800;color:var(--text,#1a1a1a);padding:0 20px 14px;border-bottom:1.5px solid var(--border,#eee);margin-bottom:8px}
+.bestellmenu-section{padding:6px 16px 2px;font-family:'DM Sans',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.06em;color:var(--muted,#888);text-transform:uppercase}
+.bestellmenu-row{display:flex;align-items:center;gap:12px;padding:12px 20px;cursor:pointer;border:none;background:transparent;width:100%;text-align:left;font-family:'DM Sans',sans-serif;transition:background .12s}
+.bestellmenu-row:hover{background:rgba(45,80,22,.07)}
+.bestellmenu-row:active{background:rgba(45,80,22,.13)}
+.bestellmenu-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
+.bestellmenu-label{flex:1}
+.bestellmenu-label strong{display:block;font-size:.9rem;font-weight:700;color:var(--text,#1a1a1a)}
+.bestellmenu-label span{font-size:.75rem;color:var(--muted,#888)}
+.bestellmenu-sep{height:1px;background:var(--border,#eee);margin:6px 20px}
 
 /* KIEMLE MAPPING MODAL */
 .kiemle-modal{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:600;display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;padding:20px 0 40px}
@@ -502,6 +518,14 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
   .onetime-add-row input[type=text],
   .onetime-add-row input[type=number]{background:var(--input-bg);border-color:var(--input-border);color:var(--text)}
   .onetime-item{background:rgba(255,255,255,.04);border-color:var(--border)}
+  .bestellmenu-sheet{background:#1e2a18}
+  .bestellmenu-title{color:#e8f5e0;border-bottom-color:rgba(255,255,255,.1)}
+  .bestellmenu-section{color:rgba(255,255,255,.4)}
+  .bestellmenu-sep{background:rgba(255,255,255,.08)}
+  .bestellmenu-row:hover{background:rgba(100,200,60,.08)}
+  .bestellmenu-label strong{color:#e8f5e0}
+  .bestellmenu-label span{color:rgba(255,255,255,.45)}
+  .bestellmenu-handle{background:rgba(255,255,255,.2)}
 }
 </style>
 </head>
@@ -642,11 +666,7 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
     <div class="summary-section bestell-section">
       <div class="summary-header"><h2>🛒 Zu bestellen</h2><span class="sum-count" id="bestell-count">0</span></div>
       <div id="bestell-list"></div>
-      <button class="btn-print" onclick="printEinkaufszettel()">🖨️ Einkaufszettel drucken</button>
-      <button class="btn-print" onclick="shareList('bestellen')" style="background:#1A6BA0;box-shadow:0 3px 0 #0f4a73;margin-top:6px">📤 Einkaufszettel teilen</button>
-      <button class="btn-kiemle" onclick="downloadKiemleXLS()">📥 Kiemle Bestellformular</button>
-      <button class="btn-kiemle" onclick="downloadMerzPDF()" style="background:#8a2d1a;box-shadow:0 3px 0 #5a1a0a">📥 Merz Bestellformular</button>
-      <button class="btn-kiemle" onclick="openZuordnungMenu()" style="background:#2c4a7a;box-shadow:0 3px 0 #162840">⚙️ Zuordnung / Konfiguration</button>
+      <button class="btn-bestellmenu" onclick="openBestellMenu()">📋 Bestelllisten &amp; Konfiguration</button>
       <button class="btn-clear" onclick="clearBestellen()">Bestellmengen löschen</button>
     </div>
     <div class="summary-section gesamt-section">
@@ -674,6 +694,49 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
       <button class="btn-kiemle-save" onclick="saveKiemleMapping()">✓ Speichern</button>
       <button class="btn-kiemle-cancel" onclick="closeKiemleMapping()">Abbrechen</button>
     </div>
+  </div>
+</div>
+
+<!-- BESTELLMENÜ BOTTOM SHEET -->
+<div id="bestellmenu-overlay" class="bestellmenu-overlay hidden" onclick="closeBestellMenuOutside(event)">
+  <div class="bestellmenu-sheet">
+    <div class="bestellmenu-handle"></div>
+    <div class="bestellmenu-title">📋 Bestelllisten &amp; Konfiguration</div>
+
+    <div class="bestellmenu-section">Einkaufszettel</div>
+    <button class="bestellmenu-row" onclick="bestellMenuAction('print')">
+      <div class="bestellmenu-icon" style="background:#1a1208">🖨️</div>
+      <div class="bestellmenu-label"><strong>Einkaufszettel drucken</strong><span>Als Druckansicht öffnen</span></div>
+    </button>
+    <button class="bestellmenu-row" onclick="bestellMenuAction('share')">
+      <div class="bestellmenu-icon" style="background:#0f2a40">📤</div>
+      <div class="bestellmenu-label"><strong>Einkaufszettel teilen</strong><span>Per Link oder App teilen</span></div>
+    </button>
+
+    <div class="bestellmenu-sep"></div>
+    <div class="bestellmenu-section">Lieferanten-Bestellformulare</div>
+    <button class="bestellmenu-row" onclick="bestellMenuAction('kiemle')">
+      <div class="bestellmenu-icon" style="background:#3a1f6e">📥</div>
+      <div class="bestellmenu-label"><strong>Kiemle Bestellformular</strong><span>Excel-Datei herunterladen</span></div>
+    </button>
+    <button class="bestellmenu-row" onclick="bestellMenuAction('merz')">
+      <div class="bestellmenu-icon" style="background:#5a1a0a">📥</div>
+      <div class="bestellmenu-label"><strong>Merz Bestellformular</strong><span>PDF herunterladen</span></div>
+    </button>
+    <button class="bestellmenu-row" onclick="bestellMenuAction('bauer')">
+      <div class="bestellmenu-icon" style="background:#2c5016">📥</div>
+      <div class="bestellmenu-label"><strong>Gärtnerei Bauer Bestellung</strong><span>PDF herunterladen</span></div>
+    </button>
+
+    <div class="bestellmenu-sep"></div>
+    <div class="bestellmenu-section">Einstellungen</div>
+    <button class="bestellmenu-row" onclick="bestellMenuAction('config')">
+      <div class="bestellmenu-icon" style="background:#162840">⚙️</div>
+      <div class="bestellmenu-label"><strong>Zuordnung / Konfiguration</strong><span>Lieferanten-Mappings verwalten</span></div>
+    </button>
+
+    <div class="bestellmenu-sep"></div>
+    <button class="bestellmenu-row" onclick="closeBestellMenu()" style="justify-content:center;color:var(--muted,#888);font-size:.88rem;font-weight:600">Schließen</button>
   </div>
 </div>
 
@@ -709,6 +772,19 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
     <div class="modal-actions">
       <button class="btn-modal-ok" style="background:#8a2d1a;box-shadow:0 3px 0 #5a1a0a" onclick="confirmMerzDate()">📥 Herunterladen</button>
       <button class="btn-modal-cancel" onclick="document.getElementById('merz-date-modal').classList.add('hidden')">Abbrechen</button>
+    </div>
+  </div>
+</div>
+
+<!-- BAUER DATE PICKER MODAL -->
+<div id="bauer-date-modal" class="modal-overlay hidden">
+  <div class="modal-sheet">
+    <h2>📅 Gärtnerei Bauer – Lieferdatum wählen</h2>
+    <p>Für welches Datum soll die Bestellung gelten?</p>
+    <input type="date" id="bauer-date-input" style="width:100%;padding:10px;border:1.5px solid #ddd;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:1rem;margin-bottom:16px;outline:none">
+    <div class="modal-actions">
+      <button class="btn-modal-ok" style="background:#4a7a2c;box-shadow:0 3px 0 #2c5016" onclick="confirmBauerDate()">📥 Herunterladen</button>
+      <button class="btn-modal-cancel" onclick="document.getElementById('bauer-date-modal').classList.add('hidden')">Abbrechen</button>
     </div>
   </div>
 </div>
@@ -3281,6 +3357,155 @@ async function confirmMerzDate() {
     await new Promise(r => setTimeout(r, 300));
   }
   showToast(typesToGenerate.length > 1 ? 'Merz PDFs heruntergeladen ✓' : 'Merz Bestellformular heruntergeladen ✓');
+}
+
+
+// ── GÄRTNEREI BAUER PDF ───────────────────────────────────────────────────
+// ── BESTELLMENÜ ──────────────────────────────────────────────────────────
+function openBestellMenu() {
+  document.getElementById('bestellmenu-overlay').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+function closeBestellMenu() {
+  document.getElementById('bestellmenu-overlay').classList.add('hidden');
+  document.body.style.overflow = '';
+}
+function closeBestellMenuOutside(e) {
+  if (e.target === document.getElementById('bestellmenu-overlay')) closeBestellMenu();
+}
+function bestellMenuAction(action) {
+  closeBestellMenu();
+  // kurze Verzögerung damit das Sheet sauber weganimt
+  setTimeout(() => {
+    if (action === 'print')  printEinkaufszettel();
+    if (action === 'share')  shareList('bestellen');
+    if (action === 'kiemle') downloadKiemleXLS();
+    if (action === 'merz')   downloadMerzPDF();
+    if (action === 'bauer')  downloadBauerPDF();
+    if (action === 'config') openZuordnungMenu();
+  }, 180);
+}
+
+// ── GÄRTNEREI BAUER PDF ───────────────────────────────────────────────────
+function downloadBauerPDF() {
+  const today = new Date();
+  const yyyy  = today.getFullYear();
+  const mm    = String(today.getMonth()+1).padStart(2,'0');
+  const dd    = String(today.getDate()).padStart(2,'0');
+  document.getElementById('bauer-date-input').value = `${yyyy}-${mm}-${dd}`;
+  document.getElementById('bauer-date-modal').classList.remove('hidden');
+}
+
+async function confirmBauerDate() {
+  document.getElementById('bauer-date-modal').classList.add('hidden');
+
+  const dateVal = document.getElementById('bauer-date-input').value;
+  let dateStr = '';
+  if (dateVal) {
+    const [yy, mm, dd] = dateVal.split('-');
+    dateStr = `${dd}.${mm}.${yy}`;
+  }
+
+  // Nur Artikel mit Lieferant "Gärtnerei Bauer"
+  const orderItems = [];
+  document.querySelectorAll('#main .category .item').forEach(it => {
+    const ins = it.querySelectorAll('.qty-input');
+    if (!ins.length) return;
+    const bestellen = parseFloat(ins[1]?.value) || 0;
+    if (bestellen <= 0) return;
+    const supplier = (it.querySelector('.supplier-select')?.value || '').toLowerCase();
+    if (!supplier.includes('bauer')) return;
+    orderItems.push({ name: it.dataset.name, qty: bestellen });
+  });
+
+  if (orderItems.length === 0) {
+    showToast('Keine Artikel mit Lieferant „Gärtnerei Bauer" gefunden.', true);
+    return;
+  }
+
+  if (!window.PDFLib) {
+    await new Promise((res, rej) => {
+      const s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js';
+      s.onload = res; s.onerror = rej;
+      document.head.appendChild(s);
+    });
+  }
+
+  // ── Vorlage laden ────────────────────────────────────────────────────────
+  let pdfBytes;
+  try {
+    const resp = await fetch('Bauer Bestellung.pdf');
+    if (!resp.ok) throw new Error('not found');
+    pdfBytes = await resp.arrayBuffer();
+  } catch(e) {
+    showToast('PDF-Vorlage nicht gefunden – "Bauer Bestellung.pdf" muss im selben Ordner liegen', true);
+    return;
+  }
+
+  const { PDFDocument, StandardFonts, rgb } = PDFLib;
+  const pdfDoc = await PDFDocument.load(pdfBytes, { ignoreEncryption: true });
+  try { pdfDoc.getForm().flatten(); } catch(e) {}
+
+  const page = pdfDoc.getPages()[0];
+  const { width: W, height: H } = page.getSize();
+  const font     = await pdfDoc.embedFont(StandardFonts.Helvetica);
+  const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+  const black    = rgb(0, 0, 0);
+  const FS       = 11;
+
+  // ── Datum eintragen (rechts oben im Metadaten-Block) ─────────────────────
+  // Position wird nach dem ersten Öffnen der Vorlage kalibriert.
+  // Standard: ca. 130pt von links, 618pt von unten (A4-Koordinatensystem)
+  if (dateStr) {
+    page.drawText(dateStr, {
+      x: window.BAUER_DATUM_X ?? 130,
+      y: window.BAUER_DATUM_Y ?? 618,
+      size: FS, font, color: black
+    });
+  }
+
+  // ── Einleitungstext-Datum ─────────────────────────────────────────────────
+  // "...auf dem Großmarkt für _____ vorzubereiten"
+  if (dateStr) {
+    page.drawText(dateStr, {
+      x: window.BAUER_INTRO_X ?? 294,
+      y: window.BAUER_INTRO_Y ?? 532,
+      size: FS, font, color: black
+    });
+  }
+
+  // ── Artikel in die Tabelle eintragen ─────────────────────────────────────
+  // Erste Zeile der Tabelle (Baseline der ersten Datenzeile)
+  const TABLE_START_Y = window.BAUER_TABLE_Y ?? 506;
+  const ROW_H         = window.BAUER_ROW_H   ?? 18.5;
+  const COL_ARTIKEL_X = window.BAUER_ART_X   ?? 75;
+  const COL_MENGE_X   = window.BAUER_MENGE_X ?? 360;
+
+  orderItems.forEach((it, idx) => {
+    const y = TABLE_START_Y - idx * ROW_H;
+    if (y < 80) return; // Seitenende schützen
+    page.drawText(it.name, {
+      x: COL_ARTIKEL_X, y, size: FS, font, color: black, maxWidth: 260
+    });
+    const qStr = String(Math.round(it.qty));
+    const qW   = font.widthOfTextAtSize(qStr, FS);
+    page.drawText(qStr, {
+      x: COL_MENGE_X - qW / 2, y, size: FS, font, color: black
+    });
+  });
+
+  // ── Speichern & Download ──────────────────────────────────────────────────
+  const filledBytes = await pdfDoc.save();
+  const blob = new Blob([filledBytes], { type: 'application/pdf' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  const [yy2, mm2, dd2] = (dateVal || '').split('-');
+  a.href     = url;
+  a.download = `Bauer_Bestellung_${yy2||''}${mm2||''}${dd2||''}.pdf`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Gärtnerei Bauer Bestellung heruntergeladen ✓');
 }
 
 init();
