@@ -3435,11 +3435,11 @@ async function confirmBauerDate() {
   // ── Vorlage laden ────────────────────────────────────────────────────────
   let pdfBytes;
   try {
-    const resp = await fetch('Bauer Bestellung.pdf');
+    const resp = await fetch('BestellungHofmarkt_GärtnereiBauer.pdf');
     if (!resp.ok) throw new Error('not found');
     pdfBytes = await resp.arrayBuffer();
   } catch(e) {
-    showToast('PDF-Vorlage nicht gefunden – "Bauer Bestellung.pdf" muss im selben Ordner liegen', true);
+    showToast('PDF-Vorlage nicht gefunden – "BestellungHofmarkt_GärtnereiBauer.pdf" muss im selben Ordner liegen', true);
     return;
   }
 
@@ -3448,20 +3448,17 @@ async function confirmBauerDate() {
   try { pdfDoc.getForm().flatten(); } catch(e) {}
 
   const page = pdfDoc.getPages()[0];
-  const { width: W, height: H } = page.getSize();
   const font     = await pdfDoc.embedFont(StandardFonts.Helvetica);
   const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
   const black    = rgb(0, 0, 0);
-  const FS       = 11;
+  const FS       = 10;
 
-  // ── Datum eintragen (rechts oben im Metadaten-Block) ─────────────────────
-  // Position wird nach dem ersten Öffnen der Vorlage kalibriert.
-  // Standard: ca. 130pt von links, 618pt von unten (A4-Koordinatensystem)
+  // ── Datum eintragen (Kopfbereich neben "Datum:") ─────────────────────
   if (dateStr) {
     page.drawText(dateStr, {
-      x: window.BAUER_DATUM_X ?? 130,
-      y: window.BAUER_DATUM_Y ?? 618,
-      size: FS, font, color: black
+      x: 95,
+      y: 558,
+      size: FS, font: fontBold, color: black
     });
   }
 
@@ -3469,29 +3466,28 @@ async function confirmBauerDate() {
   // "...auf dem Großmarkt für _____ vorzubereiten"
   if (dateStr) {
     page.drawText(dateStr, {
-      x: window.BAUER_INTRO_X ?? 294,
-      y: window.BAUER_INTRO_Y ?? 532,
-      size: FS, font, color: black
+      x: 355,
+      y: 463.5,
+      size: FS, font: fontBold, color: black
     });
   }
 
   // ── Artikel in die Tabelle eintragen ─────────────────────────────────────
-  // Erste Zeile der Tabelle (Baseline der ersten Datenzeile)
-  const TABLE_START_Y = window.BAUER_TABLE_Y ?? 506;
-  const ROW_H         = window.BAUER_ROW_H   ?? 18.5;
-  const COL_ARTIKEL_X = window.BAUER_ART_X   ?? 75;
-  const COL_MENGE_X   = window.BAUER_MENGE_X ?? 360;
+  const TABLE_START_Y = 409;
+  const ROW_H         = 23.5;
+  const COL_ARTIKEL_X = 80;
+  const COL_MENGE_X   = 350;
 
   orderItems.forEach((it, idx) => {
     const y = TABLE_START_Y - idx * ROW_H;
-    if (y < 80) return; // Seitenende schützen
+    if (y < 60) return; // Seitenende schützen
     page.drawText(it.name, {
-      x: COL_ARTIKEL_X, y, size: FS, font, color: black, maxWidth: 260
+      x: COL_ARTIKEL_X, y, size: FS, font, color: black, maxWidth: 240
     });
     const qStr = String(Math.round(it.qty));
     const qW   = font.widthOfTextAtSize(qStr, FS);
     page.drawText(qStr, {
-      x: COL_MENGE_X - qW / 2, y, size: FS, font, color: black
+      x: COL_MENGE_X - qW, y, size: FS, font: fontBold, color: black
     });
   });
 
