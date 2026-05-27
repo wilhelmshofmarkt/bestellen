@@ -6,6 +6,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Hofmarkt Bestellplan</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600&display=swap');
 :root{--bg:#F5F0E8;--card:#FFFDF8;--text:#1A1208;--muted:#8A7E6A;--danger:#C0392B;--success:#2D5016;--warn:#D4830A;--border:rgba(0,0,0,.09);--input-bg:#fff;--input-border:#d4c9b8;--chip-bg:#e8e0d0;--chip-active-bg:#2D5016;--summary-bg:#f0ece4;--hist-body:#fafaf7;--modal-bg:#fff}
@@ -248,7 +249,83 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
 .btn-hist-delete{background:transparent;color:var(--danger);border:1.5px solid var(--danger);border-radius:8px;padding:7px 12px;font-family:'DM Sans',sans-serif;font-size:.79rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px}
 .btn-hist-delete:hover{background:#fdeaea}
 
-/* DURCHSCHNITT */
+/* DURCHSCHNITT - ANALYSIS DASHBOARD */
+.analysis-header{background:linear-gradient(135deg,#2D5016,#1a3a0a);color:white;padding:14px 16px;border-radius:14px;margin-bottom:12px;box-shadow:0 3px 12px rgba(45,80,22,.2)}
+.analysis-header h2{font-family:'DM Serif Display',serif;font-size:1.15rem;margin:0 0 10px 0}
+.analysis-controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.analysis-controls select{padding:7px 11px;border:1.5px solid rgba(255,255,255,.3);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.85rem;background:rgba(255,255,255,.15);color:white;outline:none;cursor:pointer}
+.analysis-controls select:focus{border-color:rgba(255,255,255,.6);background:rgba(255,255,255,.25)}
+.analysis-controls .day-filter-chips{display:flex;gap:6px;flex-wrap:wrap}
+.analysis-controls .day-chip{padding:5px 11px;border:1.5px solid rgba(255,255,255,.3);border-radius:20px;background:rgba(255,255,255,.1);font-family:'DM Sans',sans-serif;font-size:.76rem;font-weight:600;color:rgba(255,255,255,.8);cursor:pointer;transition:all .15s}
+.analysis-controls .day-chip:hover{border-color:rgba(255,255,255,.5);color:white}
+.analysis-controls .day-chip.active{background:rgba(255,255,255,.3);border-color:rgba(255,255,255,.5);color:white;font-weight:700}
+
+/* Insights Panel */
+.insights-panel{background:var(--card);border-radius:12px;margin-bottom:12px;overflow:hidden;box-shadow:0 1px 5px rgba(0,0,0,.07);border:2px solid #D4830A}
+.insights-header{background:linear-gradient(135deg,#D4830A,#b8690a);color:white;padding:10px 14px;font-family:'DM Serif Display',serif;font-size:.95rem;font-weight:700}
+.insights-content{padding:12px 14px}
+.insight-item{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid rgba(0,0,0,.06)}
+.insight-item:last-child{border-bottom:none}
+.insight-icon{font-size:1.2rem;flex-shrink:0}
+.insight-text{flex:1;font-size:.85rem;line-height:1.5;color:var(--text)}
+.insight-text strong{color:#D4830A}
+.insight-high{color:#2D5016}
+.insight-warning{color:#D4830A}
+.insight-danger{color:#C0392B}
+
+/* KPI Grid */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:12px}
+.kpi-card{background:var(--card);border-radius:12px;padding:14px 12px;box-shadow:0 1px 5px rgba(0,0,0,.07);text-align:center;border:1px solid rgba(0,0,0,.06)}
+.kpi-icon{font-size:1.8rem;margin-bottom:6px}
+.kpi-label{font-size:.72rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.03em;margin-bottom:4px}
+.kpi-value{font-size:1.4rem;font-weight:800;color:#2D5016;font-family:'DM Serif Display',serif}
+
+/* Charts Grid */
+.charts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin-bottom:12px}
+.chart-card{background:var(--card);border-radius:12px;overflow:hidden;box-shadow:0 1px 5px rgba(0,0,0,.07);border:1px solid rgba(0,0,0,.06)}
+.chart-card.full-width{grid-column:1/-1}
+.chart-header{background:rgba(45,80,22,.08);padding:12px 14px;border-bottom:1px solid rgba(0,0,0,.05)}
+.chart-header h3{font-family:'DM Serif Display',serif;font-size:.95rem;margin:0 0 4px 0;color:#2D5016}
+.chart-legend{font-size:.73rem;color:var(--muted);font-style:italic}
+.chart-container{padding:14px;min-height:200px;position:relative}
+.chart-container canvas{max-height:280px}
+
+/* Top Products List */
+.top-products-list{padding:12px 14px}
+.top-product-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(0,0,0,.04)}
+.top-product-item:last-child{border-bottom:none}
+.top-product-rank{width:28px;height:28px;border-radius:50%;background:#2D5016;color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;flex-shrink:0}
+.top-product-rank.rank-1{background:#FFD700;color:#1a1a1a}
+.top-product-rank.rank-2{background:#C0C0C0;color:#1a1a1a}
+.top-product-rank.rank-3{background:#CD7F32;color:#1a1a1a}
+.top-product-name{flex:1;font-size:.88rem;font-weight:500}
+.top-product-bar{flex:1;max-width:120px;height:8px;background:rgba(0,0,0,.08);border-radius:4px;overflow:hidden;margin:0 10px}
+.top-product-bar-fill{height:100%;background:linear-gradient(90deg,#2D5016,#4a7a2c);border-radius:4px;transition:width .3s ease}
+.top-product-value{font-size:.85rem;font-weight:700;color:#2D5016;min-width:50px;text-align:right}
+.top-product-meta{font-size:.7rem;color:var(--muted);width:100%;padding-left:38px;margin-top:2px}
+
+/* Outlier List */
+.outlier-list{padding:12px 14px}
+.outlier-item{display:flex;align-items:flex-start;gap:10px;padding:10px;background:rgba(192,57,43,.06);border-radius:8px;margin-bottom:8px;border-left:3px solid #C0392B}
+.outlier-item:last-child{margin-bottom:0}
+.outlier-icon{font-size:1.2rem;flex-shrink:0}
+.outlier-content{flex:1}
+.outlier-title{font-size:.85rem;font-weight:700;color:#C0392B;margin-bottom:2px}
+.outlier-detail{font-size:.78rem;color:var(--muted);font-style:italic}
+.outlier-date{font-size:.72rem;color:var(--muted);margin-top:2px}
+
+/* Sparklines Container */
+.sparklines-container{padding:12px 14px;display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+.sparkline-item{background:rgba(0,0,0,.02);border-radius:8px;padding:10px;border:1px solid rgba(0,0,0,.06)}
+.sparkline-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.sparkline-name{flex:1;font-size:.82rem;font-weight:600}
+.sparkline-avg{font-size:.75rem;color:#2D5016;font-weight:700;background:#e8f5e9;padding:2px 6px;border-radius:10px}
+.sparkline-canvas{height:50px;width:100%}
+.sparkline-trend{font-size:.7rem;margin-top:4px;color:var(--muted)}
+.sparkline-trend.up{color:#2D5016}
+.sparkline-trend.down{color:#C0392B}
+
+/* Original Average Section (kept for detailed view) */
 .avg-section{background:var(--card);border-radius:12px;overflow:hidden;box-shadow:0 1px 5px rgba(0,0,0,.07);margin-bottom:12px}
 .avg-header-bar{background:#5D8233;color:white;padding:10px 13px;font-family:'DM Serif Display',serif;font-size:.98rem}
 .avg-controls-row{display:flex;align-items:center;gap:10px;padding:9px 13px;border-bottom:1px solid rgba(0,0,0,.06);background:rgba(0,0,0,.02);flex-wrap:wrap}
@@ -305,78 +382,6 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
 
 /* sticky tabs shift when edit banner visible */
 .edit-active .tabs{top:117px}
-
-/* ═══════════════════════════════════════
-   ANALYSE TAB – neue Stile
-════════════════════════════════════════ */
-.ana-header{background:#2D5016;color:white;padding:12px 13px 10px;display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px;border-radius:0 0 14px 14px}
-.ana-header-title{display:flex;align-items:center;gap:9px}
-.ana-title-icon{font-size:1.5rem;line-height:1}
-.ana-title-text{font-family:'DM Serif Display',serif;font-size:1.1rem;line-height:1.2}
-.ana-title-sub{font-size:.72rem;opacity:.75;margin-top:2px}
-.ana-controls{display:flex;flex-direction:column;gap:6px;align-items:flex-end}
-.ana-controls select{padding:5px 8px;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.78rem;background:rgba(255,255,255,.18);color:white;outline:none;cursor:pointer}
-.ana-controls select option{background:#2D5016;color:white}
-.ana-controls .day-filter-chips{justify-content:flex-end}
-.ana-controls .day-chip{border-color:rgba(255,255,255,.3);color:rgba(255,255,255,.7);background:transparent;font-size:.68rem;padding:4px 8px}
-.ana-controls .day-chip.active{background:rgba(255,255,255,.25);border-color:white;color:white}
-.ana-controls .day-chip.all-chip.active{background:rgba(212,131,10,.7);border-color:var(--warn);color:white}
-.ana-insights-row{display:flex;gap:8px;padding:0 10px 10px;overflow-x:auto;scrollbar-width:none}
-.ana-insights-row::-webkit-scrollbar{display:none}
-.ana-insight{flex-shrink:0;background:var(--card);border-radius:12px;padding:10px 13px;box-shadow:0 1px 6px rgba(0,0,0,.07);border-left:4px solid #2D5016;max-width:240px}
-.ana-insight.warn{border-left-color:var(--warn)}
-.ana-insight.info{border-left-color:#1A6BA0}
-.ana-insight.danger{border-left-color:var(--danger)}
-.ana-insight-label{font-size:.64rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px}
-.ana-insight-text{font-size:.82rem;font-weight:600;color:var(--text);line-height:1.3}
-.ana-kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:0 10px 10px}
-@media(max-width:400px){.ana-kpi-row{grid-template-columns:repeat(2,1fr)}}
-.ana-kpi{background:var(--card);border-radius:12px;padding:10px 12px;box-shadow:0 1px 5px rgba(0,0,0,.06);text-align:center}
-.ana-kpi-val{font-family:'DM Serif Display',serif;font-size:1.5rem;color:#2D5016;line-height:1.1}
-.ana-kpi-label{font-size:.65rem;color:var(--muted);margin-top:3px;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
-.ana-kpi-trend{font-size:.68rem;font-weight:700;margin-top:2px}
-.ana-kpi-trend.up{color:#2D7A1A}.ana-kpi-trend.down{color:var(--danger)}.ana-kpi-trend.flat{color:var(--muted)}
-.ana-two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 10px 10px}
-@media(max-width:480px){.ana-two-col{grid-template-columns:1fr}}
-.ana-card{background:var(--card);border-radius:12px;padding:12px;box-shadow:0 1px 6px rgba(0,0,0,.06);overflow:hidden}
-.ana-card-wide{margin:0 10px 10px;background:var(--card);border-radius:12px;padding:12px;box-shadow:0 1px 6px rgba(0,0,0,.06);overflow:hidden}
-.ana-card-title{font-size:.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.ana-card-hint{font-weight:400;font-style:italic;text-transform:none;letter-spacing:0;opacity:.7;font-size:.69rem}
-.ana-top-item{display:flex;align-items:center;gap:7px;padding:5px 0;border-bottom:1px solid rgba(0,0,0,.05)}
-.ana-top-item:last-child{border-bottom:none}
-.ana-top-rank{font-size:.65rem;font-weight:700;color:var(--muted);min-width:16px;text-align:center}
-.ana-top-rank.gold{color:#c8960a}.ana-top-rank.silver{color:#888}.ana-top-rank.bronze{color:#a0622a}
-.ana-top-name{flex:1;font-size:.8rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ana-top-bar-wrap{width:60px;height:6px;background:rgba(0,0,0,.07);border-radius:3px;flex-shrink:0}
-.ana-top-bar{height:6px;border-radius:3px;background:#2D5016}
-.ana-top-val{font-size:.72rem;font-weight:700;color:#2D5016;min-width:28px;text-align:right}
-.ana-sup-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
-.ana-sup-name{font-size:.78rem;min-width:90px;max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text);flex-shrink:0}
-.ana-sup-bar-wrap{flex:1;height:14px;background:rgba(0,0,0,.06);border-radius:7px;overflow:hidden}
-.ana-sup-bar{height:14px;border-radius:7px}
-.ana-sup-val{font-size:.7rem;font-weight:700;color:var(--muted);min-width:50px;text-align:right;flex-shrink:0}
-#ana-activity-calendar{display:flex;flex-wrap:wrap;gap:2px}
-.cal-day{width:10px;height:10px;border-radius:2px;flex-shrink:0}
-.cal-day.empty{background:transparent}
-.cal-day.level-0{background:rgba(0,0,0,.08)}
-.cal-day.level-1{background:#c6e9a7}
-.cal-day.level-2{background:#85c957}
-.cal-day.level-3{background:#5aaa2c}
-.cal-day.level-4{background:#2D5016}
-.cal-legend{display:flex;align-items:center;gap:4px;margin-top:8px;font-size:.64rem;color:var(--muted)}
-.cal-legend-box{width:9px;height:9px;border-radius:1px}
-.avg-sparkline{display:inline-flex;align-items:flex-end;gap:1px;height:20px;margin-left:4px}
-.avg-spark-bar{width:4px;border-radius:1px 1px 0 0;background:#2D5016;opacity:.65;min-height:2px}
-@media(prefers-color-scheme:dark){
-  .ana-header{background:#1a3a0a}
-  .ana-controls select{background:rgba(255,255,255,.12);color:#e8f0e0}
-  .ana-controls select option{background:#1a3a0a}
-  .ana-controls .day-chip{border-color:rgba(255,255,255,.2);color:rgba(255,255,255,.55)}
-  .cal-day.level-0{background:rgba(255,255,255,.07)}
-  .ana-kpi-val{color:#6abf47}
-  .ana-top-bar{background:#5a9e3a}
-  .ana-top-val{color:#6abf47}
-}
 
 /* LIEFERANT-SELECT */
 .item-supplier-row{display:flex;align-items:center;gap:6px;padding:2px 0 2px 35px;flex-wrap:wrap}
@@ -598,6 +603,33 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
   .bestellmenu-label strong{color:#e8f5e0}
   .bestellmenu-label span{color:rgba(255,255,255,.45)}
   .bestellmenu-handle{background:rgba(255,255,255,.2)}
+  /* dark: analysis dashboard */
+  .analysis-header{background:linear-gradient(135deg,#3a6b1e,#2a4a14)}
+  .analysis-controls select{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2);color:white}
+  .analysis-controls select:focus{background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.4)}
+  .analysis-controls .day-chip{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.2);color:rgba(255,255,255,.7)}
+  .analysis-controls .day-chip:hover{border-color:rgba(255,255,255,.4);color:white}
+  .analysis-controls .day-chip.active{background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.4);color:white}
+  .insights-panel{border-color:var(--border)}
+  .insights-header{background:linear-gradient(135deg,#c07a00,#9a6200)}
+  .insight-text{color:var(--text)}
+  .kpi-card{background:var(--card);border-color:var(--border)}
+  .kpi-value{color:#6abf47}
+  .chart-card{background:var(--card);border-color:var(--border)}
+  .chart-header{background:rgba(90,158,58,.1)}
+  .chart-header h3{color:#6abf47}
+  .top-product-item{border-bottom-color:var(--border)}
+  .top-product-bar{background:rgba(255,255,255,.08)}
+  .top-product-value{color:#6abf47}
+  .top-product-meta{color:var(--muted)}
+  .outlier-item{background:rgba(224,85,69,.1);border-left-color:#e05545}
+  .outlier-title{color:#e05545}
+  .outlier-detail{color:var(--muted)}
+  .outlier-date{color:var(--muted)}
+  .sparkline-item{background:rgba(255,255,255,.04);border-color:var(--border)}
+  .sparkline-avg{background:rgba(90,158,58,.2);color:#6abf47}
+  .sparkline-trend.up{color:#6abf47}
+  .sparkline-trend.down{color:#e05545}
 }
 </style>
 </head>
@@ -927,21 +959,15 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
 </div>
 
 <div id="tab-durchschnitt" class="tab-panel">
-  <!-- ANALYSE-HEADER -->
-  <div class="ana-header">
-    <div class="ana-header-title">
-      <span class="ana-title-icon">📊</span>
-      <div>
-        <div class="ana-title-text">Bestellanalyse</div>
-        <div class="ana-title-sub" id="ana-subtitle">Lädt…</div>
-      </div>
-    </div>
-    <div class="ana-controls">
-      <select id="avg-range" onchange="renderAverages()">
-        <option value="4">4 Bestellungen</option>
-        <option value="8" selected>8 Bestellungen</option>
-        <option value="12">12 Bestellungen</option>
-        <option value="26">26 Bestellungen</option>
+  <div class="analysis-header">
+    <h2>📊 Analyse-Dashboard</h2>
+    <div class="analysis-controls">
+      <select id="avg-range" onchange="renderAnalysis()">
+        <option value="4">Letzte 4</option>
+        <option value="8" selected>Letzte 8</option>
+        <option value="12">Letzte 12</option>
+        <option value="26">Letzte 26</option>
+        <option value="52">Letzte 52</option>
         <option value="999">Alle</option>
       </select>
       <div class="day-filter-chips" id="avg-day-chips">
@@ -957,57 +983,121 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
     </div>
   </div>
 
-  <!-- INSIGHTS BAND -->
-  <div class="ana-insights-row" id="ana-insights"></div>
-
-  <!-- KPI KARTEN -->
-  <div class="ana-kpi-row" id="ana-kpis"></div>
-
-  <!-- WOCHENTAGS-HEATMAP + AKTIVITÄTS-KALENDER nebeneinander -->
-  <div class="ana-two-col">
-    <div class="ana-card" id="ana-card-heatmap">
-      <div class="ana-card-title">🗓 Aktivität nach Wochentag</div>
-      <canvas id="chart-weekday" height="160"></canvas>
-    </div>
-    <div class="ana-card" id="ana-card-activity">
-      <div class="ana-card-title">📅 Bestellkalender (letzte 16 Wochen)</div>
-      <div id="ana-activity-calendar"></div>
+  <!-- Insights Panel -->
+  <div class="insights-panel" id="insights-panel">
+    <div class="insights-header">💡 Automatische Erkenntnisse</div>
+    <div class="insights-content" id="insights-content">
+      <div class="tab-empty">Lade Daten für Analyse...</div>
     </div>
   </div>
 
-  <!-- MENGENENTWICKLUNG ÜBER ZEIT -->
-  <div class="ana-card ana-card-wide">
-    <div class="ana-card-title">📈 Gesamtmenge pro Bestellung <span class="ana-card-hint">Trend über Zeit</span></div>
-    <canvas id="chart-timeline" height="120"></canvas>
-  </div>
-
-  <!-- TOP-ARTIKEL + KATEGORIEN-PIE -->
-  <div class="ana-two-col">
-    <div class="ana-card">
-      <div class="ana-card-title">🏆 Top 10 Artikel</div>
-      <div id="ana-top-items"></div>
+  <!-- KPI Cards -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-icon">📦</div>
+      <div class="kpi-label">Gesamtbestellungen</div>
+      <div class="kpi-value" id="kpi-total-orders">0</div>
     </div>
-    <div class="ana-card">
-      <div class="ana-card-title">🥧 Anteile nach Kategorie</div>
-      <canvas id="chart-category-pie" height="200"></canvas>
+    <div class="kpi-card">
+      <div class="kpi-icon">📅</div>
+      <div class="kpi-label">Zeitraum</div>
+      <div class="kpi-value" id="kpi-period">-</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon">🔥</div>
+      <div class="kpi-label">Top-Tag</div>
+      <div class="kpi-value" id="kpi-top-day">-</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon">📈</div>
+      <div class="kpi-label">Trend</div>
+      <div class="kpi-value" id="kpi-trend">-</div>
     </div>
   </div>
 
-  <!-- SCHWANKUNGSANALYSE -->
-  <div class="ana-card ana-card-wide">
-    <div class="ana-card-title">📉 Schwankungs-Index <span class="ana-card-hint">hohe Balken = unregelmäßige Bestellung</span></div>
-    <canvas id="chart-volatility" height="140"></canvas>
+  <!-- Charts Grid -->
+  <div class="charts-grid">
+    <!-- Time Trend Chart -->
+    <div class="chart-card full-width">
+      <div class="chart-header">
+        <h3>📈 Bestellverlauf über Zeit</h3>
+        <div class="chart-legend">Anzahl Artikel pro Bestellung</div>
+      </div>
+      <div class="chart-container">
+        <canvas id="trend-chart"></canvas>
+      </div>
+    </div>
+
+    <!-- Weekday Analysis -->
+    <div class="chart-card">
+      <div class="chart-header">
+        <h3>📅 Wochentags-Analyse</h3>
+        <div class="chart-legend">Durchschnittliche Bestellmenge</div>
+      </div>
+      <div class="chart-container">
+        <canvas id="weekday-chart"></canvas>
+      </div>
+    </div>
+
+    <!-- Category Distribution -->
+    <div class="chart-card">
+      <div class="chart-header">
+        <h3>🥧 Kategorien-Verteilung</h3>
+        <div class="chart-legend">Anteil an Gesamtbestellungen</div>
+      </div>
+      <div class="chart-container">
+        <canvas id="category-chart"></canvas>
+      </div>
+    </div>
+
+    <!-- Monthly/Seasonal Trend -->
+    <div class="chart-card full-width">
+      <div class="chart-header">
+        <h3>🗓️ Monatlicher Trend</h3>
+        <div class="chart-legend">Saisonale Muster erkennen</div>
+      </div>
+      <div class="chart-container">
+        <canvas id="monthly-chart"></canvas>
+      </div>
+    </div>
+
+    <!-- Top Products -->
+    <div class="chart-card full-width">
+      <div class="chart-header">
+        <h3>🏆 Top-Produkte</h3>
+        <div class="chart-legend">Meistbestellte Artikel</div>
+      </div>
+      <div class="top-products-list" id="top-products-list">
+        <div class="tab-empty">Lade Daten...</div>
+      </div>
+    </div>
+
+    <!-- Outlier Detection -->
+    <div class="chart-card full-width">
+      <div class="chart-header">
+        <h3>⚠️ Ausreißer-Erkennung</h3>
+        <div class="chart-legend">Ungewöhnliche Bestellungen</div>
+      </div>
+      <div class="outlier-list" id="outlier-list">
+        <div class="tab-empty">Lade Daten...</div>
+      </div>
+    </div>
+
+    <!-- Product Sparklines -->
+    <div class="chart-card full-width">
+      <div class="chart-header">
+        <h3>📊 Produkt-Verläufe</h3>
+        <div class="chart-legend">Historische Mengen pro Artikel</div>
+      </div>
+      <div class="sparklines-container" id="sparklines-container">
+        <div class="tab-empty">Lade Daten...</div>
+      </div>
+    </div>
   </div>
 
-  <!-- LIEFERANTEN-VERTEILUNG -->
-  <div class="ana-card ana-card-wide">
-    <div class="ana-card-title">🚚 Lieferanten-Verteilung</div>
-    <div id="ana-supplier-bars"></div>
-  </div>
-
-  <!-- DURCHSCHNITTSLISTE (mit Sparklines) -->
-  <div class="avg-section" style="margin-top:0">
-    <div class="avg-header-bar">📋 Durchschnittliche Bestellmengen – Detailliste</div>
+  <!-- Detailed Average List -->
+  <div class="avg-section">
+    <div class="avg-header-bar">📋 Detaillierte Durchschnittswerte</div>
     <div id="avg-list"><div class="tab-empty">Noch keine Bestellhistorie vorhanden.</div></div>
   </div>
 </div>
@@ -1717,7 +1807,7 @@ async function confirmSave() {
   renderOnetimeList();
 
   if (document.getElementById('tab-durchschnitt').classList.contains('active')) {
-    renderAverages();
+    renderAnalysis();
   }
   buildUI();
   btn.disabled = false;
@@ -1813,7 +1903,7 @@ function toggleDayChip(btn, scope) {
     renderHistory(getFilteredHistory());
   } else {
     avgDayFilter = btn.dataset.day;
-    renderAverages();
+    renderAnalysis();
   }
 }
 
@@ -2323,18 +2413,533 @@ function toggleHistEntry(id) {
 }
 
 // ═══════════════════════════════════════════
-//  DURCHSCHNITT
+//  DURCHSCHNITT - ANALYSIS DASHBOARD
 // ═══════════════════════════════════════════
-function renderAverages(){
-  const n  = parseInt(document.getElementById('avg-range').value);
-  const el = document.getElementById('avg-list');
+let analysisCharts = {};
 
+function renderAnalysis(){
+  const n  = parseInt(document.getElementById('avg-range').value);
+  
   let pool = avgDayFilter
     ? rawHistory.filter(o => !o.deleted && o.weekday===avgDayFilter)
     : rawHistory.filter(o => !o.deleted);
   const orders = pool.slice(0, n);
 
-  if(!orders.length){el.innerHTML='<div class="tab-empty">Noch keine Bestellhistorie vorhanden.</div>';return;}
+  if(!orders.length){
+    document.getElementById('insights-content').innerHTML = '<div class="tab-empty">Noch keine Bestellhistorie vorhanden.</div>';
+    document.getElementById('kpi-total-orders').textContent = '0';
+    document.getElementById('kpi-period').textContent = '-';
+    document.getElementById('kpi-top-day').textContent = '-';
+    document.getElementById('kpi-trend').textContent = '-';
+    document.getElementById('avg-list').innerHTML = '<div class="tab-empty">Noch keine Bestellhistorie vorhanden.</div>';
+    return;
+  }
+
+  // Update KPIs
+  updateKPIs(orders, n);
+
+  // Generate insights
+  generateInsights(orders);
+
+  // Render all charts
+  renderTrendChart(orders);
+  renderWeekdayChart(orders);
+  renderCategoryChart(orders);
+  renderMonthlyChart(orders);
+  renderTopProducts(orders);
+  renderOutliers(orders);
+  renderSparklines(orders);
+
+  // Render detailed average list (original functionality)
+  renderDetailedAverages(orders);
+}
+
+function updateKPIs(orders, n){
+  document.getElementById('kpi-total-orders').textContent = orders.length;
+  
+  if(orders.length > 0){
+    const first = new Date(orders[orders.length-1].savedAt);
+    const last = new Date(orders[0].savedAt);
+    const daysDiff = Math.ceil((last - first) / (1000 * 60 * 60 * 24));
+    document.getElementById('kpi-period').textContent = daysDiff > 0 ? `${daysDiff} Tage` : '1 Tag';
+  }
+
+  // Top weekday
+  const weekdayCounts = {};
+  orders.forEach(o => {
+    if(o.weekday){
+      weekdayCounts[o.weekday] = (weekdayCounts[o.weekday] || 0) + 1;
+    }
+  });
+  const topDay = Object.entries(weekdayCounts).sort((a,b) => b[1] - a[1])[0];
+  document.getElementById('kpi-top-day').textContent = topDay ? topDay[0].substring(0,2) : '-';
+
+  // Trend calculation
+  if(orders.length >= 4){
+    const recent = orders.slice(0, Math.min(4, orders.length));
+    const older = orders.slice(Math.min(4, orders.length), Math.min(8, orders.length));
+    
+    const recentAvg = recent.reduce((sum, o) => sum + (o.items||[]).filter(x=>x.bestellen>0).length, 0) / recent.length;
+    const olderAvg = older.length > 0 ? older.reduce((sum, o) => sum + (o.items||[]).filter(x=>x.bestellen>0).length, 0) / older.length : recentAvg;
+    
+    const trendPct = olderAvg > 0 ? ((recentAvg - olderAvg) / olderAvg * 100) : 0;
+    const trendEl = document.getElementById('kpi-trend');
+    if(trendPct > 10){
+      trendEl.textContent = '↑ Steigend';
+      trendEl.style.color = '#2D5016';
+    } else if(trendPct < -10){
+      trendEl.textContent = '↓ Sinkend';
+      trendEl.style.color = '#C0392B';
+    } else {
+      trendEl.textContent = '→ Stabil';
+      trendEl.style.color = '#8A7E6A';
+    }
+  } else {
+    document.getElementById('kpi-trend').textContent = '-';
+  }
+}
+
+function generateInsights(orders){
+  const insights = [];
+  
+  if(orders.length === 0){
+    document.getElementById('insights-content').innerHTML = '<div class="tab-empty">Keine Daten für Analyse.</div>';
+    return;
+  }
+
+  // High volume orders
+  const orderSizes = orders.map(o => (o.items||[]).filter(x=>x.bestellen>0).reduce((sum, it) => sum + it.bestellen, 0));
+  const avgSize = orderSizes.reduce((a,b) => a+b, 0) / orderSizes.length;
+  const maxSize = Math.max(...orderSizes);
+  
+  if(maxSize > avgSize * 2){
+    const highOrder = orders[orderSizes.indexOf(maxSize)];
+    const dt = new Date(highOrder.savedAt);
+    insights.push({
+      icon: '📈',
+      text: `<strong>Ungewöhnlich hohe Bestellung:</strong> ${maxSize} Artikel am ${dt.toLocaleDateString('de-DE')} (Ø ${avgSize.toFixed(0)})`
+    });
+  }
+
+  // Friday pattern
+  const friOrders = orders.filter(o => o.weekday === 'Freitag');
+  if(friOrders.length >= 3){
+    const friAvg = friOrders.reduce((sum, o) => sum + (o.items||[]).filter(x=>x.bestellen>0).length, 0) / friOrders.length;
+    const overallAvg = orders.reduce((sum, o) => sum + (o.items||[]).filter(x=>x.bestellen>0).length, 0) / orders.length;
+    if(friAvg > overallAvg * 1.3){
+      insights.push({
+        icon: '🔥',
+        text: `<strong>Freitags-Peak:</strong> Durchschnittlich ${friAvg.toFixed(0)} Artikel vs. ${overallAvg.toFixed(0)} gesamt`
+      });
+    }
+  }
+
+  // Most popular category
+  const catCounts = {};
+  orders.forEach(o => {
+    (o.items||[]).filter(x=>x.bestellen>0).forEach(it => {
+      catCounts[it.catname] = (catCounts[it.catname] || 0) + it.bestellen;
+    });
+  });
+  const topCat = Object.entries(catCounts).sort((a,b) => b[1] - a[1])[0];
+  if(topCat){
+    insights.push({
+      icon: '🥇',
+      text: `<strong>Top-Kategorie:</strong> ${topCat[0]} mit ${topCat[1]} Bestellungen`
+    });
+  }
+
+  // Seasonal pattern (if enough data)
+  if(orders.length >= 12){
+    const months = orders.map(o => new Date(o.savedAt).getMonth());
+    const monthCounts = {};
+    months.forEach(m => monthCounts[m] = (monthCounts[m] || 0) + 1);
+    const peakMonth = Object.entries(monthCounts).sort((a,b) => b[1] - a[1])[0];
+    const monthNames = ['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
+    if(peakMonth && peakMonth[1] >= 3){
+      insights.push({
+        icon: '🗓️',
+        text: `<strong>Saisonaler Peak:</strong> Meistens im ${monthNames[peakMonth[0]]} (${peakMonth[1]} Bestellungen)`
+      });
+    }
+  }
+
+  // Consistent products
+  const productCounts = {};
+  orders.forEach(o => {
+    (o.items||[]).filter(x=>x.bestellen>0).forEach(it => {
+      const k = it.catid+'|'+it.name;
+      productCounts[k] = (productCounts[k] || 0) + 1;
+    });
+  });
+  const consistentProducts = Object.entries(productCounts).filter(([k,c]) => c >= orders.length * 0.7);
+  if(consistentProducts.length > 0){
+    insights.push({
+      icon: '📊',
+      text: `<strong>Konstante Artikel:</strong> ${consistentProducts.length} Produkte in ≥70% der Bestellungen`
+    });
+  }
+
+  if(insights.length === 0){
+    insights.push({
+      icon: '📊',
+      text: 'Sammle mehr Bestellhistorie für detailliertere Erkenntnisse.'
+    });
+  }
+
+  document.getElementById('insights-content').innerHTML = insights.map(i => `
+    <div class="insight-item">
+      <span class="insight-icon">${i.icon}</span>
+      <span class="insight-text">${i.text}</span>
+    </div>
+  `).join('');
+}
+
+function renderTrendChart(orders){
+  const ctx = document.getElementById('trend-chart').getContext('2d');
+  
+  if(analysisCharts.trend) analysisCharts.trend.destroy();
+
+  const labels = orders.slice().reverse().map((o, i) => {
+    const dt = new Date(o.savedAt);
+    return dt.toLocaleDateString('de-DE', {day:'2-digit', month:'2-digit'});
+  });
+  
+  const data = orders.slice().reverse().map(o => 
+    (o.items||[]).filter(x=>x.bestellen>0).reduce((sum, it) => sum + it.bestellen, 0)
+  );
+
+  analysisCharts.trend = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Artikel pro Bestellung',
+        data: data,
+        borderColor: '#2D5016',
+        backgroundColor: 'rgba(45, 80, 22, 0.1)',
+        fill: true,
+        tension: 0.3,
+        pointRadius: 4,
+        pointHoverRadius: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {display: false}
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: {color: 'rgba(0,0,0,0.05)'}
+        },
+        x: {
+          grid: {display: false}
+        }
+      }
+    }
+  });
+}
+
+function renderWeekdayChart(orders){
+  const ctx = document.getElementById('weekday-chart').getContext('2d');
+  
+  if(analysisCharts.weekday) analysisCharts.weekday.destroy();
+
+  const weekdayData = {};
+  const weekdayOrder = ['Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag','Sonntag'];
+  
+  orders.forEach(o => {
+    if(o.weekday){
+      const total = (o.items||[]).filter(x=>x.bestellen>0).reduce((sum, it) => sum + it.bestellen, 0);
+      weekdayData[o.weekday] = (weekdayData[o.weekday] || 0) + total;
+    }
+  });
+
+  const labels = weekdayOrder.filter(d => weekdayData[d]);
+  const data = labels.map(d => weekdayData[d] / orders.filter(o => o.weekday === d).length);
+
+  analysisCharts.weekday = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels.map(d => d.substring(0,2)),
+      datasets: [{
+        label: 'Ø Bestellmenge',
+        data: data,
+        backgroundColor: ['#2D5016','#3A7D11','#4CAF50','#27AE60','#1E6F3E','#5D8233','#7B9B4A'],
+        borderRadius: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {display: false}
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: {color: 'rgba(0,0,0,0.05)'}
+        },
+        x: {
+          grid: {display: false}
+        }
+      }
+    }
+  });
+}
+
+function renderCategoryChart(orders){
+  const ctx = document.getElementById('category-chart').getContext('2d');
+  
+  if(analysisCharts.category) analysisCharts.category.destroy();
+
+  const catData = {};
+  orders.forEach(o => {
+    (o.items||[]).filter(x=>x.bestellen>0).forEach(it => {
+      catData[it.catname] = (catData[it.catname] || 0) + it.bestellen;
+    });
+  });
+
+  const sortedCats = Object.entries(catData).sort((a,b) => b[1] - a[1]).slice(0, 6);
+  const labels = sortedCats.map(([name]) => name);
+  const data = sortedCats.map(([,count]) => count);
+  const colors = ['#2D5016','#3A7D11','#C0392B','#D4830A','#7B3FA0','#1A6BA0'];
+
+  analysisCharts.category = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: labels,
+      datasets: [{
+        data: data,
+        backgroundColor: colors,
+        borderWidth: 0
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            boxWidth: 12,
+            padding: 8,
+            font: {size: 11}
+          }
+        }
+      }
+    }
+  });
+}
+
+function renderMonthlyChart(orders){
+  const ctx = document.getElementById('monthly-chart').getContext('2d');
+  
+  if(analysisCharts.monthly) analysisCharts.monthly.destroy();
+
+  const monthData = {};
+  const monthNames = ['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'];
+  
+  orders.forEach(o => {
+    const month = new Date(o.savedAt).getMonth();
+    const total = (o.items||[]).filter(x=>x.bestellen>0).reduce((sum, it) => sum + it.bestellen, 0);
+    monthData[month] = (monthData[month] || 0) + total;
+  });
+
+  const labels = monthNames.map((name, i) => name);
+  const data = monthNames.map((_, i) => monthData[i] || 0);
+
+  analysisCharts.monthly = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Gesamtbestellungen',
+        data: data,
+        backgroundColor: 'rgba(45, 80, 22, 0.7)',
+        borderColor: '#2D5016',
+        borderWidth: 1,
+        borderRadius: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {display: false}
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: {color: 'rgba(0,0,0,0.05)'}
+        },
+        x: {
+          grid: {display: false}
+        }
+      }
+    }
+  });
+}
+
+function renderTopProducts(orders){
+  const el = document.getElementById('top-products-list');
+  
+  const productCounts = {};
+  orders.forEach(o => {
+    (o.items||[]).filter(x=>x.bestellen>0).forEach(it => {
+      const k = it.catid+'|'+it.name;
+      if(!productCounts[k]) productCounts[k] = {name: it.name, catname: it.catname, total: 0, count: 0};
+      productCounts[k].total += it.bestellen;
+      productCounts[k].count++;
+    });
+  });
+
+  const sorted = Object.values(productCounts).sort((a,b) => b.total - a.total).slice(0, 10);
+  const maxValue = sorted[0]?.total || 1;
+
+  if(sorted.length === 0){
+    el.innerHTML = '<div class="tab-empty">Keine Daten verfügbar.</div>';
+    return;
+  }
+
+  el.innerHTML = sorted.map((p, i) => {
+    const avg = (p.total / p.count).toFixed(1);
+    const barWidth = (p.total / maxValue) * 100;
+    const rankClass = i < 3 ? `rank-${i+1}` : '';
+    
+    return `
+      <div class="top-product-item">
+        <div class="top-product-rank ${rankClass}">${i+1}</div>
+        <div class="top-product-name">${p.name}</div>
+        <div class="top-product-bar">
+          <div class="top-product-bar-fill" style="width: ${barWidth}%"></div>
+        </div>
+        <div class="top-product-value">${p.total}</div>
+        <div class="top-product-meta">Ø ${avg} · ${p.count}×</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderOutliers(orders){
+  const el = document.getElementById('outlier-list');
+  
+  const orderSizes = orders.map(o => ({
+    order: o,
+    size: (o.items||[]).filter(x=>x.bestellen>0).reduce((sum, it) => sum + it.bestellen, 0),
+    itemCount: (o.items||[]).filter(x=>x.bestellen>0).length
+  }));
+
+  const sizes = orderSizes.map(o => o.size);
+  const mean = sizes.reduce((a,b) => a+b, 0) / sizes.length;
+  const stdDev = Math.sqrt(sizes.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / sizes.length);
+  const threshold = mean + (stdDev * 1.5);
+
+  const outliers = orderSizes.filter(o => o.size > threshold);
+
+  if(outliers.length === 0){
+    el.innerHTML = '<div class="tab-empty">Keine Ausreißer erkannt.</div>';
+    return;
+  }
+
+  el.innerHTML = outliers.map(o => {
+    const dt = new Date(o.order.savedAt);
+    const dateStr = dt.toLocaleDateString('de-DE', {day:'2-digit', month:'2-digit', year:'numeric'});
+    const diff = ((o.size - mean) / mean * 100).toFixed(0);
+    
+    return `
+      <div class="outlier-item">
+        <span class="outlier-icon">⚠️</span>
+        <div class="outlier-content">
+          <div class="outlier-title">${o.size} Artikel (+${diff}% über Ø)</div>
+          <div class="outlier-detail">${o.itemCount} verschiedene Produkte</div>
+          <div class="outlier-date">${dateStr} · ${o.order.weekday || 'Kein Tag'}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderSparklines(orders){
+  const el = document.getElementById('sparklines-container');
+  
+  const productHistory = {};
+  orders.slice().reverse().forEach((o, idx) => {
+    (o.items||[]).filter(x=>x.bestellen>0).forEach(it => {
+      const k = it.catid+'|'+it.name;
+      if(!productHistory[k]) productHistory[k] = {name: it.name, catname: it.catname, data: []};
+      productHistory[k].data.push(it.bestellen);
+    });
+  });
+
+  // Get top 8 most frequent products
+  const sorted = Object.values(productHistory)
+    .filter(p => p.data.length >= 3)
+    .sort((a,b) => b.data.length - a.data.length)
+    .slice(0, 8);
+
+  if(sorted.length === 0){
+    el.innerHTML = '<div class="tab-empty">Nicht genug Daten für Sparklines.</div>';
+    return;
+  }
+
+  el.innerHTML = sorted.map((p, i) => {
+    const avg = (p.data.reduce((a,b) => a+b, 0) / p.data.length).toFixed(1);
+    const first = p.data[0];
+    const last = p.data[p.data.length - 1];
+    const trend = last > first * 1.2 ? '↑ Steigend' : last < first * 0.8 ? '↓ Sinkend' : '→ Stabil';
+    const trendClass = last > first * 1.2 ? 'up' : last < first * 0.8 ? 'down' : '';
+    const canvasId = `sparkline-${i}`;
+
+    setTimeout(() => {
+      const ctx = document.getElementById(canvasId);
+      if(ctx){
+        if(analysisCharts[canvasId]) analysisCharts[canvasId].destroy();
+        analysisCharts[canvasId] = new Chart(ctx.getContext('2d'), {
+          type: 'line',
+          data: {
+            labels: p.data.map((_, idx) => idx),
+            datasets: [{
+              data: p.data,
+              borderColor: '#2D5016',
+              backgroundColor: 'rgba(45, 80, 22, 0.1)',
+              fill: true,
+              tension: 0.3,
+              pointRadius: 0,
+              borderWidth: 2
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {legend: {display: false}},
+            scales: {
+              x: {display: false},
+              y: {display: false}
+            }
+          }
+        });
+      }
+    }, 100);
+
+    return `
+      <div class="sparkline-item">
+        <div class="sparkline-header">
+          <span class="sparkline-name">${p.name}</span>
+          <span class="sparkline-avg">Ø ${avg}</span>
+        </div>
+        <canvas id="${canvasId}" class="sparkline-canvas"></canvas>
+        <div class="sparkline-trend ${trendClass}">${trend}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderDetailedAverages(orders){
+  const el = document.getElementById('avg-list');
 
   const acc={};
   orders.forEach(o => (o.items||[]).filter(x=>x.bestellen>0).forEach(it=>{
