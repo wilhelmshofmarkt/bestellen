@@ -306,6 +306,78 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
 /* sticky tabs shift when edit banner visible */
 .edit-active .tabs{top:117px}
 
+/* ═══════════════════════════════════════
+   ANALYSE TAB – neue Stile
+════════════════════════════════════════ */
+.ana-header{background:#2D5016;color:white;padding:12px 13px 10px;display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px;border-radius:0 0 14px 14px}
+.ana-header-title{display:flex;align-items:center;gap:9px}
+.ana-title-icon{font-size:1.5rem;line-height:1}
+.ana-title-text{font-family:'DM Serif Display',serif;font-size:1.1rem;line-height:1.2}
+.ana-title-sub{font-size:.72rem;opacity:.75;margin-top:2px}
+.ana-controls{display:flex;flex-direction:column;gap:6px;align-items:flex-end}
+.ana-controls select{padding:5px 8px;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.78rem;background:rgba(255,255,255,.18);color:white;outline:none;cursor:pointer}
+.ana-controls select option{background:#2D5016;color:white}
+.ana-controls .day-filter-chips{justify-content:flex-end}
+.ana-controls .day-chip{border-color:rgba(255,255,255,.3);color:rgba(255,255,255,.7);background:transparent;font-size:.68rem;padding:4px 8px}
+.ana-controls .day-chip.active{background:rgba(255,255,255,.25);border-color:white;color:white}
+.ana-controls .day-chip.all-chip.active{background:rgba(212,131,10,.7);border-color:var(--warn);color:white}
+.ana-insights-row{display:flex;gap:8px;padding:0 10px 10px;overflow-x:auto;scrollbar-width:none}
+.ana-insights-row::-webkit-scrollbar{display:none}
+.ana-insight{flex-shrink:0;background:var(--card);border-radius:12px;padding:10px 13px;box-shadow:0 1px 6px rgba(0,0,0,.07);border-left:4px solid #2D5016;max-width:240px}
+.ana-insight.warn{border-left-color:var(--warn)}
+.ana-insight.info{border-left-color:#1A6BA0}
+.ana-insight.danger{border-left-color:var(--danger)}
+.ana-insight-label{font-size:.64rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px}
+.ana-insight-text{font-size:.82rem;font-weight:600;color:var(--text);line-height:1.3}
+.ana-kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:0 10px 10px}
+@media(max-width:400px){.ana-kpi-row{grid-template-columns:repeat(2,1fr)}}
+.ana-kpi{background:var(--card);border-radius:12px;padding:10px 12px;box-shadow:0 1px 5px rgba(0,0,0,.06);text-align:center}
+.ana-kpi-val{font-family:'DM Serif Display',serif;font-size:1.5rem;color:#2D5016;line-height:1.1}
+.ana-kpi-label{font-size:.65rem;color:var(--muted);margin-top:3px;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.ana-kpi-trend{font-size:.68rem;font-weight:700;margin-top:2px}
+.ana-kpi-trend.up{color:#2D7A1A}.ana-kpi-trend.down{color:var(--danger)}.ana-kpi-trend.flat{color:var(--muted)}
+.ana-two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 10px 10px}
+@media(max-width:480px){.ana-two-col{grid-template-columns:1fr}}
+.ana-card{background:var(--card);border-radius:12px;padding:12px;box-shadow:0 1px 6px rgba(0,0,0,.06);overflow:hidden}
+.ana-card-wide{margin:0 10px 10px;background:var(--card);border-radius:12px;padding:12px;box-shadow:0 1px 6px rgba(0,0,0,.06);overflow:hidden}
+.ana-card-title{font-size:.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.ana-card-hint{font-weight:400;font-style:italic;text-transform:none;letter-spacing:0;opacity:.7;font-size:.69rem}
+.ana-top-item{display:flex;align-items:center;gap:7px;padding:5px 0;border-bottom:1px solid rgba(0,0,0,.05)}
+.ana-top-item:last-child{border-bottom:none}
+.ana-top-rank{font-size:.65rem;font-weight:700;color:var(--muted);min-width:16px;text-align:center}
+.ana-top-rank.gold{color:#c8960a}.ana-top-rank.silver{color:#888}.ana-top-rank.bronze{color:#a0622a}
+.ana-top-name{flex:1;font-size:.8rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ana-top-bar-wrap{width:60px;height:6px;background:rgba(0,0,0,.07);border-radius:3px;flex-shrink:0}
+.ana-top-bar{height:6px;border-radius:3px;background:#2D5016}
+.ana-top-val{font-size:.72rem;font-weight:700;color:#2D5016;min-width:28px;text-align:right}
+.ana-sup-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.ana-sup-name{font-size:.78rem;min-width:90px;max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text);flex-shrink:0}
+.ana-sup-bar-wrap{flex:1;height:14px;background:rgba(0,0,0,.06);border-radius:7px;overflow:hidden}
+.ana-sup-bar{height:14px;border-radius:7px}
+.ana-sup-val{font-size:.7rem;font-weight:700;color:var(--muted);min-width:50px;text-align:right;flex-shrink:0}
+#ana-activity-calendar{display:flex;flex-wrap:wrap;gap:2px}
+.cal-day{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+.cal-day.empty{background:transparent}
+.cal-day.level-0{background:rgba(0,0,0,.08)}
+.cal-day.level-1{background:#c6e9a7}
+.cal-day.level-2{background:#85c957}
+.cal-day.level-3{background:#5aaa2c}
+.cal-day.level-4{background:#2D5016}
+.cal-legend{display:flex;align-items:center;gap:4px;margin-top:8px;font-size:.64rem;color:var(--muted)}
+.cal-legend-box{width:9px;height:9px;border-radius:1px}
+.avg-sparkline{display:inline-flex;align-items:flex-end;gap:1px;height:20px;margin-left:4px}
+.avg-spark-bar{width:4px;border-radius:1px 1px 0 0;background:#2D5016;opacity:.65;min-height:2px}
+@media(prefers-color-scheme:dark){
+  .ana-header{background:#1a3a0a}
+  .ana-controls select{background:rgba(255,255,255,.12);color:#e8f0e0}
+  .ana-controls select option{background:#1a3a0a}
+  .ana-controls .day-chip{border-color:rgba(255,255,255,.2);color:rgba(255,255,255,.55)}
+  .cal-day.level-0{background:rgba(255,255,255,.07)}
+  .ana-kpi-val{color:#6abf47}
+  .ana-top-bar{background:#5a9e3a}
+  .ana-top-val{color:#6abf47}
+}
+
 /* LIEFERANT-SELECT */
 .item-supplier-row{display:flex;align-items:center;gap:6px;padding:2px 0 2px 35px;flex-wrap:wrap}
 .supplier-select{flex:1;min-width:140px;max-width:220px;padding:4px 7px;border:1.5px solid var(--input-border);border-radius:7px;font-family:'DM Sans',sans-serif;font-size:.78rem;background:var(--input-bg);color:var(--text);outline:none;cursor:pointer}
@@ -855,18 +927,25 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
 </div>
 
 <div id="tab-durchschnitt" class="tab-panel">
-  <div class="avg-section">
-    <div class="avg-header-bar">📈 Durchschnittliche Bestellmengen</div>
-    <div class="avg-controls-row">
+  <!-- ANALYSE-HEADER -->
+  <div class="ana-header">
+    <div class="ana-header-title">
+      <span class="ana-title-icon">📊</span>
+      <div>
+        <div class="ana-title-text">Bestellanalyse</div>
+        <div class="ana-title-sub" id="ana-subtitle">Lädt…</div>
+      </div>
+    </div>
+    <div class="ana-controls">
       <select id="avg-range" onchange="renderAverages()">
-        <option value="4">Letzte 4 Bestellungen</option>
-        <option value="8" selected>Letzte 8 Bestellungen</option>
-        <option value="12">Letzte 12 Bestellungen</option>
-        <option value="26">Letzte 26 Bestellungen</option>
+        <option value="4">4 Bestellungen</option>
+        <option value="8" selected>8 Bestellungen</option>
+        <option value="12">12 Bestellungen</option>
+        <option value="26">26 Bestellungen</option>
         <option value="999">Alle</option>
       </select>
       <div class="day-filter-chips" id="avg-day-chips">
-        <button class="day-chip all-chip active" data-day="" onclick="toggleDayChip(this,'avg')">Alle Tage</button>
+        <button class="day-chip all-chip active" data-day="" onclick="toggleDayChip(this,'avg')">Alle</button>
         <button class="day-chip" data-day="Montag"     onclick="toggleDayChip(this,'avg')">Mo</button>
         <button class="day-chip" data-day="Dienstag"   onclick="toggleDayChip(this,'avg')">Di</button>
         <button class="day-chip" data-day="Mittwoch"   onclick="toggleDayChip(this,'avg')">Mi</button>
@@ -876,6 +955,59 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
         <button class="day-chip" data-day="Sonntag"    onclick="toggleDayChip(this,'avg')">So</button>
       </div>
     </div>
+  </div>
+
+  <!-- INSIGHTS BAND -->
+  <div class="ana-insights-row" id="ana-insights"></div>
+
+  <!-- KPI KARTEN -->
+  <div class="ana-kpi-row" id="ana-kpis"></div>
+
+  <!-- WOCHENTAGS-HEATMAP + AKTIVITÄTS-KALENDER nebeneinander -->
+  <div class="ana-two-col">
+    <div class="ana-card" id="ana-card-heatmap">
+      <div class="ana-card-title">🗓 Aktivität nach Wochentag</div>
+      <canvas id="chart-weekday" height="160"></canvas>
+    </div>
+    <div class="ana-card" id="ana-card-activity">
+      <div class="ana-card-title">📅 Bestellkalender (letzte 16 Wochen)</div>
+      <div id="ana-activity-calendar"></div>
+    </div>
+  </div>
+
+  <!-- MENGENENTWICKLUNG ÜBER ZEIT -->
+  <div class="ana-card ana-card-wide">
+    <div class="ana-card-title">📈 Gesamtmenge pro Bestellung <span class="ana-card-hint">Trend über Zeit</span></div>
+    <canvas id="chart-timeline" height="120"></canvas>
+  </div>
+
+  <!-- TOP-ARTIKEL + KATEGORIEN-PIE -->
+  <div class="ana-two-col">
+    <div class="ana-card">
+      <div class="ana-card-title">🏆 Top 10 Artikel</div>
+      <div id="ana-top-items"></div>
+    </div>
+    <div class="ana-card">
+      <div class="ana-card-title">🥧 Anteile nach Kategorie</div>
+      <canvas id="chart-category-pie" height="200"></canvas>
+    </div>
+  </div>
+
+  <!-- SCHWANKUNGSANALYSE -->
+  <div class="ana-card ana-card-wide">
+    <div class="ana-card-title">📉 Schwankungs-Index <span class="ana-card-hint">hohe Balken = unregelmäßige Bestellung</span></div>
+    <canvas id="chart-volatility" height="140"></canvas>
+  </div>
+
+  <!-- LIEFERANTEN-VERTEILUNG -->
+  <div class="ana-card ana-card-wide">
+    <div class="ana-card-title">🚚 Lieferanten-Verteilung</div>
+    <div id="ana-supplier-bars"></div>
+  </div>
+
+  <!-- DURCHSCHNITTSLISTE (mit Sparklines) -->
+  <div class="avg-section" style="margin-top:0">
+    <div class="avg-header-bar">📋 Durchschnittliche Bestellmengen – Detailliste</div>
     <div id="avg-list"><div class="tab-empty">Noch keine Bestellhistorie vorhanden.</div></div>
   </div>
 </div>
