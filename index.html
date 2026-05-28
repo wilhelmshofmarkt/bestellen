@@ -159,9 +159,9 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
 .date-input-row input[type=date]:focus{border-color:#2D5016;box-shadow:0 0 0 3px rgba(45,80,22,.1)}
 
 /* WETTER-POPUP */
-#weather-popup{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:700;display:flex;align-items:center;justify-content:center;padding:16px}
+#weather-popup{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:700;display:flex;align-items:center;justify-content:center;padding:16px;overflow-y:auto}
 #weather-popup.hidden{display:none}
-.weather-popup-card{background:linear-gradient(145deg,#1a5c96,#0f3a60);border-radius:20px;padding:22px 20px 20px;width:100%;max-width:340px;color:white;position:relative;box-shadow:0 12px 40px rgba(0,0,0,.35)}
+.weather-popup-card{background:linear-gradient(145deg,#1a5c96,#0f3a60);border-radius:20px;padding:22px 20px 20px;width:100%;max-width:400px;color:white;position:relative;box-shadow:0 12px 40px rgba(0,0,0,.35);max-height:90vh;overflow-y:auto}
 .weather-popup-close{position:absolute;top:12px;right:14px;background:rgba(255,255,255,.15);border:none;color:white;font-size:1rem;width:30px;height:30px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:'DM Sans',sans-serif;transition:background .15s}
 .weather-popup-close:hover{background:rgba(255,255,255,.28)}
 .weather-popup-loading{text-align:center;padding:16px 0}
@@ -175,7 +175,9 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
 .weather-popup-detail{flex:1;padding:10px 6px;text-align:center;font-size:.78rem;font-weight:600;border-right:1px solid rgba(255,255,255,.1)}
 .weather-popup-detail:last-child{border-right:none}
 .weather-popup-detail:empty{display:none}
-.weather-popup-holiday{background:rgba(255,210,60,.2);border:1px solid rgba(255,210,60,.4);border-radius:10px;padding:9px 12px;font-size:.82rem;font-weight:600;color:#ffe87a;text-align:center}
+.weather-popup-holiday{background:rgba(255,210,60,.2);border:1px solid rgba(255,210,60,.4);border-radius:10px;padding:9px 12px;font-size:.82rem;font-weight:600;color:#ffe87a;text-align:center;margin-top:10px}
+.wp-chart-label{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;opacity:.65;margin:12px 0 4px}
+.wp-chart-wrap{background:rgba(255,255,255,.07);border-radius:10px;padding:8px 6px;margin-bottom:4px}
 @media(prefers-color-scheme:dark){
   .date-day-btn{background:var(--input-bg);border-color:var(--input-border);color:var(--muted)}
   .date-day-btn.picked{background:#3a6b1e;border-color:#3a6b1e;color:white}
@@ -365,6 +367,35 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
 
 /* Sparklines Container */
 .sparklines-container{padding:12px 14px;display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+
+/* Lieferanten Detail */
+.supplier-detail-list{padding:0 14px 12px;display:flex;flex-direction:column;gap:5px}
+.supplier-detail-row{display:flex;align-items:center;gap:8px;font-size:.8rem}
+.supplier-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.supplier-name{flex:1;font-weight:500}
+.supplier-pct{font-size:.74rem;color:var(--muted)}
+.supplier-bar-wrap{width:70px;height:5px;background:rgba(0,0,0,.08);border-radius:3px;overflow:hidden;flex-shrink:0}
+.supplier-bar-inner{height:100%;border-radius:3px}
+
+/* Prognose */
+.forecast-filter{padding:10px 14px;border-bottom:1px solid rgba(0,0,0,.06);background:rgba(0,0,0,.02);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.forecast-filter select{flex:1;min-width:160px;padding:7px 10px;border:1.5px solid #ddd;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.83rem;background:white;color:var(--text);outline:none}
+.forecast-filter select:focus{border-color:#2D5016}
+.forecast-insights{padding:10px 14px;display:flex;flex-wrap:wrap;gap:8px}
+.forecast-chip{padding:6px 12px;border-radius:20px;font-size:.78rem;font-weight:600;background:#e8f5e9;color:#2D5016;border:1px solid #c8e6c9}
+.forecast-chip.warn{background:#fff3e0;color:#D4830A;border-color:#ffe0b2}
+.forecast-chip.down{background:#fce4ec;color:#c0392b;border-color:#f8bbd9}
+
+/* API Info Panel */
+.api-info-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;padding:14px}
+.api-info-item{display:flex;gap:12px;align-items:flex-start;padding:11px 12px;border-radius:10px;background:rgba(0,0,0,.025);border:1px solid rgba(0,0,0,.06)}
+.api-info-item.active{background:rgba(45,80,22,.05);border-color:rgba(45,80,22,.18)}
+.api-info-icon{font-size:1.6rem;flex-shrink:0;margin-top:1px}
+.api-info-name{font-size:.85rem;font-weight:700;margin-bottom:3px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.api-info-desc{font-size:.76rem;color:var(--muted);line-height:1.45}
+.api-badge{font-size:.63rem;font-weight:700;padding:2px 7px;border-radius:10px;letter-spacing:.02em}
+.active-badge{background:#2D5016;color:white}
+.idea-badge{background:#e0e0e0;color:#555}
 .sparkline-item{background:rgba(0,0,0,.02);border-radius:8px;padding:10px;border:1px solid rgba(0,0,0,.06)}
 .sparkline-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
 .sparkline-name{flex:1;font-size:.82rem;font-weight:600}
@@ -726,11 +757,14 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
 <div id="weather-popup" class="hidden" onclick="closeWeatherPopup()">
   <div class="weather-popup-card" onclick="event.stopPropagation()">
     <button class="weather-popup-close" onclick="closeWeatherPopup()">✕</button>
+
     <div class="weather-popup-loading" id="weather-popup-loading">
       <div style="font-size:2rem">🌤️</div>
       <div style="font-size:.85rem;color:rgba(255,255,255,.7);margin-top:6px">Wetterdaten laden …</div>
     </div>
+
     <div class="weather-popup-content hidden" id="weather-popup-content">
+      <!-- Header -->
       <div class="weather-popup-header">
         <span class="weather-popup-icon" id="wp-icon">☀️</span>
         <div>
@@ -738,13 +772,31 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
           <div class="weather-popup-date" id="wp-date"></div>
         </div>
       </div>
+
+      <!-- Hauptwetter -->
       <div class="weather-popup-temp" id="wp-temp"></div>
       <div class="weather-popup-desc" id="wp-desc"></div>
+
+      <!-- Detail-Chips -->
       <div class="weather-popup-details">
         <div class="weather-popup-detail" id="wp-rain"></div>
         <div class="weather-popup-detail" id="wp-wind"></div>
         <div class="weather-popup-detail" id="wp-humidity"></div>
       </div>
+
+      <!-- Stündlicher Temperaturverlauf -->
+      <div class="wp-chart-label">🌡️ Temperatur im Tagesverlauf</div>
+      <div class="wp-chart-wrap">
+        <canvas id="wp-temp-chart" height="90"></canvas>
+      </div>
+
+      <!-- Stündlicher Regenverlauf -->
+      <div class="wp-chart-label">🌧️ Niederschlag im Tagesverlauf</div>
+      <div class="wp-chart-wrap">
+        <canvas id="wp-rain-chart" height="70"></canvas>
+      </div>
+
+      <!-- Feiertag/Ferien -->
       <div class="weather-popup-holiday hidden" id="wp-holiday">
         <span id="wp-holiday-text"></span>
       </div>
@@ -1178,7 +1230,7 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
       </div>
     </div>
 
-    <!-- 4. Kategorien-Verteilung + Top-Lieferanten -->
+    <!-- 4. Kategorien-Verteilung -->
     <div class="chart-card">
       <div class="chart-header">
         <h3>🥧 Kategorien-Verteilung</h3>
@@ -1189,15 +1241,16 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
       </div>
     </div>
 
-    <!-- 5. Top-Lieferanten -->
+    <!-- 5. Lieferanten-Auswertung (Pie) -->
     <div class="chart-card">
       <div class="chart-header">
-        <h3>🚚 Top-Lieferanten</h3>
-        <div class="chart-legend">Anteil nach bestellten Artikeln</div>
+        <h3>🚚 Lieferanten-Auswertung</h3>
+        <div class="chart-legend">Anteil bestellter Einheiten pro Lieferant</div>
       </div>
       <div class="chart-container">
         <canvas id="supplier-chart"></canvas>
       </div>
+      <div class="supplier-detail-list" id="supplier-detail-list"></div>
     </div>
 
     <!-- 6. Top-Produkte -->
@@ -1211,7 +1264,27 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
       </div>
     </div>
 
-    <!-- 7. Saisonale Muster -->
+    <!-- 7. Prognose -->
+    <div class="chart-card full-width">
+      <div class="chart-header chart-header-row">
+        <div>
+          <h3>🔮 Produkt-Prognose</h3>
+          <div class="chart-legend">Linearer Trend + gleitender Durchschnitt für die nächsten 4 Bestellungen</div>
+        </div>
+      </div>
+      <div class="forecast-filter">
+        <div class="seasonal-filter-label">Artikel wählen</div>
+        <select id="forecast-product" onchange="renderForecastChart(getAnalysisOrders())">
+          <option value="">Artikel wählen…</option>
+        </select>
+      </div>
+      <div class="chart-container" style="min-height:240px">
+        <canvas id="forecast-chart"></canvas>
+      </div>
+      <div class="forecast-insights" id="forecast-insights"></div>
+    </div>
+
+    <!-- 8. Saisonale Muster -->
     <div class="chart-card full-width">
       <div class="chart-header">
         <h3>🗓️ Saisonale Muster</h3>
@@ -1233,6 +1306,81 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
       </div>
       <div class="chart-container">
         <canvas id="monthly-chart"></canvas>
+      </div>
+    </div>
+
+    <!-- 9. Kalenderwochen-Ansicht -->
+    <div class="chart-card full-width">
+      <div class="chart-header">
+        <h3>📆 Kalenderwochen-Verlauf</h3>
+        <div class="chart-legend">Gesamtmenge je KW – saisonale Ausschläge auf einen Blick</div>
+      </div>
+      <div class="chart-container">
+        <canvas id="kw-chart"></canvas>
+      </div>
+    </div>
+
+    <!-- 10. Vorjahresvergleich – nur wenn Daten vorhanden -->
+    <div class="chart-card full-width" id="lastyear-card" style="display:none">
+      <div class="chart-header">
+        <h3>📅 Diese Woche letztes Jahr</h3>
+        <div class="chart-legend" id="lastyear-legend">Vergleich aktuell vs. Vorjahreszeitraum</div>
+      </div>
+      <div class="chart-container">
+        <canvas id="lastyear-chart"></canvas>
+      </div>
+      <div class="forecast-insights" id="lastyear-insights"></div>
+    </div>
+
+    <!-- 9. Nützliche Datenquellen -->
+    <div class="chart-card full-width" id="api-info-card">
+      <div class="chart-header">
+        <h3>🌐 Live-Datenquellen</h3>
+        <div class="chart-legend">Kostenlose APIs die hier integriert sind oder sinnvoll wären</div>
+      </div>
+      <div class="api-info-grid" id="api-info-grid">
+        <div class="api-info-item active">
+          <div class="api-info-icon">🌤️</div>
+          <div class="api-info-body">
+            <div class="api-info-name">Open-Meteo <span class="api-badge active-badge">Aktiv</span></div>
+            <div class="api-info-desc">Wetter für Bestelltag – Esslingen, Stuttgart, Kernen-Stetten je nach Wochentag</div>
+          </div>
+        </div>
+        <div class="api-info-item active">
+          <div class="api-info-icon">🎉</div>
+          <div class="api-info-body">
+            <div class="api-info-name">Feiertage-API <span class="api-badge active-badge">Aktiv</span></div>
+            <div class="api-info-desc">Gesetzliche Feiertage und Schulferien Baden-Württemberg</div>
+          </div>
+        </div>
+        <div class="api-info-item">
+          <div class="api-info-icon">🥦</div>
+          <div class="api-info-body">
+            <div class="api-info-name">AMI Agrarmarkt <span class="api-badge idea-badge">Idee</span></div>
+            <div class="api-info-desc">Deutsche Großmarktpreise für Obst & Gemüse – zeigt ob Einkaufspreise gerade hoch oder niedrig sind</div>
+          </div>
+        </div>
+        <div class="api-info-item">
+          <div class="api-info-icon">📦</div>
+          <div class="api-info-body">
+            <div class="api-info-name">Open Food Facts <span class="api-badge idea-badge">Idee</span></div>
+            <div class="api-info-desc">Nährwerte, Kategorien, Barcode-Infos zu Produkten – für PLU-Erweiterung</div>
+          </div>
+        </div>
+        <div class="api-info-item">
+          <div class="api-info-icon">📅</div>
+          <div class="api-info-body">
+            <div class="api-info-name">Kalenderwoche + Saison <span class="api-badge idea-badge">Idee</span></div>
+            <div class="api-info-desc">Automatische Saison-Erkennung (Erdbeeren = KW 18–28) für smarte Bestellvorschläge</div>
+          </div>
+        </div>
+        <div class="api-info-item">
+          <div class="api-info-icon">🌡️</div>
+          <div class="api-info-body">
+            <div class="api-info-name">Wetter-Verkaufs-Korrelation <span class="api-badge idea-badge">Idee</span></div>
+            <div class="api-info-desc">Historisches Wetter mit Bestellmenge verknüpfen – z.B. „bei >25°C +30% Beeren"</div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -2114,17 +2262,18 @@ function _applyOrderDay(day) {
 }
 
 // ── Wetter-Popup ──────────────────────────────────────────────────────────────
+let wpCharts = {};
+
 function closeWeatherPopup() {
   document.getElementById('weather-popup').classList.add('hidden');
   document.body.style.overflow = '';
 }
 
 async function loadWeatherAndHolidays(day, isoDate) {
-  const popup = document.getElementById('weather-popup');
+  const popup   = document.getElementById('weather-popup');
   const loading = document.getElementById('weather-popup-loading');
   const content = document.getElementById('weather-popup-content');
 
-  // Popup öffnen, Ladestate zeigen
   popup.classList.remove('hidden');
   document.body.style.overflow = 'hidden';
   loading.classList.remove('hidden');
@@ -2134,63 +2283,133 @@ async function loadWeatherAndHolidays(day, isoDate) {
   const loc = DAY_LOCATIONS[day] || DAY_LOCATIONS['Montag'];
   const d = new Date(isoDate + 'T12:00:00');
   const dateStr = d.toLocaleDateString('de-DE', {weekday:'long', day:'2-digit', month:'long'});
-
   document.getElementById('wp-location').textContent = '📍 ' + loc.label;
   document.getElementById('wp-date').textContent = dateStr;
 
   try {
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${loc.lat}&longitude=${loc.lon}`
+    // Stündliche Daten für Charts + Tageswerte für Header
+    const url = `https://api.open-meteo.com/v1/forecast`
+      + `?latitude=${loc.lat}&longitude=${loc.lon}`
       + `&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_sum,windspeed_10m_max`
-      + `&hourly=relativehumidity_2m&timezone=Europe%2FBerlin&forecast_days=14`;
+      + `&hourly=temperature_2m,precipitation,relativehumidity_2m,weathercode`
+      + `&timezone=Europe%2FBerlin&forecast_days=14`;
+
     const resp = await fetch(url);
     const data = await resp.json();
 
-    const idx = data.daily.time.indexOf(isoDate);
-    if (idx === -1) {
+    const dayIdx = data.daily.time.indexOf(isoDate);
+
+    if (dayIdx === -1) {
       document.getElementById('wp-icon').textContent = '📅';
       document.getElementById('wp-temp').textContent = '–';
       document.getElementById('wp-desc').textContent = 'Kein Wetter verfügbar (> 14 Tage im Voraus)';
-      document.getElementById('wp-rain').textContent = '';
-      document.getElementById('wp-wind').textContent = '';
-      document.getElementById('wp-humidity').textContent = '';
+      ['wp-rain','wp-wind','wp-humidity'].forEach(id => document.getElementById(id).textContent = '');
     } else {
-      const code = data.daily.weathercode[idx];
-      const tmax = data.daily.temperature_2m_max[idx];
-      const tmin = data.daily.temperature_2m_min[idx];
-      const rain = data.daily.precipitation_sum[idx];
-      const wind = data.daily.windspeed_10m_max[idx];
+      // Tages-Header
+      const code  = data.daily.weathercode[dayIdx];
+      const tmax  = data.daily.temperature_2m_max[dayIdx];
+      const tmin  = data.daily.temperature_2m_min[dayIdx];
+      const rain  = data.daily.precipitation_sum[dayIdx];
+      const wind  = data.daily.windspeed_10m_max[dayIdx];
       const descFull = WMO_CODES[code] || '🌡️ Unbekannt';
-      const icon = descFull.split(' ')[0];
-      const desc = descFull.slice(icon.length + 1) || descFull;
+      const icon  = descFull.split(' ')[0];
+      const desc  = descFull.slice(icon.length + 1) || descFull;
 
       document.getElementById('wp-icon').textContent = icon;
       document.getElementById('wp-temp').textContent = `${Math.round(tmax)}° / ${Math.round(tmin)}°`;
       document.getElementById('wp-desc').textContent = desc;
-      document.getElementById('wp-rain').textContent = rain > 0 ? `🌧 ${rain.toFixed(1)} mm` : '';
+      document.getElementById('wp-rain').textContent = rain > 0 ? `🌧 ${rain.toFixed(1)} mm` : '☀️ Kein Regen';
       document.getElementById('wp-wind').textContent = wind > 0 ? `💨 ${Math.round(wind)} km/h` : '';
 
-      const dayStart = idx * 24;
-      const humSlice = (data.hourly?.relativehumidity_2m || []).slice(dayStart, dayStart + 24).filter(v => v != null);
-      if (humSlice.length) {
-        const avgHum = Math.round(humSlice.reduce((a, b) => a + b, 0) / humSlice.length);
-        document.getElementById('wp-humidity').textContent = `💧 ${avgHum}% Luftf.`;
+      // Stündliche Daten für diesen Tag extrahieren (Stunden 6–22)
+      const hourStart = dayIdx * 24;
+      const hours     = Array.from({length: 24}, (_, i) => i); // 0–23
+      const dispHours = hours.filter(h => h >= 6 && h <= 22);  // 6:00–22:00
+
+      const hourTemps = dispHours.map(h => data.hourly.temperature_2m[hourStart + h]);
+      const hourRain  = dispHours.map(h => data.hourly.precipitation[hourStart + h] || 0);
+      const hourHum   = dispHours.map(h => data.hourly.relativehumidity_2m?.[hourStart + h]);
+      const hourLabels = dispHours.map(h => `${h}:00`);
+
+      const avgHum = hourHum.filter(v => v != null);
+      if (avgHum.length) {
+        const avg = Math.round(avgHum.reduce((a,b)=>a+b,0)/avgHum.length);
+        document.getElementById('wp-humidity').textContent = `💧 ${avg}% Luftf.`;
       } else {
         document.getElementById('wp-humidity').textContent = '';
       }
+
+      // Stündlicher Temperatur-Chart
+      if (wpCharts.temp) wpCharts.temp.destroy();
+      wpCharts.temp = new Chart(
+        document.getElementById('wp-temp-chart').getContext('2d'), {
+        type: 'line',
+        data: {
+          labels: hourLabels,
+          datasets: [{
+            data: hourTemps,
+            borderColor: '#FFD166',
+            backgroundColor: 'rgba(255,209,102,.15)',
+            fill: true, tension: 0.4,
+            pointRadius: (ctx) => ctx.dataIndex % 3 === 0 ? 3 : 0,
+            pointBackgroundColor: '#FFD166',
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false },
+            tooltip: { callbacks: { label: i => `${i.raw?.toFixed(1)}°C` } }
+          },
+          scales: {
+            x: { grid: { display: false }, ticks: { color: 'rgba(255,255,255,.6)', font: { size: 9 }, maxRotation: 0,
+                callback: (v, i) => i % 3 === 0 ? hourLabels[i] : '' } },
+            y: { grid: { color: 'rgba(255,255,255,.08)' }, ticks: { color: 'rgba(255,255,255,.6)', font: { size: 9 },
+                callback: v => `${v}°` } }
+          }
+        }
+      });
+
+      // Stündlicher Regen-Chart
+      if (wpCharts.rain) wpCharts.rain.destroy();
+      const maxRain = Math.max(...hourRain, 1);
+      wpCharts.rain = new Chart(
+        document.getElementById('wp-rain-chart').getContext('2d'), {
+        type: 'bar',
+        data: {
+          labels: hourLabels,
+          datasets: [{
+            data: hourRain,
+            backgroundColor: hourRain.map(v =>
+              v > 2 ? 'rgba(30,120,200,.9)' : v > 0 ? 'rgba(100,160,220,.7)' : 'rgba(255,255,255,.1)'
+            ),
+            borderRadius: 3, borderSkipped: false
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false },
+            tooltip: { callbacks: { label: i => `${i.raw?.toFixed(1)} mm` } }
+          },
+          scales: {
+            x: { grid: { display: false }, ticks: { color: 'rgba(255,255,255,.6)', font: { size: 9 }, maxRotation: 0,
+                callback: (v, i) => i % 3 === 0 ? hourLabels[i] : '' } },
+            y: { grid: { color: 'rgba(255,255,255,.08)' }, min: 0, max: Math.max(maxRain * 1.3, 2),
+                ticks: { color: 'rgba(255,255,255,.6)', font: { size: 9 }, callback: v => `${v}mm` } }
+          }
+        }
+      });
     }
   } catch(e) {
     document.getElementById('wp-icon').textContent = '⚠️';
     document.getElementById('wp-temp').textContent = '–';
     document.getElementById('wp-desc').textContent = 'Wetter nicht verfügbar';
-    document.getElementById('wp-rain').textContent = '';
-    document.getElementById('wp-wind').textContent = '';
-    document.getElementById('wp-humidity').textContent = '';
+    ['wp-rain','wp-wind','wp-humidity'].forEach(id => document.getElementById(id).textContent = '');
   }
 
-  // Feiertage & Ferien parallel laden
+  // Ferien & Feiertage parallel (zeigt sich sobald geladen)
   checkHolidaysAndVacations(isoDate).catch(() => {});
 
-  // Ladestate ausblenden, Inhalt zeigen
   loading.classList.add('hidden');
   content.classList.remove('hidden');
 }
@@ -2201,30 +2420,52 @@ async function checkHolidaysAndVacations(isoDate) {
   const txt  = document.getElementById('wp-holiday-text');
   el.classList.add('hidden');
 
-  // Gesetzliche Feiertage BW
+  // 1. Gesetzliche Feiertage BW (feiertage-api.de – sehr zuverlässig)
   try {
     const r = await fetch(`https://feiertage-api.de/api/?jahr=${year}&nur_land=BW`);
-    const data = await r.json();
-    for (const [name, info] of Object.entries(data)) {
-      if (info.datum === isoDate) {
-        txt.textContent = `🎉 Feiertag: ${name}`;
+    if (r.ok) {
+      const data = await r.json();
+      for (const [name, info] of Object.entries(data)) {
+        if (info.datum === isoDate) {
+          txt.textContent = `🎉 Feiertag: ${name}`;
+          el.classList.remove('hidden');
+          return;
+        }
+      }
+    }
+  } catch(e) {}
+
+  // 2. Schulferien BW via OpenHolidays API (offiziell, stabil)
+  try {
+    const from = isoDate;
+    const to   = isoDate;
+    const url  = `https://openholidaysapi.org/SchoolHolidays?countryIsoCode=DE&subdivisionCode=DE-BW`
+      + `&languageIsoCode=DE&validFrom=${from}&validTo=${to}`;
+    const r = await fetch(url, { headers: { Accept: 'application/json' } });
+    if (r.ok) {
+      const data = await r.json();
+      if (data && data.length > 0) {
+        const ferienName = data[0].name?.[0]?.text || 'Schulferien';
+        txt.textContent = `🏖️ ${ferienName} (BW)`;
         el.classList.remove('hidden');
         return;
       }
     }
   } catch(e) {}
 
-  // Schulferien BW
+  // 3. Fallback: ferien-api.de
   try {
     const r = await fetch(`https://ferien-api.de/api/v1/holidays/BW/${year}`);
-    const data = await r.json();
-    for (const ferien of data) {
-      const start = ferien.start?.slice(0, 10);
-      const end   = ferien.end?.slice(0, 10);
-      if (start && end && isoDate >= start && isoDate <= end) {
-        txt.textContent = `🏖️ ${ferien.name || 'Schulferien'} (BW)`;
-        el.classList.remove('hidden');
-        return;
+    if (r.ok) {
+      const data = await r.json();
+      for (const ferien of data) {
+        const start = ferien.start?.slice(0, 10);
+        const end   = ferien.end?.slice(0, 10);
+        if (start && end && isoDate >= start && isoDate <= end) {
+          txt.textContent = `🏖️ ${ferien.name || 'Schulferien'} (BW)`;
+          el.classList.remove('hidden');
+          return;
+        }
       }
     }
   } catch(e) {}
@@ -2344,8 +2585,8 @@ function getArrow(current, avg) {
 // ═══════════════════════════════════════════
 function buildUI() {
   const container = document.getElementById('main');
-  container.innerHTML = '';
   const avgMap = buildAvgMap(orderDay);
+  const frag = document.createDocumentFragment();
 
   CATEGORIES.forEach(cat => {
     const extra = (userProducts[cat.id]||[]).filter(p => p.userAdded);
@@ -2378,8 +2619,11 @@ function buildUI() {
         ${cat.noOrder ? '' : addFormHTML(cat.id)}
       </div>`;
 
-    container.appendChild(el);
+    frag.appendChild(el);
   });
+
+  container.innerHTML = '';
+  container.appendChild(frag);
   updateSummary();
   updateNoDayOverlay();
 }
@@ -2809,6 +3053,20 @@ function getAnalysisOrders(){
   return pool.slice(0, n);
 }
 
+// ── debounce helper ───────────────────────────────────────────────────────────
+function debounce(fn, ms) {
+  let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
+}
+const renderAnalysisDebounced = debounce(() => renderAnalysis(), 120);
+
+function getISOWeek(date) {
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+  const y = d.getUTCFullYear();
+  const start = new Date(Date.UTC(y, 0, 1));
+  return { week: Math.ceil(((d - start) / 86400000 + 1) / 7), year: y };
+}
+
 function renderAnalysis(){
   const orders = getAnalysisOrders();
   if(!orders.length){
@@ -2819,20 +3077,186 @@ function renderAnalysis(){
     document.getElementById('kpi-trend').textContent='-';
     document.getElementById('avg-list').innerHTML='<div class="tab-empty">Noch keine Bestellhistorie vorhanden.</div>';
     document.getElementById('top-products-list').innerHTML='<div class="tab-empty">Keine Daten.</div>';
+    document.getElementById('lastyear-card').style.display='none';
     return;
   }
+  // Charts gestaffelt rendern damit der Browser nicht blockiert
   updateKPIs(orders);
   generateInsights(orders);
   renderTrendChart(orders);
   buildProductPicker(orders);
-  renderProductCompareChart(orders);
-  renderWeekdayChart(orders);
-  renderCategoryChart(orders);
-  renderSupplierChart(orders);
-  populateSeasonalSelects(orders);
-  renderSeasonalChart(orders);
-  renderTopProducts(orders);
-  renderDetailedAverages(orders);
+  setTimeout(() => renderProductCompareChart(orders), 0);
+  setTimeout(() => renderWeekdayChart(orders), 0);
+  setTimeout(() => renderCategoryChart(orders), 0);
+  setTimeout(() => renderSupplierChart(orders), 0);
+  setTimeout(() => {
+    populateSeasonalSelects(orders);
+    renderSeasonalChart(orders);
+    renderKWChart(orders);
+    renderLastYearChart(orders);
+  }, 0);
+  setTimeout(() => {
+    renderTopProducts(orders);
+    populateForecastSelect(orders);
+    renderDetailedAverages(orders);
+  }, 0);
+}
+
+// ── Kalenderwochen-Chart ──────────────────────────────────────────────────────
+function renderKWChart(orders){
+  const ctx = document.getElementById('kw-chart').getContext('2d');
+  if(analysisCharts.kw) analysisCharts.kw.destroy();
+
+  const kwMap = {};
+  orders.forEach(o => {
+    const d = new Date(o.savedAt);
+    const { week, year } = getISOWeek(d);
+    const key = `${year}-KW${String(week).padStart(2,'0')}`;
+    const total = (o.items||[]).filter(x=>x.bestellen>0).reduce((s,it)=>s+it.bestellen,0);
+    kwMap[key] = (kwMap[key]||0) + total;
+  });
+
+  const sorted = Object.entries(kwMap).sort((a,b)=>a[0].localeCompare(b[0]));
+  if(sorted.length < 2){ if(analysisCharts.kw) { analysisCharts.kw.destroy(); analysisCharts.kw=null; } return; }
+
+  const labels = sorted.map(([k])=>k.replace(/\d{4}-/,''));
+  const data   = sorted.map(([,v])=>v);
+  const avg    = data.reduce((a,b)=>a+b,0)/data.length;
+
+  analysisCharts.kw = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Bestellmenge/KW',
+          data,
+          backgroundColor: data.map(v => v > avg*1.3 ? '#D4830A' : v < avg*0.7 ? '#1A6BA0' : '#2D5016'),
+          borderRadius: 5, borderSkipped: false
+        },
+        {
+          label: 'Durchschnitt',
+          data: data.map(()=>avg),
+          type: 'line',
+          borderColor: 'rgba(0,0,0,.25)',
+          borderDash: [5,4],
+          borderWidth: 1.5,
+          pointRadius: 0,
+          fill: false
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position:'bottom', labels:{boxWidth:10,padding:8,font:{size:10}} },
+        tooltip: { callbacks: { label: i => `${i.dataset.label}: ${i.raw?.toFixed ? i.raw.toFixed(0) : i.raw}` } }
+      },
+      scales: {
+        y: { beginAtZero:true, grid:{color:'rgba(0,0,0,.05)'} },
+        x: { grid:{display:false}, ticks:{font:{size:9}, maxRotation:45} }
+      }
+    }
+  });
+}
+
+// ── Vorjahresvergleich ────────────────────────────────────────────────────────
+function renderLastYearChart(orders){
+  const card = document.getElementById('lastyear-card');
+  const ctx  = document.getElementById('lastyear-chart').getContext('2d');
+  if(analysisCharts.lastyear) analysisCharts.lastyear.destroy();
+
+  // Aktuelle KW bestimmen
+  const now = new Date();
+  const { week: currentKW, year: currentYear } = getISOWeek(now);
+
+  // KW-Fenster: ±2 Wochen um aktuelle KW, letztes Jahr
+  const targetYear = currentYear - 1;
+  const targetKWs  = [-2,-1,0,1,2].map(d => {
+    let kw = currentKW + d;
+    if(kw < 1) kw += 52;
+    if(kw > 52) kw -= 52;
+    return kw;
+  });
+
+  // Bestellungen aus dem Vorjahr in diesem KW-Fenster finden
+  const lastYearOrders = rawHistory.filter(o => {
+    if(o.deleted) return false;
+    const d = new Date(o.savedAt);
+    const { week, year } = getISOWeek(d);
+    return year === targetYear && targetKWs.includes(week);
+  });
+
+  if(lastYearOrders.length === 0) {
+    card.style.display = 'none';
+    return;
+  }
+
+  // Auch aktuelle KW-Bestellungen (letzte 5 Bestellungen aus jetzt ±2 KW)
+  const currentOrders = rawHistory.filter(o => {
+    if(o.deleted) return false;
+    const d = new Date(o.savedAt);
+    const { week, year } = getISOWeek(d);
+    return year === currentYear && targetKWs.includes(week);
+  });
+
+  card.style.display = '';
+  document.getElementById('lastyear-legend').textContent =
+    `KW ${currentKW-2}–${currentKW+2} · ${currentYear} vs. ${targetYear}`;
+
+  // Produkt-Mengen aggregieren
+  const sumItems = (orderList) => {
+    const acc = {};
+    orderList.forEach(o => (o.items||[]).filter(x=>x.bestellen>0).forEach(it => {
+      acc[it.name] = (acc[it.name]||0) + it.bestellen;
+    }));
+    return acc;
+  };
+
+  const currMap = sumItems(currentOrders);
+  const lastMap = sumItems(lastYearOrders);
+  const allKeys = [...new Set([...Object.keys(currMap),...Object.keys(lastMap)])]
+    .sort((a,b)=>((lastMap[b]||0)+(currMap[b]||0))-((lastMap[a]||0)+(currMap[a]||0)))
+    .slice(0,12);
+
+  analysisCharts.lastyear = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: allKeys,
+      datasets: [
+        { label: String(targetYear), data: allKeys.map(k=>lastMap[k]||0),
+          backgroundColor: '#1A6BA0cc', borderRadius: 4 },
+        { label: String(currentYear), data: allKeys.map(k=>currMap[k]||0),
+          backgroundColor: '#2D5016cc', borderRadius: 4 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position:'bottom', labels:{boxWidth:10,padding:8,font:{size:10}} }
+      },
+      scales: {
+        y: { beginAtZero:true, grid:{color:'rgba(0,0,0,.05)'} },
+        x: { grid:{display:false}, ticks:{font:{size:9}, maxRotation:35} }
+      }
+    }
+  });
+
+  // Insights
+  const insEl = document.getElementById('lastyear-insights');
+  const currTotal = Object.values(currMap).reduce((a,b)=>a+b,0);
+  const lastTotal = Object.values(lastMap).reduce((a,b)=>a+b,0);
+  const chips = [];
+  if(lastTotal > 0) {
+    const diff = ((currTotal-lastTotal)/lastTotal*100).toFixed(0);
+    const cls  = diff > 10 ? '' : diff < -10 ? 'down' : '';
+    chips.push({cls, txt:`${diff>0?'+':''}${diff}% vs. Vorjahr gesamt`});
+  }
+  const biggerNow = allKeys.filter(k=>(currMap[k]||0)>(lastMap[k]||0)*1.3 && currMap[k]>0).slice(0,2);
+  const biggerLast= allKeys.filter(k=>(lastMap[k]||0)>(currMap[k]||0)*1.3 && lastMap[k]>0).slice(0,2);
+  if(biggerNow.length)  chips.push({cls:'', txt:`📈 Mehr als letztes Jahr: ${biggerNow.join(', ')}`});
+  if(biggerLast.length) chips.push({cls:'warn', txt:`📉 Weniger als letztes Jahr: ${biggerLast.join(', ')}`});
+  insEl.innerHTML = chips.map(c=>`<span class="forecast-chip ${c.cls}">${c.txt}</span>`).join('');
 }
 
 // ── KPIs ──────────────────────────────────────────────────────────────────────
@@ -3203,55 +3627,214 @@ function renderTopProducts(orders){
   }).join('');
 }
 
-// ── Top-Lieferanten Donut ─────────────────────────────────────────────────────
+// ── Lieferanten Pie Chart ─────────────────────────────────────────────────────
 function renderSupplierChart(orders){
   const ctx = document.getElementById('supplier-chart').getContext('2d');
   if(analysisCharts.supplier) analysisCharts.supplier.destroy();
 
-  // Lieferanten aus supplierChoices + Bestelldaten zusammenführen
   const supCount = {};
   orders.forEach(o=>{
     (o.items||[]).filter(x=>x.bestellen>0).forEach(it=>{
       const k = it.catid+'|'+it.name;
-      // Lieferant aus gespeicherten Choices oder aus Bestelldaten
-      const sup = (it.supplier) || supplierChoices[k] || 'Unbekannt';
+      const sup = it.supplier || supplierChoices[k] || 'Nicht zugewiesen';
       supCount[sup] = (supCount[sup]||0) + it.bestellen;
     });
   });
 
-  // Fallback: wenn keine Lieferanten-Daten, Kategorien anzeigen
   const entries = Object.entries(supCount).sort((a,b)=>b[1]-a[1]);
-  if(!entries.length || (entries.length===1 && entries[0][0]==='Unbekannt')){
+  const detailEl = document.getElementById('supplier-detail-list');
+
+  if(!entries.length || (entries.length===1 && entries[0][0]==='Nicht zugewiesen')){
     ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);
     ctx.font = '13px DM Sans, sans-serif';
-    ctx.fillStyle = '#aaa';
-    ctx.textAlign = 'center';
-    ctx.fillText('Noch keine Lieferanten zugewiesen', ctx.canvas.width/2, ctx.canvas.height/2);
+    ctx.fillStyle = '#aaa'; ctx.textAlign = 'center';
+    ctx.fillText('Noch keine Lieferanten zugewiesen', ctx.canvas.width/2, ctx.canvas.height/2-8);
+    ctx.font = '11px DM Sans, sans-serif';
+    ctx.fillText('→ Lieferant beim Bestellen auswählen', ctx.canvas.width/2, ctx.canvas.height/2+12);
+    if(detailEl) detailEl.innerHTML='';
     return;
   }
 
   const top = entries.slice(0,7);
+  const rest = entries.slice(7).reduce((s,[,v])=>s+v,0);
+  if(rest > 0) top.push(['Sonstige', rest]);
   const labels = top.map(([n])=>n);
   const data   = top.map(([,v])=>v);
-  const colors = ['#2D5016','#C0392B','#1A6BA0','#D4830A','#7B3FA0','#1E6F3E','#8B6914'];
+  const total  = data.reduce((a,b)=>a+b,0);
+  const colors = ['#2D5016','#C0392B','#1A6BA0','#D4830A','#7B3FA0','#1E6F3E','#8B6914','#888'];
 
   analysisCharts.supplier = new Chart(ctx,{
-    type:'doughnut',
-    data:{labels, datasets:[{data, backgroundColor:colors, borderWidth:2, borderColor:'#fff'}]},
+    type:'pie',
+    data:{labels, datasets:[{data, backgroundColor:colors, borderWidth:2, borderColor:'#fff', hoverOffset:6}]},
     options:{
       responsive:true, maintainAspectRatio:false,
-      cutout:'58%',
       plugins:{
-        legend:{position:'bottom', labels:{boxWidth:10, padding:7, font:{size:10}}},
+        legend:{display:false},
         tooltip:{callbacks:{
-          label:(i)=>{
-            const total=data.reduce((a,b)=>a+b,0);
-            return `${i.label}: ${i.raw} Einh. (${((i.raw/total)*100).toFixed(1)}%)`;
-          }
+          label:(i)=>`${i.label}: ${i.raw} Einh. (${((i.raw/total)*100).toFixed(1)}%)`
         }}
       }
     }
   });
+
+  // Detail-Liste unterhalb
+  if(detailEl){
+    detailEl.innerHTML = top.map(([name,val],i)=>{
+      const pct = ((val/total)*100).toFixed(1);
+      const col = colors[i] || '#888';
+      return `<div class="supplier-detail-row">
+        <div class="supplier-dot" style="background:${col}"></div>
+        <div class="supplier-name">${name}</div>
+        <div class="supplier-bar-wrap"><div class="supplier-bar-inner" style="width:${pct}%;background:${col}"></div></div>
+        <div class="supplier-pct">${pct}%</div>
+      </div>`;
+    }).join('');
+  }
+}
+
+// ── Prognose ──────────────────────────────────────────────────────────────────
+function populateForecastSelect(orders){
+  const sel = document.getElementById('forecast-product');
+  const prev = sel.value;
+  // Häufigste Produkte sammeln
+  const pc = {};
+  orders.forEach(o=>(o.items||[]).filter(x=>x.bestellen>0).forEach(it=>{
+    const k = it.catid+'|'+it.name;
+    pc[k] = (pc[k]||0)+1;
+  }));
+  const sorted = Object.entries(pc).sort((a,b)=>b[1]-a[1]);
+  sel.innerHTML = '<option value="">Artikel wählen…</option>'
+    + sorted.map(([k])=>{
+        const name = k.split('|')[1]||k;
+        return `<option value="${k}"${k===prev?' selected':''}>${name}</option>`;
+      }).join('');
+  // Bestes Produkt vorauswählen wenn nichts gewählt
+  if(!prev && sorted.length) sel.value = sorted[0][0];
+  renderForecastChart(orders);
+}
+
+function renderForecastChart(orders){
+  const ctx = document.getElementById('forecast-chart').getContext('2d');
+  if(analysisCharts.forecast) analysisCharts.forecast.destroy();
+  const insightsEl = document.getElementById('forecast-insights');
+
+  const key = document.getElementById('forecast-product').value;
+  if(!key){ insightsEl.innerHTML=''; return; }
+
+  const [catid, pname] = key.split('|');
+  // Bestelldaten für dieses Produkt (älteste zuerst)
+  const sorted = orders.slice().reverse();
+  const vals = sorted.map(o=>{
+    const it = (o.items||[]).find(x=>x.catid===catid&&x.name===pname&&x.bestellen>0);
+    return it ? it.bestellen : 0;
+  });
+  const dates = sorted.map(o=>new Date(o.savedAt).toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'}));
+
+  if(vals.filter(v=>v>0).length < 2){
+    ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);
+    ctx.font='13px DM Sans,sans-serif'; ctx.fillStyle='#aaa'; ctx.textAlign='center';
+    ctx.fillText('Zu wenig Daten für Prognose', ctx.canvas.width/2, ctx.canvas.height/2);
+    insightsEl.innerHTML='';
+    return;
+  }
+
+  // Linearer Trend berechnen (kleinste Quadrate)
+  const n = vals.length;
+  const xMean = (n-1)/2;
+  const yMean = vals.reduce((a,b)=>a+b,0)/n;
+  let num=0, den=0;
+  vals.forEach((y,x)=>{ num+=(x-xMean)*(y-yMean); den+=(x-xMean)**2; });
+  const slope = den ? num/den : 0;
+  const intercept = yMean - slope*xMean;
+  const trendLine = vals.map((_,x)=>Math.max(0, intercept+slope*x));
+
+  // Gleitender Durchschnitt (Fenster 3)
+  const maWindow = 3;
+  const ma = vals.map((_,i)=>{
+    if(i < maWindow-1) return null;
+    const slice = vals.slice(i-maWindow+1, i+1);
+    return slice.reduce((a,b)=>a+b,0)/maWindow;
+  });
+
+  // Prognose für 4 weitere Punkte
+  const forecastCount = 4;
+  const forecastVals = [];
+  for(let i=0; i<forecastCount; i++){
+    forecastVals.push(Math.max(0, Math.round(intercept + slope*(n+i))));
+  }
+  const forecastLabels = forecastVals.map((_,i)=>`+${i+1}`);
+
+  const allLabels = [...dates, ...forecastLabels];
+  const historicData  = [...vals,     ...Array(forecastCount).fill(null)];
+  const trendData     = [...trendLine, ...forecastVals];
+  const maData        = [...ma,        ...Array(forecastCount).fill(null)];
+
+  analysisCharts.forecast = new Chart(ctx,{
+    type:'line',
+    data:{
+      labels: allLabels,
+      datasets:[
+        {
+          label:'Tatsächlich',
+          data: historicData,
+          borderColor:'#2D5016', backgroundColor:'rgba(45,80,22,.08)',
+          fill:true, tension:0.3, pointRadius:4, borderWidth:2,
+          spanGaps:false
+        },
+        {
+          label:'Gleit. Ø (3)',
+          data: maData,
+          borderColor:'#1A6BA0', borderDash:[4,3],
+          fill:false, tension:0.4, pointRadius:0, borderWidth:1.5,
+          spanGaps:false
+        },
+        {
+          label:'Prognose',
+          data: trendData,
+          borderColor:'#D4830A', backgroundColor:'rgba(212,131,10,.07)',
+          borderDash:[6,4], fill:false, tension:0.2,
+          pointRadius:(ctx)=> ctx.dataIndex >= n ? 5 : 0,
+          pointBackgroundColor:'#D4830A', borderWidth:2,
+          spanGaps:true
+        }
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{position:'bottom', labels:{boxWidth:12, padding:10, font:{size:11}}},
+        tooltip:{callbacks:{
+          title:(items)=>{
+            const i = items[0].dataIndex;
+            return i >= n ? `Prognose ${forecastLabels[i-n]}` : dates[i];
+          }
+        }}
+      },
+      scales:{
+        y:{beginAtZero:true, grid:{color:'rgba(0,0,0,0.05)'}},
+        x:{grid:{display:false},
+          ticks:{callback:(v,i)=>{
+            if(i===n) return '↓ Prognose';
+            return allLabels[i];
+          }}
+        }
+      }
+    }
+  });
+
+  // Insights
+  const nextVal = forecastVals[0];
+  const lastVal = vals[vals.length-1]||0;
+  const avgVal  = yMean;
+  const chips = [];
+  chips.push({cls:'', txt:`📦 Nächste Bestellung: ca. <strong>${nextVal}</strong> Einheiten`});
+  if(slope > 0.3) chips.push({cls:'', txt:`📈 Steigender Trend (+${slope.toFixed(1)}/Bestellung)`});
+  else if(slope < -0.3) chips.push({cls:'down', txt:`📉 Sinkender Trend (${slope.toFixed(1)}/Bestellung)`});
+  else chips.push({cls:'', txt:`→ Stabiler Bedarf (Ø ${avgVal.toFixed(1)})`});
+  const variance = vals.map(v=>(v-avgVal)**2).reduce((a,b)=>a+b,0)/n;
+  const std = Math.sqrt(variance);
+  if(std > avgVal*0.4 && avgVal > 0) chips.push({cls:'warn', txt:`⚠️ Hohe Schwankung (±${std.toFixed(1)})`});
+  insightsEl.innerHTML = chips.map(c=>`<span class="forecast-chip ${c.cls}">${c.txt}</span>`).join('');
 }
 
 // ── Detaillierte Durchschnittswerte ───────────────────────────────────────────
@@ -4003,7 +4586,8 @@ document.addEventListener('click', e => {
 
 function downloadKiemleXLS() {
   const inp = document.getElementById('kiemle-date-input');
-  inp.value = new Date().toISOString().slice(0,10);
+  // orderDate vorausfüllen falls vorhanden
+  inp.value = orderDate || new Date().toISOString().slice(0,10);
   document.getElementById('kiemle-date-modal').classList.remove('hidden');
 }
 
@@ -4268,9 +4852,9 @@ function downloadMerzPDF() {
   if(rCheck) rCheck.checked = false;
   if(lCheck) lCheck.checked = false;
   updateMerzCheckStyle();
-  const today=new Date();
-  const yyyy=today.getFullYear(),mm=String(today.getMonth()+1).padStart(2,'0'),dd=String(today.getDate()).padStart(2,'0');
-  document.getElementById('merz-date-input').value=`${yyyy}-${mm}-${dd}`;
+  // orderDate vorausfüllen falls vorhanden
+  const base = orderDate || new Date().toISOString().slice(0,10);
+  document.getElementById('merz-date-input').value = base;
   document.getElementById('merz-date-modal').classList.remove('hidden');
 }
 
@@ -4549,6 +5133,97 @@ async function confirmBauerDate() {
   URL.revokeObjectURL(url);
   showToast('Gärtnerei Bauer Bestellung heruntergeladen ✓');
 }
+
+// ═══════════════════════════════════════════
+//  SERVICE WORKER – OFFLINE FIRST
+// ═══════════════════════════════════════════
+(function registerSW() {
+  if (!('serviceWorker' in navigator)) return;
+
+  const swCode = `
+const CACHE = 'hofmarkt-v1';
+const PRECACHE = [
+  'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js',
+  'https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600&display=swap',
+  'https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js'
+];
+
+self.addEventListener('install', e => {
+  e.waitUntil(
+    caches.open(CACHE).then(c => c.addAll(PRECACHE).catch(()=>{}))
+  );
+  self.skipWaiting();
+});
+
+self.addEventListener('activate', e => {
+  e.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))
+    )
+  );
+  self.clients.claim();
+});
+
+self.addEventListener('fetch', e => {
+  const url = e.request.url;
+  // Netzwerk-only für Google Sheets API und Wetter-APIs
+  if (url.includes('script.google.com') ||
+      url.includes('open-meteo.com') ||
+      url.includes('feiertage-api.de') ||
+      url.includes('openholidaysapi.org') ||
+      url.includes('ferien-api.de')) {
+    e.respondWith(fetch(e.request).catch(() => new Response('', {status: 503})));
+    return;
+  }
+  // Cache-first für statische Assets (CDN, Fonts)
+  if (url.includes('cdn.jsdelivr.net') ||
+      url.includes('fonts.googleapis.com') ||
+      url.includes('fonts.gstatic.com') ||
+      url.includes('cdnjs.cloudflare.com')) {
+    e.respondWith(
+      caches.match(e.request).then(cached => {
+        if (cached) return cached;
+        return fetch(e.request).then(resp => {
+          const clone = resp.clone();
+          caches.open(CACHE).then(c => c.put(e.request, clone));
+          return resp;
+        }).catch(() => cached || new Response('', {status: 503}));
+      })
+    );
+    return;
+  }
+  // Alles andere: Network-first mit Cache-Fallback
+  e.respondWith(
+    fetch(e.request)
+      .then(resp => {
+        if (resp.ok) {
+          const clone = resp.clone();
+          caches.open(CACHE).then(c => c.put(e.request, clone));
+        }
+        return resp;
+      })
+      .catch(() => caches.match(e.request))
+  );
+});
+`;
+
+  const blob = new Blob([swCode], { type: 'application/javascript' });
+  const swUrl = URL.createObjectURL(blob);
+  navigator.serviceWorker.register(swUrl, { scope: '/' })
+    .then(reg => {
+      console.log('[SW] Registriert:', reg.scope);
+      // Auf Update prüfen
+      reg.addEventListener('updatefound', () => {
+        const nw = reg.installing;
+        nw?.addEventListener('statechange', () => {
+          if (nw.state === 'installed' && navigator.serviceWorker.controller) {
+            showToast('🔄 Update verfügbar – Seite neu laden');
+          }
+        });
+      });
+    })
+    .catch(e => console.log('[SW] Fehler:', e));
+})();
 
 init();
 </script>
