@@ -469,12 +469,30 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
 .no-results{text-align:center;padding:36px;color:var(--muted);font-size:.88rem;display:none}
 .tab-empty{text-align:center;padding:28px 18px;color:var(--muted);font-size:.86rem;line-height:1.6}
 
-/* ── VERBINDUNGS-DOT (Apple-Style) ── */
+/* ── VERBINDUNGS-DOT + STATUS-LABEL ── */
 .header-title-row{display:flex;align-items:center;gap:8px;margin-bottom:2px}
+.conn-wrap{display:flex;align-items:center;gap:5px;flex-shrink:0;margin-left:2px}
 .conn-dot{
   width:9px;height:9px;border-radius:50%;flex-shrink:0;
-  margin-left:2px;margin-top:1px;
+  margin-top:1px;
   position:relative;transition:background .4s;
+}
+#conn-label{
+  font-size:.62rem;
+  color:rgba(255,255,255,.72);
+  white-space:nowrap;
+  line-height:1;
+  transition:color .3s;
+  max-width:160px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+#conn-label.state-connecting { color:rgba(240,165,0,.9); }
+#conn-label.state-online     { color:rgba(140,210,80,.9); }
+#conn-label.state-offline    { color:rgba(224,85,69,.9);  }
+#conn-label.state-autosave   { color:rgba(140,210,80,.75); }
+@media(prefers-color-scheme:dark){
+  #conn-label { color:rgba(255,255,255,.6); }
 }
 .conn-dot::after{
   content:'';position:absolute;inset:-3px;border-radius:50%;
@@ -908,7 +926,10 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
 <header>
   <div class="header-title-row">
     <h1>Hofmarkt Bestellplan</h1>
-    <div id="conn-dot" class="conn-dot conn-connecting" title="Verbinde …"></div>
+    <div class="conn-wrap">
+      <div id="conn-dot" class="conn-dot conn-connecting"></div>
+      <span id="conn-label" class="state-connecting">Verbinde …</span>
+    </div>
   </div>
   <div class="header-row2">
     <div class="search-bar">
@@ -1391,57 +1412,7 @@ header h1{font-family:'DM Serif Display',serif;font-size:1.3rem}
       <div class="forecast-insights" id="lastyear-insights"></div>
     </div>
 
-    <!-- 9. Nützliche Datenquellen -->
-    <div class="chart-card full-width" id="api-info-card">
-      <div class="chart-header">
-        <h3>🌐 Live-Datenquellen</h3>
-        <div class="chart-legend">Kostenlose APIs die hier integriert sind oder sinnvoll wären</div>
-      </div>
-      <div class="api-info-grid" id="api-info-grid">
-        <div class="api-info-item active">
-          <div class="api-info-icon">🌤️</div>
-          <div class="api-info-body">
-            <div class="api-info-name">Open-Meteo <span class="api-badge active-badge">Aktiv</span></div>
-            <div class="api-info-desc">Wetter für Bestelltag – Esslingen, Stuttgart, Kernen-Stetten je nach Wochentag</div>
-          </div>
-        </div>
-        <div class="api-info-item active">
-          <div class="api-info-icon">🎉</div>
-          <div class="api-info-body">
-            <div class="api-info-name">Feiertage-API <span class="api-badge active-badge">Aktiv</span></div>
-            <div class="api-info-desc">Gesetzliche Feiertage und Schulferien Baden-Württemberg</div>
-          </div>
-        </div>
-        <div class="api-info-item">
-          <div class="api-info-icon">🥦</div>
-          <div class="api-info-body">
-            <div class="api-info-name">AMI Agrarmarkt <span class="api-badge idea-badge">Idee</span></div>
-            <div class="api-info-desc">Deutsche Großmarktpreise für Obst & Gemüse – zeigt ob Einkaufspreise gerade hoch oder niedrig sind</div>
-          </div>
-        </div>
-        <div class="api-info-item">
-          <div class="api-info-icon">📦</div>
-          <div class="api-info-body">
-            <div class="api-info-name">Open Food Facts <span class="api-badge idea-badge">Idee</span></div>
-            <div class="api-info-desc">Nährwerte, Kategorien, Barcode-Infos zu Produkten – für PLU-Erweiterung</div>
-          </div>
-        </div>
-        <div class="api-info-item">
-          <div class="api-info-icon">📅</div>
-          <div class="api-info-body">
-            <div class="api-info-name">Kalenderwoche + Saison <span class="api-badge idea-badge">Idee</span></div>
-            <div class="api-info-desc">Automatische Saison-Erkennung (Erdbeeren = KW 18–28) für smarte Bestellvorschläge</div>
-          </div>
-        </div>
-        <div class="api-info-item">
-          <div class="api-info-icon">🌡️</div>
-          <div class="api-info-body">
-            <div class="api-info-name">Wetter-Verkaufs-Korrelation <span class="api-badge idea-badge">Idee</span></div>
-            <div class="api-info-desc">Historisches Wetter mit Bestellmenge verknüpfen – z.B. „bei >25°C +30% Beeren"</div>
-          </div>
-        </div>
-      </div>
-    </div>
+    
 
   </div>
 
@@ -1697,43 +1668,236 @@ async function flushSyncQueue() {
 }
 
 // ═══════════════════════════════════════════
+//  SUPABASE FALLBACK CONFIG
+// ═══════════════════════════════════════════
+const SUPABASE_URL = "https://weofxjenluajebyrdpbz.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlb2Z4amVubHVhamVieXJkcGJ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5MDkwODIsImV4cCI6MjA5NjQ4NTA4Mn0.qm0ThsyV28fPhviac4bn3Ve3V4aYA5_Fdu1zDfvgJ84";
+const SUPABASE_HEADERS = {
+  'Content-Type': 'application/json',
+  'apikey': SUPABASE_KEY,
+  'Authorization': 'Bearer ' + SUPABASE_KEY,
+  'Prefer': 'return=representation'
+};
+
+let activeBackend    = 'sheets';
+let sheetsFailedAt   = null;
+let supabaseFailedAt = null;
+const BACKEND_TIMEOUT     = 10000;
+const BACKEND_RETRY_AFTER = 10000;
+
+function updateBackendIndicator() {
+  const dot   = document.getElementById('conn-dot');
+  const label = document.getElementById('conn-label');
+  if (!dot) return;
+  if (activeBackend === 'supabase') {
+    dot.style.background = '#D4830A';
+    if (label && label.className !== 'state-connecting' && label.className !== 'state-offline') {
+      label.textContent = 'Supabase';
+      label.className   = 'state-online';
+    }
+  } else {
+    dot.style.background = '';
+    if (label && label.className !== 'state-connecting' && label.className !== 'state-offline') {
+      label.textContent = 'Google Sheets';
+      label.className   = 'state-online';
+    }
+  }
+}
+
+// Ping-Pong: nach 10s immer das andere Backend probieren
+function shouldUseSheets() {
+  const now = Date.now();
+  if (!sheetsFailedAt) return true;
+  const sheetsReady    = (now - sheetsFailedAt)   > BACKEND_RETRY_AFTER;
+  if (!supabaseFailedAt) return false;
+  const supabaseReady  = (now - supabaseFailedAt) > BACKEND_RETRY_AFTER;
+  if (sheetsReady && supabaseReady) return sheetsFailedAt <= supabaseFailedAt;
+  return sheetsReady;
+}
+
+async function sbFetch(path, opts = {}) {
+  const url = SUPABASE_URL + '/rest/v1' + path;
+  const fetchOpts = { ...opts, headers: { ...SUPABASE_HEADERS, ...(opts.headers || {}) } };
+  const res = await Promise.race([
+    fetch(url, fetchOpts),
+    new Promise((_, reject) => setTimeout(() => reject(new Error('Supabase Timeout')), 12000))
+  ]);
+  if (!res.ok) throw new Error('Supabase ' + res.status + ': ' + await res.text().catch(() => res.statusText));
+  const text = await res.text();
+  return text ? JSON.parse(text) : null;
+}
+
+async function sbEnsureTables() {
+  try {
+    await Promise.all([
+      sbFetch('/orders?limit=0'), sbFetch('/user_products?limit=0'),
+      sbFetch('/custom_suppliers?limit=0'), sbFetch('/supplier_choices?limit=0'),
+      sbFetch('/kiemle_mapping?limit=0'), sbFetch('/merz_mapping?limit=0')
+    ]);
+  } catch(e) { console.warn('[Supabase] Tabellen-Prüfung:', e.message); }
+}
+
+async function sbLoadInit(limit = 100) {
+  const [ordersRaw, productsRaw, suppliersRaw, choicesRaw, kiemleRaw, merzRaw] = await Promise.all([
+    sbFetch('/orders?select=*&deleted=eq.false&order=saved_at.desc&limit=' + limit),
+    sbFetch('/user_products?select=*'),
+    sbFetch('/custom_suppliers?select=name'),
+    sbFetch('/supplier_choices?select=key,supplier'),
+    sbFetch('/kiemle_mapping?select=hofmarkt_name,kiemle_artikel'),
+    sbFetch('/merz_mapping?select=hofmarkt_name,merz_artikel')
+  ]);
+  const history = (ordersRaw || []).map(r => ({
+    savedAt: r.saved_at, weekday: r.weekday || '', deleted: false,
+    hasBestand: r.has_bestand||false, hasBestellen: r.has_bestellen||false,
+    editedAt: r.edited_at||null, items: r.items||[],
+    generalNote: r.general_note||'', oneTimeItems: r.one_time_items||[]
+  }));
+  const products = {};
+  (productsRaw||[]).forEach(r => {
+    if (!products[r.cat_id]) products[r.cat_id] = [];
+    products[r.cat_id].push({plu:r.plu||'',name:r.name||'',addedAt:r.added_at||'',userAdded:true});
+  });
+  const customSuppliers = (suppliersRaw||[]).map(r=>r.name).filter(Boolean);
+  const supplierChoices = {};
+  (choicesRaw||[]).forEach(r => { if(r.key&&r.supplier) supplierChoices[r.key]=r.supplier; });
+  const kiemleMapping = {};
+  (kiemleRaw||[]).forEach(r => { if(r.hofmarkt_name&&r.kiemle_artikel) kiemleMapping[r.hofmarkt_name]=r.kiemle_artikel; });
+  const merzMapping = {};
+  (merzRaw||[]).forEach(r => { if(r.hofmarkt_name&&r.merz_artikel) merzMapping[r.hofmarkt_name]=r.merz_artikel; });
+  return {history, products, customSuppliers, supplierChoices, kiemleMapping, merzMapping};
+}
+
+async function sbSaveOrder(order) {
+  await sbFetch('/orders', {method:'POST', body:JSON.stringify({
+    saved_at:order.savedAt, weekday:order.weekday||'', deleted:false,
+    has_bestand:order.hasBestand||false, has_bestellen:order.hasBestellen||false,
+    edited_at:order.editedAt||null, items:order.items||[],
+    general_note:order.generalNote||'', one_time_items:order.oneTimeItems||[]
+  })});
+}
+async function sbUpdateOrder(order) {
+  const s = (order.savedAt||'').replace(/^'/,'').trim();
+  await sbFetch('/orders?saved_at=eq.'+encodeURIComponent(s), {method:'PATCH', body:JSON.stringify({
+    weekday:order.weekday||'', has_bestand:order.hasBestand||false,
+    has_bestellen:order.hasBestellen||false, edited_at:order.editedAt||new Date().toISOString(),
+    items:order.items||[], general_note:order.generalNote||'', one_time_items:order.oneTimeItems||[]
+  })});
+}
+async function sbDeleteOrder(savedAt) {
+  const s = (savedAt||'').replace(/^'/,'').trim();
+  await sbFetch('/orders?saved_at=eq.'+encodeURIComponent(s), {method:'PATCH', body:JSON.stringify({deleted:true})});
+}
+async function sbSaveProduct(catId, product) {
+  await sbFetch('/user_products', {method:'POST', body:JSON.stringify({cat_id:catId,plu:product.plu||'–',name:product.name,added_at:new Date().toISOString()})});
+}
+async function sbDeleteProduct(catId, plu, name) {
+  await sbFetch('/user_products?cat_id=eq.'+encodeURIComponent(catId)+'&plu=eq.'+encodeURIComponent(plu)+'&name=eq.'+encodeURIComponent(name),{method:'DELETE',headers:{'Prefer':''}});
+}
+async function sbSaveCustomSupplier(name) {
+  await sbFetch('/custom_suppliers?on_conflict=name',{method:'POST',headers:{'Prefer':'resolution=merge-duplicates,return=representation'},body:JSON.stringify({name,added_at:new Date().toISOString()})});
+}
+async function sbSaveSupplierChoice(key, supplier) {
+  await sbFetch('/supplier_choices?on_conflict=key',{method:'POST',headers:{'Prefer':'resolution=merge-duplicates,return=representation'},body:JSON.stringify({key,supplier,updated_at:new Date().toISOString()})});
+}
+async function sbSaveKiemleMapping(mapping) {
+  await sbFetch('/kiemle_mapping',{method:'DELETE',headers:{'Prefer':''}});
+  const rows=Object.entries(mapping).filter(([k,v])=>k&&v).map(([k,v])=>({hofmarkt_name:k,kiemle_artikel:v}));
+  if(rows.length) await sbFetch('/kiemle_mapping',{method:'POST',body:JSON.stringify(rows)});
+}
+async function sbSaveMerzMapping(mapping) {
+  await sbFetch('/merz_mapping',{method:'DELETE',headers:{'Prefer':''}});
+  const rows=Object.entries(mapping).filter(([k,v])=>k&&v).map(([k,v])=>({hofmarkt_name:k,merz_artikel:v}));
+  if(rows.length) await sbFetch('/merz_mapping',{method:'POST',body:JSON.stringify(rows)});
+}
+async function _mirrorToSupabase(payload) {
+  const a=(payload.action||'').toLowerCase();
+  if(a==='saveorder')          return sbSaveOrder(payload.order);
+  if(a==='updateorder')        return sbUpdateOrder(payload.order);
+  if(a==='deleteorder')        return sbDeleteOrder(payload.savedAt);
+  if(a==='saveproduct')        return sbSaveProduct(payload.catId,payload.product);
+  if(a==='deleteproduct')      return sbDeleteProduct(payload.catId,payload.plu,payload.name);
+  if(a==='savecustomsupplier') return sbSaveCustomSupplier(payload.name);
+  if(a==='savesupplierchoice') return sbSaveSupplierChoice(payload.key,payload.supplier);
+  if(a==='savekiemlemapping')  return sbSaveKiemleMapping(payload.mapping);
+  if(a==='savemerzmapping')    return sbSaveMerzMapping(payload.mapping);
+}
+
+// ═══════════════════════════════════════════
 //  API
 // ═══════════════════════════════════════════
+// Timeout ohne AbortSignal (kein Cloning-Problem mit SW/no-cors)
+function fetchWithTimeout(url, opts, ms) {
+  return Promise.race([
+    fetch(url, opts),
+    new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout nach ' + ms + 'ms')), ms))
+  ]);
+}
+
 async function apiGet(params) {
-  const url = SCRIPT_URL + '?' + new URLSearchParams(params).toString() + '&t=' + Date.now();
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 10000);
+  if (shouldUseSheets()) {
+    setConnDot('connecting', 'Google Sheets …');
+    try {
+      const url = SCRIPT_URL + '?' + new URLSearchParams(params).toString() + '&t=' + Date.now();
+      const res  = await fetchWithTimeout(url, {cache:'no-cache', redirect:'follow'}, BACKEND_TIMEOUT);
+      const data = JSON.parse(await res.text());
+      activeBackend = 'sheets'; sheetsFailedAt = null; sheetsOnline = true;
+      updateBackendIndicator();
+      return data;
+    } catch(e) {
+      sheetsFailedAt = Date.now(); sheetsOnline = false;
+      console.warn('[apiGet] Sheets → Supabase:', e.message);
+    }
+  }
+  setConnDot('connecting', 'Supabase …');
   try {
-    const res = await fetch(url, {cache:'no-cache', redirect:'follow', signal: controller.signal});
-    clearTimeout(timeout);
-    const text = await res.text();
-    try { return JSON.parse(text); }
-    catch(e) { throw new Error('Keine JSON-Antwort'); }
+    const action = (params.action||'').toLowerCase();
+    let data;
+    if (action === 'init') {
+      data = await sbLoadInit(parseInt(params.historyLimit||'100'));
+    } else if (action === 'gethistory') {
+      const all = await sbLoadInit(200);
+      let h = all.history;
+      if (params.from)    h = h.filter(o => o.savedAt >= params.from);
+      if (params.to)      h = h.filter(o => o.savedAt <= params.to + 'T23:59:59.999Z');
+      if (params.weekday) h = h.filter(o => o.weekday === params.weekday);
+      data = { history: h };
+    } else if (action === 'ping') {
+      data = { status: 'ok' };
+    } else {
+      data = await sbLoadInit(100);
+    }
+    activeBackend = 'supabase'; supabaseFailedAt = null; sheetsOnline = false;
+    updateBackendIndicator(); setConnDot('online');
+    return data;
   } catch(e) {
-    clearTimeout(timeout);
-    if (e.name === 'AbortError') throw new Error('Timeout');
-    throw e;
+    supabaseFailedAt = Date.now(); setConnDot('offline'); throw e;
   }
 }
 
 async function apiPost(payload) {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 10000);
-  try {
-    await fetch(SCRIPT_URL, {
-      method:'POST', mode:'no-cors', body:JSON.stringify(payload),
-      signal: controller.signal
-    });
-    clearTimeout(timeout);
-    sheetsOnline = true;
-  } catch(e) {
-    clearTimeout(timeout);
-    sheetsOnline = false;
-    setConnDot('offline');
-    const syncActions = ['saveorder','updateorder','deleteorder'];
-    if (syncActions.includes((payload.action||'').toLowerCase())) {
-      enqueueSyncAction(payload);
+  const action = (payload.action||'').toLowerCase();
+  const syncActions = ['saveorder','updateorder','deleteorder'];
+  if (shouldUseSheets()) {
+    setConnDot('connecting', 'Google Sheets …');
+    try {
+      await fetchWithTimeout(SCRIPT_URL, {method:'POST', mode:'no-cors', body:JSON.stringify(payload)}, BACKEND_TIMEOUT);
+      activeBackend = 'sheets'; sheetsFailedAt = null; sheetsOnline = true;
+      updateBackendIndicator();
+      _mirrorToSupabase(payload).catch(()=>{});
+      return;
+    } catch(e) {
+      sheetsFailedAt = Date.now(); sheetsOnline = false;
+      console.warn('[apiPost] Sheets → Supabase:', e.message);
     }
+  }
+  try {
+    setConnDot('connecting', 'Supabase …');
+    await _mirrorToSupabase(payload);
+    activeBackend = 'supabase'; supabaseFailedAt = null; sheetsOnline = false;
+    updateBackendIndicator(); setConnDot('online');
+  } catch(e) {
+    supabaseFailedAt = Date.now(); setConnDot('offline');
+    if (syncActions.includes(action)) enqueueSyncAction(payload);
     throw e;
   }
 }
@@ -1772,6 +1936,7 @@ async function init() {
 
   // ── Im Hintergrund mit Google Sheets verbinden ──
   setConnDot('connecting');
+  sbEnsureTables().catch(()=>{});
   try {
     const d = await Promise.race([
       apiGet({action:'init'}),
@@ -1801,13 +1966,25 @@ async function init() {
   }
 }
 
-function setConnDot(state) {
-  // state: 'connecting' | 'online' | 'offline'
-  const dot = document.getElementById('conn-dot');
+function setConnDot(state, customText) {
+  const dot   = document.getElementById('conn-dot');
+  const label = document.getElementById('conn-label');
   if (!dot) return;
   dot.className = 'conn-dot conn-' + state;
-  const titles = {connecting:'Verbinde …', online:'Verbunden mit Google Sheets', offline:'Offline – keine Verbindung'};
-  dot.title = titles[state] || '';
+  if (label) {
+    label.className = 'state-' + state;
+    if (customText) {
+      label.textContent = customText;
+    } else {
+      const texts = {
+        connecting: 'Verbinde …',
+        online:     activeBackend === 'supabase' ? 'Supabase' : 'Google Sheets',
+        offline:    'Keine Verbindung'
+      };
+      label.textContent = texts[state] || '';
+    }
+  }
+  updateBackendIndicator();
 }
 
 function setStatus(ok) {
@@ -1977,6 +2154,33 @@ function findItemElement(catid, plu, name) {
 }
 
 // ═══════════════════════════════════════════
+//  SCHLIESSEN-WARNUNG
+// ═══════════════════════════════════════════
+function hasUnsavedData() {
+  if (editMode) return true;
+  let has = false;
+  document.querySelectorAll('#main .item .qty-input').forEach(i => { if (parseFloat(i.value) > 0) has = true; });
+  document.querySelectorAll('#main .item .notiz-input').forEach(i => { if (i.value.trim()) has = true; });
+  if (onetimeItems.length > 0) has = true;
+  if (getGeneralNote().trim()) has = true;
+  return has;
+}
+window.addEventListener('beforeunload', (e) => {
+  if (hasUnsavedData()) {
+    e.preventDefault();
+    e.returnValue = 'Du hast ungespeicherte Eintragungen. Wirklich verlassen?';
+    return e.returnValue;
+  }
+});
+
+// ── DOPPELBESTELLUNGS-PRÜFUNG ──────────────────────────────────
+function checkDuplicateOrderForDay(dateISO) {
+  const dayStart = dateISO + 'T00:00:00.000Z';
+  const dayEnd   = dateISO + 'T23:59:59.999Z';
+  return rawHistory.filter(o => !o.deleted && o.savedAt >= dayStart && o.savedAt <= dayEnd);
+}
+
+// ═══════════════════════════════════════════
 //  MODAL & SPEICHERN
 // ═══════════════════════════════════════════
 function handleSaveBtn() {
@@ -2125,6 +2329,19 @@ async function confirmSave() {
     btn.textContent = '💾 Speichern';
     btn.classList.remove('edit-mode');
   } else {
+    // Doppelbestellungs-Prüfung
+    if (orderDate) {
+      const dupes = checkDuplicateOrderForDay(orderDate);
+      if (dupes.length > 0) {
+        const info = dupes.map(o => {
+          const t = new Date(o.savedAt).toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
+          const n = (o.items||[]).filter(i=>i.bestellen>0).length;
+          return '  • ' + t + ' Uhr – ' + n + ' Artikel';
+        }).join('\n');
+        const ok = confirm('⚠️ Für ' + day + ' (' + orderDate + ') gibt es bereits ' + dupes.length + ' Bestellung(en):\n\n' + info + '\n\nTrotzdem speichern?');
+        if (!ok) { btn.disabled = false; btn.textContent = '💾 Speichern'; return; }
+      }
+    }
     const hasBestand   = items.some(i => i.bestand  > 0);
     const hasBestellen = items.some(i => i.bestellen > 0);
     const order = {
@@ -3126,7 +3343,25 @@ function getISOWeek(date) {
 
 function renderAnalysis(){
   const orders = getAnalysisOrders();
+
+  // Ladebalken
+  let prog = document.getElementById('analysis-progress');
+  if (!prog) {
+    prog = document.createElement('div');
+    prog.id = 'analysis-progress';
+    prog.style.cssText = 'padding:0 16px 6px';
+    prog.innerHTML = '<div style="height:3px;background:rgba(255,255,255,.2);border-radius:2px;overflow:hidden"><div id="analysis-progress-bar" style="height:100%;width:0%;background:rgba(255,255,255,.85);border-radius:2px;transition:width .3s ease"></div></div><div id="analysis-progress-label" style="font-size:.62rem;color:rgba(255,255,255,.6);text-align:right;margin-top:2px"></div>';
+    const hdr = document.querySelector('.analysis-header');
+    if (hdr) hdr.appendChild(prog);
+  }
+  const bar = document.getElementById('analysis-progress-bar');
+  const lbl = document.getElementById('analysis-progress-label');
+  const setP = (p, t) => { if(bar) bar.style.width=p+'%'; if(lbl) lbl.textContent=t; };
+  prog.style.display = '';
+
   if(!orders.length){
+    setP(100, 'Keine Daten');
+    setTimeout(() => { prog.style.display='none'; }, 800);
     document.getElementById('insights-content').innerHTML = '<div class="tab-empty">Noch keine Bestellhistorie vorhanden.</div>';
     document.getElementById('kpi-total-orders').textContent='0';
     document.getElementById('kpi-period').textContent='-';
@@ -3137,25 +3372,27 @@ function renderAnalysis(){
     document.getElementById('lastyear-card').style.display='none';
     return;
   }
-  // Charts gestaffelt rendern damit der Browser nicht blockiert
+
+  setP(10, 'KPIs & Insights …');
   updateKPIs(orders);
   generateInsights(orders);
   renderTrendChart(orders);
+  setP(30, 'Produktvergleich …');
   buildProductPicker(orders);
-  setTimeout(() => renderProductCompareChart(orders), 0);
-  setTimeout(() => renderWeekdayChart(orders), 0);
-  setTimeout(() => renderCategoryChart(orders), 0);
-  setTimeout(() => renderSupplierChart(orders), 0);
+  setTimeout(() => { renderProductCompareChart(orders); setP(45, 'Wochentage …'); }, 0);
+  setTimeout(() => { renderWeekdayChart(orders); setP(55, 'Kategorien …'); }, 0);
+  setTimeout(() => { renderCategoryChart(orders); setP(65, 'Lieferanten …'); }, 0);
+  setTimeout(() => { renderSupplierChart(orders); setP(75, 'Saisonale Muster …'); }, 0);
   setTimeout(() => {
-    populateSeasonalSelects(orders);
-    renderSeasonalChart(orders);
-    renderKWChart(orders);
-    renderLastYearChart(orders);
+    populateSeasonalSelects(orders); renderSeasonalChart(orders);
+    renderKWChart(orders); renderLastYearChart(orders);
+    setP(90, 'Top-Produkte & Prognose …');
   }, 0);
   setTimeout(() => {
-    renderTopProducts(orders);
-    populateForecastSelect(orders);
+    renderTopProducts(orders); populateForecastSelect(orders);
     renderDetailedAverages(orders);
+    setP(100, orders.length + ' Bestellungen analysiert ✓');
+    setTimeout(() => { prog.style.display='none'; }, 1500);
   }, 0);
 }
 
@@ -4286,9 +4523,18 @@ function doAutosave() {
   try {
     localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(snap));
     const ind = document.getElementById('autosave-indicator');
-    if(ind && (items.length > 0 || snap.generalNote || snap.oneTimeItems.length > 0)) {
+    if(items.length > 0 || snap.generalNote || snap.oneTimeItems.length > 0) {
       const t = new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
-      ind.textContent = `💾 Autosave ${t} – ${items.length} Artikel`;
+      if(ind) ind.textContent = `💾 Autosave ${t} – ${items.length} Artikel`;
+      // Conn-Label kurz auf Autosave-Status setzen
+      const lbl = document.getElementById('conn-label');
+      if(lbl) {
+        const prev = lbl.textContent;
+        const prevCls = lbl.className;
+        lbl.textContent = `Autosave ${t}`;
+        lbl.className = 'state-autosave';
+        setTimeout(() => { lbl.textContent = prev; lbl.className = prevCls; }, 3000);
+      }
     }
   } catch(e) {}
 }
@@ -5188,98 +5434,28 @@ async function confirmBauerDate() {
   showToast('Gärtnerei Bauer Bestellung heruntergeladen ✓');
 }
 
-// ═══════════════════════════════════════════
-//  SERVICE WORKER – OFFLINE FIRST
-// ═══════════════════════════════════════════
-(function registerSW() {
-  if (!('serviceWorker' in navigator)) return;
-
-  const swCode = `
-const CACHE = 'hofmarkt-v1';
-const PRECACHE = [
-  'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js',
-  'https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600&display=swap',
-  'https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js'
-];
-
-self.addEventListener('install', e => {
-  e.waitUntil(
-    caches.open(CACHE).then(c => c.addAll(PRECACHE).catch(()=>{}))
-  );
-  self.skipWaiting();
-});
-
-self.addEventListener('activate', e => {
-  e.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))
-    )
-  );
-  self.clients.claim();
-});
-
-self.addEventListener('fetch', e => {
-  const url = e.request.url;
-  // Netzwerk-only für Google Sheets API und Wetter-APIs
-  if (url.includes('script.google.com') ||
-      url.includes('open-meteo.com') ||
-      url.includes('feiertage-api.de') ||
-      url.includes('openholidaysapi.org') ||
-      url.includes('ferien-api.de')) {
-    e.respondWith(fetch(e.request).catch(() => new Response('', {status: 503})));
-    return;
-  }
-  // Cache-first für statische Assets (CDN, Fonts)
-  if (url.includes('cdn.jsdelivr.net') ||
-      url.includes('fonts.googleapis.com') ||
-      url.includes('fonts.gstatic.com') ||
-      url.includes('cdnjs.cloudflare.com')) {
-    e.respondWith(
-      caches.match(e.request).then(cached => {
-        if (cached) return cached;
-        return fetch(e.request).then(resp => {
-          const clone = resp.clone();
-          caches.open(CACHE).then(c => c.put(e.request, clone));
-          return resp;
-        }).catch(() => cached || new Response('', {status: 503}));
-      })
-    );
-    return;
-  }
-  // Alles andere: Network-first mit Cache-Fallback
-  e.respondWith(
-    fetch(e.request)
-      .then(resp => {
-        if (resp.ok) {
-          const clone = resp.clone();
-          caches.open(CACHE).then(c => c.put(e.request, clone));
-        }
-        return resp;
-      })
-      .catch(() => caches.match(e.request))
-  );
-});
-`;
-
-  const blob = new Blob([swCode], { type: 'application/javascript' });
-  const swUrl = URL.createObjectURL(blob);
-  navigator.serviceWorker.register(swUrl, { scope: '/' })
-    .then(reg => {
-      console.log('[SW] Registriert:', reg.scope);
-      // Auf Update prüfen
-      reg.addEventListener('updatefound', () => {
-        const nw = reg.installing;
-        nw?.addEventListener('statechange', () => {
-          if (nw.state === 'installed' && navigator.serviceWorker.controller) {
-            showToast('🔄 Update verfügbar – Seite neu laden');
-          }
-        });
-      });
-    })
-    .catch(e => console.log('[SW] Fehler:', e));
-})();
+// ═══════════════════════
+//  SERVICE WORKER – deaktiviert
+//  Blob-URL wird von Browsern blockiert.
+// ═══════════════════════
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then(regs => regs.forEach(r => r.unregister()));
+}
 
 init();
+
+// Scroll-to-Top Button
+(function() {
+  const scrollBtn = document.getElementById('scroll-top-btn');
+  if (scrollBtn) {
+    window.addEventListener('scroll', () => {
+      scrollBtn.classList.toggle('visible', window.scrollY > 300);
+    }, { passive: true });
+  }
+  // Heutigen Tag markieren
+  const _todayName = ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'][new Date().getDay()];
+  document.querySelectorAll('.day-btn').forEach(b => b.classList.toggle('today-btn', b.dataset.day === _todayName));
+})();
 </script>
 </body>
 </html>
