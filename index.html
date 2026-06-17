@@ -9,7 +9,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
 /* ─────────────────────────────────────────────────────
-   HOFMARKT
+   HOFMARKT — iOS 18 / Apple Design Language
    SF Pro Display · Vibrancy · Material · Spring Motion
 ───────────────────────────────────────────────────── */
 
@@ -145,9 +145,9 @@ body {
   background: var(--bg-grouped);
   color: var(--label);
   min-height: 100dvh;
-  padding-bottom: env(safe-area-inset-bottom, 20px);
-  overscroll-behavior: none;
+  padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px));
   overflow-x: hidden;
+  overflow-y: auto;
 }
 
 /* ══ HEADER ══════════════════════════════════════════ */
@@ -2025,13 +2025,237 @@ header h1 {
   .kpi-grid      { grid-template-columns: repeat(4, 1fr); }
   .uebersichten  { flex-direction: row; }
 }
+
+/* ══ VISUAL REFINEMENTS ═══════════════════════════ */
+
+/* Tab icons — use text symbols, styled cleanly */
+.tab-icon {
+  font-size: 1.3rem;
+  line-height: 1;
+  display: block;
+  font-style: normal;
+  transition: transform .22s var(--spring), opacity .18s;
+  opacity: .5;
+}
+.tab-btn.active .tab-icon { opacity: 1; transform: scale(1.08); }
+.tab-label { opacity: .55; transition: opacity .18s; }
+.tab-btn.active .tab-label { opacity: 1; font-weight: 600; }
+
+/* Day banner — cleaner pick button */
+#day-banner-pick-btn {
+  gap: 0;
+  padding: 18px 20px;
+}
+.pick-label { padding: 0; }
+.pick-title { font-size: 1rem; font-weight: 600; margin-bottom: 4px; }
+.pick-sub   { font-size: .78rem; opacity: .6; }
+.pick-arrow { font-size: 1.3rem; opacity: .55; margin-left: 8px; }
+
+/* Categories — tighter, more air inside */
+.cat-header { padding: 14px 18px; }
+.cat-name   { font-size: .94rem; letter-spacing: .004em; }
+.item       { padding: 9px 18px; gap: 4px; }
+.item-main  { gap: 8px; }
+.plu-num    { min-width: 30px; font-size: .72rem; }
+.plu-name   { font-size: .92rem; }
+
+/* Qty inputs — more pill-like */
+.qty-input { border-radius: 12px; font-size: .88rem; }
+.qty-input:focus { box-shadow: 0 0 0 4px rgba(45,106,31,.13); }
+
+/* Summary header — gradient depth */
+.bestell-section .summary-header {
+  background: linear-gradient(135deg, #d94035 0%, #b02d23 100%);
+}
+.gesamt-section .summary-header {
+  background: linear-gradient(135deg, #2a6120 0%, #193d12 100%);
+}
+
+/* Summary rows — breathe */
+.summary-row { padding: 7px 16px; gap: 8px; }
+.sum-name    { font-size: .88rem; }
+.sum-badge-order, .sum-badge-qty {
+  font-size: .68rem;
+  padding: 3px 10px;
+  border-radius: 100px;
+  letter-spacing: .01em;
+}
+
+/* Buttons — more consistent rounding */
+.btn-bestellmenu { border-radius: 14px; padding: 13px 18px; font-size: .9rem; }
+.btn-print       { border-radius: 12px; }
+.btn-kiemle      { border-radius: 12px; }
+.btn-import-bestand { border-radius: 12px; }
+.btn-clear       { font-size: .84rem; padding: 8px 22px; border-radius: 10px; }
+
+/* Modals — more generous padding */
+.modal-sheet { padding: 0 22px calc(36px + env(safe-area-inset-bottom,0px)); }
+.modal-sheet h2 { font-size: 1.2rem; margin-bottom: 6px; }
+.modal-sheet p  { margin-bottom: 22px; line-height: 1.55; }
+.btn-modal-ok, .btn-modal-cancel { border-radius: 14px; padding: 15px; font-size: .94rem; }
+
+/* Day grid — pill buttons */
+.day-grid { gap: 8px; margin-bottom: 20px; }
+.day-btn  { border-radius: 14px; padding: 13px 4px; font-size: .82rem; }
+.day-btn.selected { box-shadow: 0 2px 10px rgba(45,106,31,.25); }
+
+/* Bestellmenu sheet */
+.bestellmenu-sheet { border-radius: 24px 24px 0 0; }
+.bestellmenu-handle { margin: 12px auto 6px; }
+.bestellmenu-title {
+  font-size: .7rem;
+  font-weight: 700;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: var(--label-3);
+  padding: 8px 20px 14px;
+}
+.bestellmenu-section {
+  padding: 14px 20px 5px;
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .09em;
+  color: var(--label-3);
+}
+.bestellmenu-icon {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  font-size: .68rem !important;
+  letter-spacing: 0 !important;
+  font-weight: 800 !important;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.bestellmenu-row { padding: 11px 16px 11px 20px; }
+.bestellmenu-label strong { font-size: .88rem; font-weight: 600; }
+.bestellmenu-label span   { font-size: .74rem; color: var(--label-3); margin-top: 1px; }
+
+/* History */
+.hist-item        { padding: 15px 18px; }
+.hist-item-day    { font-size: .96rem; }
+.btn-hist-edit, .btn-hist-duplicate, .btn-hist-delete {
+  border-radius: 10px;
+  padding: 7px 14px;
+  font-size: .78rem;
+}
+
+/* Onetime section */
+.onetime-header { padding: 13px 18px; }
+.onetime-chevron { font-size: .9rem; font-weight: 300; color: rgba(255,255,255,.5); }
+.onetime-section.open .onetime-chevron { transform: rotate(90deg); }
+
+/* General notes */
+.general-notes-header { padding: 14px 18px; gap: 0; }
+.general-notes-header-text { font-size: .94rem; letter-spacing: .004em; }
+.general-notes-textarea { border-radius: 14px; padding: 12px 14px; }
+
+/* Filter bar */
+.filter-bar { border-radius: 16px; padding: 14px 16px; }
+.day-chip   { border-radius: 100px; padding: 6px 15px; font-size: .78rem; }
+
+/* KPIs */
+.kpi-card   { border-radius: 16px; padding: 16px; }
+.kpi-value  { font-size: 1.6rem; font-weight: 800; }
+
+/* Chart cards */
+.chart-card    { border-radius: 16px; }
+.insights-panel{ border-radius: 16px; }
+.insights-header { padding: 14px 18px; font-size: .94rem; }
+
+/* Kiemle sheet */
+.kiemle-sheet  { border-radius: 24px 24px 0 0; }
+.btn-kiemle-save, .btn-kiemle-cancel { border-radius: 14px; padding: 14px; font-size: .92rem; }
+
+/* Toast refinement */
+#toast {
+  font-size: .84rem;
+  letter-spacing: .01em;
+  padding: 12px 24px;
+}
+
+/* Scroll-top refinement */
+#scroll-top-btn { width: 38px; height: 38px; font-size: .9rem; }
+
+/* Remove orphan borders on first/last category items */
+.category:first-child { margin-top: 0; }
+.category:last-child  { margin-bottom: 0; }
+
+/* Separator line between tab panel sections */
+.tab-panel > * + * { /* spacing handled by margin-bottom on individual components */ }
+
+/* Print button margin fix */
+.btn-print { width: calc(100% - 28px); justify-content: center; }
+.btn-kiemle { width: calc(100% - 28px); justify-content: center; }
+
+/* Header title refinement */
+header h1 { font-size: 1.3rem; letter-spacing: -.02em; }
+
+/* Conn badge tighter */
+.conn-wrap { padding: 4px 8px 4px 6px; border-radius: 100px; gap: 5px; }
+#conn-label { font-size: .65rem; }
+
+/* Picker label gap when no icon */
+.pick-label { flex: 1; }
+
+/* Category count badge */
+.cat-count { padding: 2px 9px; font-size: .64rem; }
+
+/* Template items */
+.template-item { border-radius: 12px; }
+.template-item-day { font-size: .92rem; }
+
+/* Merz/Bauer/Kiemle date modal inputs */
+#kiemle-date-input,
+#merz-date-input,
+#bauer-date-input {
+  background: var(--fill-3) !important;
+  color: var(--label) !important;
+  border-color: var(--sep) !important;
+}
+
+/* Merz checkbox labels — dark mode */
+@media (prefers-color-scheme: dark) {
+  #merz-check-label-rechnung,
+  #merz-check-label-lieferschein {
+    background: var(--fill-4);
+    border-color: var(--sep);
+    color: var(--label);
+  }
+}
+
+/* General content spacing in tab panels */
+.tab-panel { padding: 14px 14px 24px; }
+
+/* Avg section */
+.avg-section  { border-radius: 16px; }
+.avg-row      { padding: 7px 16px; font-size: .86rem; }
+
+/* API info cards */
+.api-info-card   { border-radius: 16px; }
+.api-info-header { padding: 12px 16px; }
+
+/* Banner change button */
+.btn-banner-change { 
+  padding: 7px 16px; 
+  font-size: .8rem; 
+  border-radius: 100px;
+}
+
+/* Summary empty state */
+.summary-empty { padding: 24px; font-size: .88rem; }
+
+/* Smooth cat open/close */
+.cat-items { animation: none; }
+.category.open .cat-items {
+  animation: iosReveal .18s var(--ease-out) both;
+}
 </style>
 </head>
 <body>
 
 <div id="print-overlay">
   <div class="print-close-bar">
-    <button class="btn-do-print" onclick="window.print()">🖨️ Jetzt drucken</button>
+    <button class="btn-do-print" onclick="window.print()">Drucken</button>
     <button class="btn-close-print" onclick="document.getElementById('print-overlay').classList.remove('visible')">✕ Schließen</button>
   </div>
   <div id="print-doc"></div>
@@ -2040,7 +2264,7 @@ header h1 {
 <!-- DATUMS-MODAL: Datum wählen beim Bestellen -->
 <div id="date-day-modal" class="hidden">
   <div class="date-day-sheet">
-    <h2>📅 Für welchen Tag bestellst du?</h2>
+    <h2>Für welchen Tag bestellst du?</h2>
     <p>Wähle das Datum – der Wochentag wird automatisch erkannt.</p>
     <div class="date-input-row">
       <label>Datum</label>
@@ -2048,7 +2272,7 @@ header h1 {
     </div>
     <div id="date-day-preview" style="display:none;margin-bottom:14px;padding:10px 13px;background:var(--brand-tint);border-radius:10px;font-size:.9rem;font-weight:700;color:var(--brand);text-align:center;"></div>
     <div class="modal-actions">
-      <button class="btn-modal-ok" id="date-day-ok" onclick="confirmDateDay()" disabled>✅ Bestätigen</button>
+      <button class="btn-modal-ok" id="date-day-ok" onclick="confirmDateDay()" disabled>Bestätigen</button>
       <button class="btn-modal-cancel" onclick="closeDateDayModal()">Später</button>
     </div>
   </div>
@@ -2088,13 +2312,13 @@ header h1 {
       </div>
 
       <!-- Stündlicher Temperaturverlauf -->
-      <div class="wp-chart-label">🌡️ Temperatur im Tagesverlauf</div>
+      <div class="wp-chart-label">Temperatur im Tagesverlauf</div>
       <div class="wp-chart-wrap">
         <canvas id="wp-temp-chart" height="90"></canvas>
       </div>
 
       <!-- Stündlicher Regenverlauf -->
-      <div class="wp-chart-label">🌧️ Niederschlag im Tagesverlauf</div>
+      <div class="wp-chart-label">Niederschlag im Tagesverlauf</div>
       <div class="wp-chart-wrap">
         <canvas id="wp-rain-chart" height="70"></canvas>
       </div>
@@ -2109,11 +2333,11 @@ header h1 {
 
 <div class="modal-overlay hidden" id="template-modal">
   <div class="modal-sheet">
-    <h2>📋 Vorlage laden</h2>
+    <h2>Vorlage laden</h2>
     <p>Wähle eine Bestellung aus der Historie als Vorlage.</p>
     <div class="template-list" id="template-list"></div>
     <div class="modal-actions">
-      <button class="btn-modal-ok" id="template-ok-btn" onclick="confirmLoadTemplate()" disabled>✅ Laden & Tag wählen</button>
+      <button class="btn-modal-ok" id="template-ok-btn" onclick="confirmLoadTemplate()" disabled>Laden & Tag wählen</button>
       <button class="btn-modal-cancel" onclick="closeTemplateModal()">Abbrechen</button>
     </div>
   </div>
@@ -2121,7 +2345,7 @@ header h1 {
 
 <div class="modal-overlay hidden" id="day-modal">
   <div class="modal-sheet">
-    <h2>📅 Für welchen Tag?</h2>
+    <h2>Für welchen Tag?</h2>
     <p>Bitte wähle den Wochentag, für den diese Bestellung gilt.</p>
     <div class="day-grid">
       <button class="day-btn" data-day="Montag"     onclick="selectDay(this)">Mo<br>Montag</button>
@@ -2133,7 +2357,7 @@ header h1 {
       <button class="day-btn" data-day="Sonntag"    onclick="selectDay(this)">So<br>Sonntag</button>
     </div>
     <div class="modal-actions">
-      <button class="btn-modal-ok" id="modal-ok-btn" onclick="confirmSave()" disabled>💾 Speichern</button>
+      <button class="btn-modal-ok" id="modal-ok-btn" onclick="confirmSave()" disabled>Speichern</button>
       <button class="btn-modal-cancel" onclick="closeModal()">Abbrechen</button>
     </div>
   </div>
@@ -2151,15 +2375,15 @@ header h1 {
     <div class="search-bar">
       <input type="text" id="search" placeholder="Suchen nach Name oder PLU …" oninput="filterItems(this.value)">
     </div>
-    <button class="btn-primary" onclick="handleSaveBtn()" id="btn-save">💾 Speichern</button>
+    <button class="btn-primary" onclick="handleSaveBtn()" id="btn-save">Speichern</button>
   </div>
 </header>
 <div id="status-bar" style="display:none"></div>
 <div id="autosave-indicator"></div>
 <div id="edit-mode-banner">
-  <span id="edit-mode-label">✏️ Bearbeitung: …</span>
+  <span id="edit-mode-label">Bearbeitung: …</span>
   <span style="font-size:.7rem;opacity:.75">Tag ändern? Beim Speichern auswählen.</span>
-  <button class="btn-cancel-edit" onclick="cancelEditMode()">✕ Abbrechen</button>
+  <button class="btn-cancel-edit" onclick="cancelEditMode()">Abbrechen</button>
 </div>
 
 <div class="tabs">
@@ -2172,7 +2396,7 @@ header h1 {
 <div id="tab-bestellen" class="tab-panel active">
   <div id="day-banner">
     <button id="day-banner-pick-btn" onclick="openDateDayModal()">
-      <span class="pick-icon">📅</span>
+      
       <span class="pick-label">
         <span class="pick-title">Tag &amp; Datum wählen um Eintragungen zu starten</span>
         <span class="pick-sub">Tippen zum Auswählen</span>
@@ -2181,10 +2405,10 @@ header h1 {
     </button>
     <div id="day-banner-selected">
       <span id="day-banner-date-text"></span>
-      <button class="btn-banner-change" onclick="openDateDayModal()">✏️ Ändern</button>
+      <button class="btn-banner-change" onclick="openDateDayModal()">Ändern</button>
     </div>
     <div id="day-banner-template">
-      <button class="btn-load-template" onclick="openTemplateModal()">📋 Letzte Bestellung als Vorlage laden</button>
+      <button class="btn-load-template" onclick="openTemplateModal()">Letzte Bestellung als Vorlage laden</button>
     </div>
   </div>
   <div id="main"></div>
@@ -2192,16 +2416,16 @@ header h1 {
   <!-- ═══ EINMALIGE ARTIKEL (NEU) ═══ -->
   <div class="onetime-section" id="onetime-section">
     <div class="onetime-header" onclick="toggleOnetimeSection()">
-      <span class="onetime-header-icon">➕</span>
+      
       <span class="onetime-header-text">Einmalige Artikel</span>
       <span class="onetime-count-badge" id="onetime-count-badge">0</span>
-      <span class="onetime-chevron">▼</span>
+      <span class="onetime-chevron">›</span>
     </div>
     <div class="onetime-body">
       <div class="onetime-add-row">
         <input type="text" id="onetime-name-input" placeholder="Artikelname …" onkeydown="if(event.key==='Enter')addOnetimeItem()">
         <input type="number" id="onetime-qty-input" placeholder="Menge" min="1" onkeydown="if(event.key==='Enter')addOnetimeItem()">
-        <button class="btn-onetime-add" onclick="addOnetimeItem()">+ Hinzufügen</button>
+        <button class="btn-onetime-add" onclick="addOnetimeItem()">Hinzufügen</button>
       </div>
       <div class="onetime-list" id="onetime-list">
         <div class="onetime-empty" id="onetime-empty">Noch keine einmaligen Artikel.</div>
@@ -2209,10 +2433,10 @@ header h1 {
     </div>
   </div>
 
-  <!-- ═══ ALLGEMEINE NOTIZEN ═══ -->
+  <!-- ═══ ALLGEMEINE NOTIZEN (NEU) ═══ -->
   <div class="general-notes-section">
     <div class="general-notes-header">
-      <span class="general-notes-header-icon">📝</span>
+      
       <span class="general-notes-header-text">Notizen zur Bestellung</span>
     </div>
     <div class="general-notes-body">
@@ -2232,17 +2456,17 @@ header h1 {
 <div id="tab-uebersicht" class="tab-panel">
   <div class="uebersichten">
     <div class="summary-section bestell-section">
-      <div class="summary-header"><h2>🛒 Zu bestellen</h2><span class="sum-count" id="bestell-count">0</span></div>
+      <div class="summary-header"><h2>Zu bestellen</h2><span class="sum-count" id="bestell-count">0</span></div>
       <div id="bestell-list"></div>
-      <button class="btn-bestellmenu" onclick="openBestellMenu()">📋 Bestelllisten &amp; Konfiguration</button>
+      <button class="btn-bestellmenu" onclick="openBestellMenu()">Bestelllisten &amp; Konfiguration</button>
       <button class="btn-clear" onclick="clearBestellen()">Bestellmengen löschen</button>
     </div>
     <div class="summary-section gesamt-section">
-      <div class="summary-header"><h2>📦 Bestandsübersicht</h2><span class="sum-count" id="gesamt-count">0</span></div>
+      <div class="summary-header"><h2>Bestandsübersicht</h2><span class="sum-count" id="gesamt-count">0</span></div>
       <div id="gesamt-list"></div>
-      <button class="btn-print" onclick="shareList('bestand')">💾 Bestand exportieren (.json)</button>
+      <button class="btn-print" onclick="shareList('bestand')">Bestand exportieren (.json)</button>
       <label class="btn-import-bestand">
-        📥 Bestand importieren (.json)
+        Bestand importieren (.json)
         <input type="file" accept=".json" style="display:none" onchange="importBestand(this)">
       </label>
       <button class="btn-clear" onclick="clearBestand()">Bestände löschen</button>
@@ -2253,13 +2477,13 @@ header h1 {
 <!-- KIEMLE MAPPING MODAL -->
 <div id="kiemle-modal" class="kiemle-modal hidden">
   <div class="kiemle-sheet">
-    <h2>⚙️ Kiemle Zuordnung</h2>
+    <h2>Kiemle Zuordnung</h2>
     <p>Welches Hofmarkt-Produkt entspricht welchem Kiemle-Artikel?</p>
     <input type="search" id="kiemle-search" placeholder="🔍 Suchen…" oninput="filterKiemleRows(this.value)"
       style="width:100%;box-sizing:border-box;padding:9px 12px;border:0.5px solid var(--sep);border-radius:9px;font-family:inherit;font-size:.88rem;margin-bottom:12px;outline:none;background:var(--fill-3);color:var(--label);">
     <div id="kiemle-mapping-body"></div>
     <div class="kiemle-footer">
-      <button class="btn-kiemle-save" onclick="saveKiemleMapping()">✓ Speichern</button>
+      <button class="btn-kiemle-save" onclick="saveKiemleMapping()">Speichern</button>
       <button class="btn-kiemle-cancel" onclick="closeKiemleMapping()">Abbrechen</button>
     </div>
   </div>
@@ -2269,53 +2493,53 @@ header h1 {
 <div id="bestellmenu-overlay" class="bestellmenu-overlay hidden" onclick="closeBestellMenuOutside(event)">
   <div class="bestellmenu-sheet">
     <div class="bestellmenu-handle"></div>
-    <div class="bestellmenu-title">📋 Bestelllisten &amp; Konfiguration</div>
+    <div class="bestellmenu-title">Bestelllisten &amp; Konfiguration</div>
 
     <div class="bestellmenu-section">Einkaufszettel</div>
     <button class="bestellmenu-row" onclick="bestellMenuAction('print')">
-      <div class="bestellmenu-icon" style="background:#1a1208">🖨️</div>
+      <div class="bestellmenu-icon" style="background:#1a1208;font-size:.7rem;font-weight:800;letter-spacing:-.02em;color:#fff">Print</div>
       <div class="bestellmenu-label"><strong>Einkaufszettel drucken</strong><span>Als Druckansicht öffnen</span></div>
     </button>
     <button class="bestellmenu-row" onclick="bestellMenuAction('share')">
-      <div class="bestellmenu-icon" style="background:#0f2a40">📤</div>
+      <div class="bestellmenu-icon" style="background:#0f2a40;font-size:.7rem;font-weight:800;color:#fff">Teilen</div>
       <div class="bestellmenu-label"><strong>Einkaufszettel teilen</strong><span>Per Link oder App teilen</span></div>
     </button>
 
     <div class="bestellmenu-sep"></div>
     <div class="bestellmenu-section">Lieferanten-Bestellformulare</div>
     <button class="bestellmenu-row" onclick="bestellMenuAction('kiemle')">
-      <div class="bestellmenu-icon" style="background:#3a1f6e">📥</div>
+      <div class="bestellmenu-icon" style="background:#3a1f6e;font-size:.75rem;font-weight:800;color:#fff">KIE</div>
       <div class="bestellmenu-label"><strong>Kiemle Bestellformular</strong><span>Excel-Datei herunterladen</span></div>
     </button>
     <button class="bestellmenu-row" onclick="bestellMenuAction('merz')">
-      <div class="bestellmenu-icon" style="background:#5a1a0a">📥</div>
+      <div class="bestellmenu-icon" style="background:#5a1a0a;font-size:.75rem;font-weight:800;color:#fff">MRZ</div>
       <div class="bestellmenu-label"><strong>Merz Bestellformular</strong><span>PDF herunterladen</span></div>
     </button>
     <button class="bestellmenu-row" onclick="bestellMenuAction('bauer')">
-      <div class="bestellmenu-icon" style="background:#2c5016">📥</div>
+      <div class="bestellmenu-icon" style="background:#2c5016;font-size:.75rem;font-weight:800;color:#fff">BAU</div>
       <div class="bestellmenu-label"><strong>Gärtnerei Bauer Bestellung</strong><span>PDF herunterladen</span></div>
     </button>
 
     <div class="bestellmenu-sep"></div>
     <div class="bestellmenu-section">Einstellungen</div>
     <button class="bestellmenu-row" onclick="bestellMenuAction('config')">
-      <div class="bestellmenu-icon" style="background:#162840">⚙️</div>
+      <div class="bestellmenu-icon" style="background:#162840;font-size:.75rem;font-weight:800;color:#fff">CFG</div>
       <div class="bestellmenu-label"><strong>Zuordnung / Konfiguration</strong><span>Lieferanten-Mappings verwalten</span></div>
     </button>
 
     <div class="bestellmenu-sep"></div>
-    <button class="bestellmenu-row" onclick="closeBestellMenu()" style="justify-content:center;color:var(--muted,#888);font-size:.88rem;font-weight:600">Schließen</button>
+    <button class="bestellmenu-row" onclick="closeBestellMenu()" style="justify-content:center;color:var(--label-2);font-size:.88rem;font-weight:500;border:none;">Schließen</button>
   </div>
 </div>
 
 <!-- KIEMLE DATE PICKER MODAL -->
 <div id="kiemle-date-modal" class="modal-overlay hidden">
   <div class="modal-sheet">
-    <h2>📅 Lieferdatum wählen</h2>
+    <h2>Lieferdatum wählen</h2>
     <p>Für welches Datum soll das Kiemle-Bestellformular gelten?</p>
-    <input type="date" id="kiemle-date-input" style="width:100%;padding:10px;border:1.5px solid #ddd;border-radius:9px;font-family:inherit;font-size:1rem;margin-bottom:16px;outline:none">
+    <input type="date" id="kiemle-date-input" style="width:100%;padding:12px 14px;border:0.5px solid var(--sep);border-radius:12px;font-family:inherit;font-size:1rem;margin-bottom:16px;outline:none;background:var(--fill-3);color:var(--label);box-sizing:border-box;">
     <div class="modal-actions">
-      <button class="btn-modal-ok" id="kiemle-date-ok" onclick="confirmKiemleDate()">📥 Herunterladen</button>
+      <button class="btn-modal-ok" id="kiemle-date-ok" onclick="confirmKiemleDate()">Herunterladen</button>
       <button class="btn-modal-cancel" onclick="document.getElementById('kiemle-date-modal').classList.add('hidden')">Abbrechen</button>
     </div>
   </div>
@@ -2324,21 +2548,21 @@ header h1 {
 <!-- MERZ DATE PICKER MODAL -->
 <div id="merz-date-modal" class="modal-overlay hidden">
   <div class="modal-sheet">
-    <h2>📅 Merz – Lieferdatum wählen</h2>
+    <h2>Merz – Lieferdatum wählen</h2>
     <p>Dokumenttyp und Datum für das Merz-Bestellformular wählen.</p>
     <div style="display:flex;gap:10px;margin-bottom:14px">
-      <label style="display:flex;align-items:center;gap:8px;flex:1;padding:10px 12px;border:2px solid #ddd;border-radius:10px;cursor:pointer;font-family:inherit;font-size:.88rem;font-weight:600;transition:all .15s" id="merz-check-label-rechnung">
+      <label style="display:flex;align-items:center;gap:8px;flex:1;padding:10px 12px;border:0.5px solid var(--sep);border-radius:12px;cursor:pointer;font-family:inherit;font-size:.88rem;font-weight:500;transition:all .15s;background:var(--fill-4);color:var(--label);" id="merz-check-label-rechnung">
         <input type="checkbox" id="merz-check-rechnung" onchange="updateMerzCheckStyle()" style="width:16px;height:16px;cursor:pointer;accent-color:#8a2d1a">
         Rechnung
       </label>
-      <label style="display:flex;align-items:center;gap:8px;flex:1;padding:10px 12px;border:2px solid #ddd;border-radius:10px;cursor:pointer;font-family:inherit;font-size:.88rem;font-weight:600;transition:all .15s" id="merz-check-label-lieferschein">
+      <label style="display:flex;align-items:center;gap:8px;flex:1;padding:10px 12px;border:0.5px solid var(--sep);border-radius:12px;cursor:pointer;font-family:inherit;font-size:.88rem;font-weight:500;transition:all .15s;background:var(--fill-4);color:var(--label);" id="merz-check-label-lieferschein">
         <input type="checkbox" id="merz-check-lieferschein" onchange="updateMerzCheckStyle()" style="width:16px;height:16px;cursor:pointer;accent-color:#8a2d1a">
         Lieferschein
       </label>
     </div>
-    <input type="date" id="merz-date-input" style="width:100%;padding:10px;border:1.5px solid #ddd;border-radius:9px;font-family:inherit;font-size:1rem;margin-bottom:16px;outline:none">
+    <input type="date" id="merz-date-input" style="width:100%;padding:12px 14px;border:0.5px solid var(--sep);border-radius:12px;font-family:inherit;font-size:1rem;margin-bottom:16px;outline:none;background:var(--fill-3);color:var(--label);box-sizing:border-box;">
     <div class="modal-actions">
-      <button class="btn-modal-ok" style="background:#8a2d1a;" onclick="confirmMerzDate()">📥 Herunterladen</button>
+      <button class="btn-modal-ok" onclick="confirmMerzDate()">Herunterladen</button>
       <button class="btn-modal-cancel" onclick="document.getElementById('merz-date-modal').classList.add('hidden')">Abbrechen</button>
     </div>
   </div>
@@ -2347,11 +2571,11 @@ header h1 {
 <!-- BAUER DATE PICKER MODAL -->
 <div id="bauer-date-modal" class="modal-overlay hidden">
   <div class="modal-sheet">
-    <h2>📅 Gärtnerei Bauer – Lieferdatum wählen</h2>
+    <h2>Gärtnerei Bauer – Datum</h2>
     <p>Für welches Datum soll die Bestellung gelten?</p>
-    <input type="date" id="bauer-date-input" style="width:100%;padding:10px;border:1.5px solid #ddd;border-radius:9px;font-family:inherit;font-size:1rem;margin-bottom:16px;outline:none">
+    <input type="date" id="bauer-date-input" style="width:100%;padding:12px 14px;border:0.5px solid var(--sep);border-radius:12px;font-family:inherit;font-size:1rem;margin-bottom:16px;outline:none;background:var(--fill-3);color:var(--label);box-sizing:border-box;">
     <div class="modal-actions">
-      <button class="btn-modal-ok" style="background:#4a7a2c;" onclick="confirmBauerDate()">📥 Herunterladen</button>
+      <button class="btn-modal-ok" onclick="confirmBauerDate()">Herunterladen</button>
       <button class="btn-modal-cancel" onclick="document.getElementById('bauer-date-modal').classList.add('hidden')">Abbrechen</button>
     </div>
   </div>
@@ -2425,7 +2649,7 @@ header h1 {
 <div id="tab-durchschnitt" class="tab-panel">
   <!-- Header mit globalem Filter -->
   <div class="analysis-header">
-    <h2>📊 Analyse-Dashboard</h2>
+    <h2>Analyse</h2>
     <div class="analysis-controls">
       <select id="avg-range" onchange="renderAnalysis()">
         <option value="4">Letzte 4</option>
@@ -2451,12 +2675,12 @@ header h1 {
   <!-- KPI Cards -->
   <div class="kpi-grid">
     <div class="kpi-card">
-      <div class="kpi-icon">📦</div>
+      
       <div class="kpi-label">Bestellungen</div>
       <div class="kpi-value" id="kpi-total-orders">0</div>
     </div>
     <div class="kpi-card">
-      <div class="kpi-icon">📅</div>
+      
       <div class="kpi-label">Zeitraum</div>
       <div class="kpi-value" id="kpi-period">-</div>
     </div>
@@ -2466,7 +2690,7 @@ header h1 {
       <div class="kpi-value" id="kpi-top-day">-</div>
     </div>
     <div class="kpi-card">
-      <div class="kpi-icon">📈</div>
+      
       <div class="kpi-label">Trend</div>
       <div class="kpi-value" id="kpi-trend">-</div>
     </div>
@@ -2486,7 +2710,7 @@ header h1 {
     <!-- 1. Bestellverlauf über Zeit -->
     <div class="chart-card full-width">
       <div class="chart-header">
-        <h3>📈 Bestellverlauf über Zeit</h3>
+        <h3>Bestellverlauf über Zeit</h3>
         <div class="chart-legend">Gesamtmenge bestellter Artikel pro Bestellung</div>
       </div>
       <div class="chart-container">
@@ -2518,7 +2742,7 @@ header h1 {
     <!-- 3. Wochentags-Analyse -->
     <div class="chart-card full-width">
       <div class="chart-header">
-        <h3>📅 Wochentags-Analyse</h3>
+        <h3>Wochentags-Analyse</h3>
         <div class="chart-legend">Durchschnittliche Bestellmenge je Wochentag</div>
       </div>
       <div class="chart-container">
@@ -2619,7 +2843,7 @@ header h1 {
     <!-- 10. Vorjahresvergleich – nur wenn Daten vorhanden -->
     <div class="chart-card full-width" id="lastyear-card" style="display:none">
       <div class="chart-header">
-        <h3>📅 Diese Woche letztes Jahr</h3>
+        <h3>Diese Woche letztes Jahr</h3>
         <div class="chart-legend" id="lastyear-legend">Vergleich aktuell vs. Vorjahreszeitraum</div>
       </div>
       <div class="chart-container">
@@ -2634,13 +2858,13 @@ header h1 {
 
   <!-- Detaillierte Durchschnittswerte -->
   <div class="avg-section">
-    <div class="avg-header-bar">📋 Detaillierte Durchschnittswerte</div>
+    <div class="avg-header-bar">Detaillierte Durchschnittswerte</div>
     <div id="avg-list"><div class="tab-empty">Noch keine Bestellhistorie vorhanden.</div></div>
   </div>
 </div>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzC5VFQaDk1O69qYAFCOQmn00vHLP1RIb38-LqmYbTgIPe7Dii4htQX6CriC-TVj9k/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzfvLuRPKOgcllUzZcZEMieokYXt_ulyALlqnp4USlHmgJxmO-xlXsrjfPfkk21TvA7/exec";
 
 const CATEGORIES = [
   {id:"aepfel", name:"Äpfel & Birnen", icon:"🍎", color:"#3A7D11", products:[
@@ -2820,6 +3044,15 @@ const CATEGORIES = [
 ];
 
 // ═══════════════════════════════════════════
+
+// ═══════════════════════════════════════════
+//  CONFIG
+// ═══════════════════════════════════════════
+const BACKEND_TIMEOUT     = 12000;  // ms
+const BACKEND_RETRY_AFTER = 60000;  // ms
+let   sheetsFailedAt      = null;
+let   activeBackend       = 'sheets';
+
 //  STATE
 // ═══════════════════════════════════════════
 let userProducts  = {};
@@ -2906,6 +3139,7 @@ async function apiGet(params) {
   } catch(e) {
     sheetsFailedAt = Date.now(); sheetsOnline = false;
     setConnDot('offline');
+    console.error('[Hofmarkt] apiGet fehlgeschlagen:', e.message || e);
     throw e;
   }
 }
@@ -2947,7 +3181,7 @@ async function init() {
       const snapTime = new Date(snap.savedAt).getTime();
       if (!dismissedAt || snapTime > parseInt(dismissedAt)) {
         setTimeout(() => {
-          if(confirm(`💾 Entwurf vom ${new Date(snap.savedAt).toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})} Uhr (${snap.items.length} Artikel). Wiederherstellen?`)) {
+          if(confirm(`Entwurf vom ${new Date(snap.savedAt).toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})} Uhr (${snap.items.length} Artikel). Wiederherstellen?`)) {
             applySnapshot(snap);
             showToast('↩️ Entwurf wiederhergestellt.');
           } else {
@@ -2960,12 +3194,8 @@ async function init() {
 
   // ── Im Hintergrund mit Google Sheets verbinden ──
   setConnDot('connecting');
-  sbEnsureTables().catch(()=>{});
   try {
-    const d = await Promise.race([
-      apiGet({action:'init'}),
-      new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 8000))
-    ]);
+    const d = await apiGet({action:'init'});
     if (d.error) throw new Error(d.error);
     userProducts    = d.products        || {};
     rawHistory      = d.history         || [];
@@ -2987,6 +3217,18 @@ async function init() {
   } catch(e) {
     sheetsOnline = false;
     setConnDot('offline');
+    console.error('[Hofmarkt] Verbindung zu Google Sheets fehlgeschlagen:', e);
+  }
+}
+
+function updateBackendIndicator() {
+  const dot   = document.getElementById('conn-dot');
+  const label = document.getElementById('conn-label');
+  if (!dot) return;
+  dot.style.background = '';
+  if (label && label.className !== 'state-connecting' && label.className !== 'state-offline') {
+    label.textContent = 'Google Sheets';
+    label.className   = 'state-online';
   }
 }
 
@@ -3076,12 +3318,12 @@ function enterEditMode(histIdx) {
   const dt   = new Date(order.savedAt);
   const ds   = dt.toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'});
   document.getElementById('edit-mode-label').textContent =
-    `✏️ Bearbeitung: ${order.weekday || 'Unbekannter Tag'} (${ds})`;
+    `Bearbeitung: ${order.weekday || 'Unbekannter Tag'} (${ds})`;
   banner.classList.add('visible');
   document.body.classList.add('edit-active');
 
   const btn = document.getElementById('btn-save');
-  btn.textContent = '💾 Änderungen speichern';
+  btn.textContent = 'Änderungen speichern';
   btn.classList.add('edit-mode');
 
   orderDay = order.weekday || '';
@@ -3136,7 +3378,7 @@ function enterEditMode(histIdx) {
 
   updateSummary();
   switchTab('bestellen');
-  showToast(`✏️ Bearbeitung gestartet für ${order.weekday || 'Eintrag'}`);
+  showToast(`Bearbeitung gestartet für ${order.weekday || 'Eintrag'}`);
 }
 
 function cancelEditMode() {
@@ -3145,7 +3387,7 @@ function cancelEditMode() {
   document.getElementById('edit-mode-banner').classList.remove('visible');
   document.body.classList.remove('edit-active');
   const btn = document.getElementById('btn-save');
-  btn.textContent = '💾 Speichern';
+  btn.textContent = 'Speichern';
   btn.classList.remove('edit-mode');
   setGeneralNote('');
   onetimeItems = [];
@@ -3288,7 +3530,7 @@ async function confirmSave() {
     renderOnetimeList();
     if (onetimeItems.length) document.getElementById('onetime-section').classList.add('open');
     updateSummary(); doAutosave();
-    showToast(`📋 Vorlage geladen für ${day}!`);
+    showToast(`Vorlage geladen für ${day}!`);
     return;
   }
 
@@ -3323,7 +3565,7 @@ async function confirmSave() {
   if (!items.length && !generalNote && !oneTimeItems.length) {
     showToast('Bitte erst etwas eintragen!', true);
     btn.disabled = false;
-    btn.textContent = editMode ? '💾 Änderungen speichern' : '💾 Speichern';
+    btn.textContent = editMode ? 'Änderungen speichern' : 'Speichern';
     return;
   }
 
@@ -3342,7 +3584,7 @@ async function confirmSave() {
     rawHistory[editIndex] = updatedOrder;
     try {
       await apiPost({action:'updateOrder', index: editIndex, order: updatedOrder});
-      showToast(`✅ Eintrag aktualisiert (${updatedOrder.weekday})!`);
+      showToast(`Eintrag aktualisiert (${updatedOrder.weekday})!`);
     } catch(e) {
       showToast('⚠️ Lokal aktualisiert – Sheets offline', true);
     }
@@ -3350,7 +3592,7 @@ async function confirmSave() {
     editIndex = null;
     document.getElementById('edit-mode-banner').classList.remove('visible');
     document.body.classList.remove('edit-active');
-    btn.textContent = '💾 Speichern';
+    btn.textContent = 'Speichern';
     btn.classList.remove('edit-mode');
   } else {
     // Doppelbestellungs-Prüfung
@@ -3363,7 +3605,7 @@ async function confirmSave() {
           return '  • ' + t + ' Uhr – ' + n + ' Artikel';
         }).join('\n');
         const ok = confirm('⚠️ Für ' + day + ' (' + orderDate + ') gibt es bereits ' + dupes.length + ' Bestellung(en):\n\n' + info + '\n\nTrotzdem speichern?');
-        if (!ok) { btn.disabled = false; btn.textContent = '💾 Speichern'; return; }
+        if (!ok) { btn.disabled = false; btn.textContent = 'Speichern'; return; }
       }
     }
     const hasBestand   = items.some(i => i.bestand  > 0);
@@ -3380,7 +3622,7 @@ async function confirmSave() {
     rawHistory.unshift(order);
     try {
       await apiPost({action:'saveOrder', order});
-      showToast(`✅ Gespeichert für ${day}!`);
+      showToast(`Gespeichert für ${day}!`);
       localStorage.removeItem(AUTOSAVE_KEY);
       localStorage.removeItem('hofmarkt_autosave_dismissed');
     } catch(e) {
@@ -3398,7 +3640,7 @@ async function confirmSave() {
   }
   buildUI();
   btn.disabled = false;
-  btn.textContent = '💾 Speichern';
+  btn.textContent = 'Speichern';
 }
 
 // ═══════════════════════════════════════════
@@ -3453,10 +3695,10 @@ const DAY_LOCATIONS = {
 const WMO_CODES = {
   0:'☀️ Klar', 1:'🌤️ Überwiegend klar', 2:'⛅ Teilweise bewölkt', 3:'☁️ Bedeckt',
   45:'🌫️ Nebel', 48:'🌫️ Gefrierender Nebel',
-  51:'🌦️ Leichter Nieselregen', 53:'🌦️ Nieselregen', 55:'🌧️ Starker Nieselregen',
-  61:'🌧️ Leichter Regen', 63:'🌧️ Regen', 65:'🌧️ Starker Regen',
+  51:'🌦️ Leichter Nieselregen', 53:'🌦️ Nieselregen', 55:'Starker Nieselregen',
+  61:'Leichter Regen', 63:'Regen', 65:'Starker Regen',
   71:'🌨️ Leichter Schnee', 73:'❄️ Schnee', 75:'❄️ Starker Schnee',
-  80:'🌦️ Leichte Schauer', 81:'🌧️ Schauer', 82:'⛈️ Starke Schauer',
+  80:'🌦️ Leichte Schauer', 81:'Schauer', 82:'⛈️ Starke Schauer',
   95:'⛈️ Gewitter', 96:'⛈️ Gewitter mit Hagel', 99:'⛈️ Schweres Gewitter',
 };
 
@@ -3492,7 +3734,7 @@ function onDateDayInputChange() {
   const d = new Date(val + 'T12:00:00');
   const dayName = days[d.getDay()];
   const dateStr = d.toLocaleDateString('de-DE', {weekday:'long', day:'2-digit', month:'long', year:'numeric'});
-  preview.textContent = '📅 ' + dateStr;
+  preview.textContent = dateStr;
   preview.style.display = 'block';
   okBtn.disabled = false;
 }
@@ -3569,7 +3811,7 @@ async function loadWeatherAndHolidays(day, isoDate) {
     const dayIdx = data.daily.time.indexOf(isoDate);
 
     if (dayIdx === -1) {
-      document.getElementById('wp-icon').textContent = '📅';
+      document.getElementById('wp-icon').textContent = '';
       document.getElementById('wp-temp').textContent = '–';
       document.getElementById('wp-desc').textContent = 'Kein Wetter verfügbar (> 14 Tage im Voraus)';
       ['wp-rain','wp-wind','wp-humidity'].forEach(id => document.getElementById(id).textContent = '');
@@ -3580,7 +3822,7 @@ async function loadWeatherAndHolidays(day, isoDate) {
       const tmin  = data.daily.temperature_2m_min[dayIdx];
       const rain  = data.daily.precipitation_sum[dayIdx];
       const wind  = data.daily.windspeed_10m_max[dayIdx];
-      const descFull = WMO_CODES[code] || '🌡️ Unbekannt';
+      const descFull = WMO_CODES[code] || 'Unbekannt';
       const icon  = descFull.split(' ')[0];
       const desc  = descFull.slice(icon.length + 1) || descFull;
 
@@ -4013,7 +4255,7 @@ async function addSupplier(safeKey, catid, name) {
   inp.value = '';
   toggleSupplierAdd(safeKey);
   buildUI();
-  showToast(`✅ Lieferant "${val}" hinzugefügt & gewählt.`);
+  showToast(`Lieferant "${val}" hinzugefügt & gewählt.`);
 }
 
 function getItemSupplier(itemEl) {
@@ -4058,9 +4300,9 @@ function updateNoDayOverlay() {
     if (orderDate) {
       const d = new Date(orderDate + 'T12:00:00');
       const ds = d.toLocaleDateString('de-DE', {weekday:'long', day:'2-digit', month:'long', year:'numeric'});
-      dateText.textContent = '📅 ' + ds;
+      dateText.textContent = ds;
     } else {
-      dateText.textContent = '📅 ' + orderDay;
+      dateText.textContent = orderDay;
     }
   } else {
     pickBtn.style.display = '';
@@ -4095,7 +4337,7 @@ async function addProduct(catId){
   userProducts[catId].push(prod);
   try{await apiPost({action:'saveProduct',catId,product:prod})}catch(e){}
   ne.value='';pe.value='';
-  toggleAddForm(catId);buildUI();showToast('✅ Produkt hinzugefügt!');
+  toggleAddForm(catId);buildUI();showToast('Produkt hinzugefügt');
 }
 async function deleteProduct(catId,plu,name){
   if(!confirm(`"${name}" wirklich löschen?`))return;
@@ -4171,7 +4413,7 @@ function renderSumList(id, map, type, extAvg){
   // Einmalige Artikel in der Übersicht
   if (type === 'order' && onetimeItems.length) {
     html += `<div class="summary-cat">
-      <div class="summary-cat-label" style="background:#555">➕ Einmalige Artikel</div>
+      <div class="summary-cat-label" style="background:#555">Einmalige Artikel</div>
       ${onetimeItems.map(it => `
         <div class="summary-row">
           <span class="sum-plu">—</span>
@@ -4256,7 +4498,7 @@ function renderHistory(orders){
       byCat[it.catid].items.push(it);
     });
 
-    const weekdayText = o.weekday ? `📅 Liefertag: ${o.weekday}` : '📦 Kein Liefertag angegeben';
+    const weekdayText = o.weekday ? `Liefertag: ${o.weekday}` : 'Kein Liefertag angegeben';
     const headerCls   = o.weekday ? '' : ' no-weekday';
     const domId = `he-${histIdx}`;
 
@@ -4265,7 +4507,7 @@ function renderHistory(orders){
       const edt = new Date(o.editedAt);
       const eds = edt.toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'});
       const ets = edt.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
-      editedBadge = `<span class="hist-edited-badge">✏️ bearbeitet ${eds}, ${ets} Uhr</span>`;
+      editedBadge = `<span class="hist-edited-badge">bearbeitet ${eds}, ${ets} Uhr</span>`;
     }
 
     const bestandCount = allItems.filter(x => x.bestand > 0).length;
@@ -4276,7 +4518,7 @@ function renderHistory(orders){
 
     // Einmalige Artikel in der Historie anzeigen
     const onetimeHistHTML = (o.oneTimeItems||[]).length > 0 ? `
-      <div class="hist-cat-label" style="background:#555">➕ Einmalige Artikel</div>
+      <div class="hist-cat-label" style="background:#555">Einmalige Artikel</div>
       ${(o.oneTimeItems||[]).map(it => `
         <div class="hist-row">
           <span class="hist-plu">—</span>
@@ -4317,8 +4559,8 @@ function renderHistory(orders){
         ${onetimeHistHTML}
         ${noteHistHTML}
         <div class="hist-actions">
-          <button class="btn-hist-edit" onclick="enterEditMode(${histIdx})">✏️ Bearbeiten</button>
-          <button class="btn-hist-duplicate" onclick="loadOrderAsTemplate(${histIdx})">📋 Duplizieren</button>
+          <button class="btn-hist-edit" onclick="enterEditMode(${histIdx})">Bearbeiten</button>
+          <button class="btn-hist-duplicate" onclick="loadOrderAsTemplate(${histIdx})">Duplizieren</button>
           <button class="btn-hist-delete" onclick="deleteHistoryEntry(${histIdx})">🗑 Löschen</button>
         </div>
       </div>
@@ -4572,8 +4814,8 @@ function renderLastYearChart(orders){
   }
   const biggerNow = allKeys.filter(k=>(currMap[k]||0)>(lastMap[k]||0)*1.3 && currMap[k]>0).slice(0,2);
   const biggerLast= allKeys.filter(k=>(lastMap[k]||0)>(currMap[k]||0)*1.3 && lastMap[k]>0).slice(0,2);
-  if(biggerNow.length)  chips.push({cls:'', txt:`📈 Mehr als letztes Jahr: ${biggerNow.join(', ')}`});
-  if(biggerLast.length) chips.push({cls:'warn', txt:`📉 Weniger als letztes Jahr: ${biggerLast.join(', ')}`});
+  if(biggerNow.length)  chips.push({cls:'', txt:`Mehr als letztes Jahr: ${biggerNow.join(', ')}`});
+  if(biggerLast.length) chips.push({cls:'warn', txt:`Weniger als letztes Jahr: ${biggerLast.join(', ')}`});
   insEl.innerHTML = chips.map(c=>`<span class="forecast-chip ${c.cls}">${c.txt}</span>`).join('');
 }
 
@@ -4620,15 +4862,15 @@ function generateInsights(orders){
   const pC={};
   orders.forEach(o=>(o.items||[]).filter(x=>x.bestellen>0).forEach(it=>{const k=it.catid+'|'+it.name;pC[k]=(pC[k]||0)+1;}));
   const consistent = Object.entries(pC).filter(([,c])=>c>=orders.length*0.7);
-  if(consistent.length) insights.push({icon:'📊',text:`<strong>Konstante Artikel:</strong> ${consistent.length} Produkte in ≥70% der Bestellungen`});
+  if(consistent.length) insights.push({icon:'',text:`<strong>Konstante Artikel:</strong> ${consistent.length} Produkte in ≥70% der Bestellungen`});
   if(orders.length>=8){
     const half=Math.floor(orders.length/2);
     const recAvg=orders.slice(0,half).reduce((s,o)=>s+(o.items||[]).filter(x=>x.bestellen>0).reduce((a,i)=>a+i.bestellen,0),0)/half;
     const oldAvg=orders.slice(half).reduce((s,o)=>s+(o.items||[]).filter(x=>x.bestellen>0).reduce((a,i)=>a+i.bestellen,0),0)/half;
     const diff=((recAvg-oldAvg)/Math.max(oldAvg,1)*100).toFixed(0);
-    if(Math.abs(diff)>15) insights.push({icon:diff>0?'📈':'📉',text:`<strong>Trendveränderung:</strong> Letzte Hälfte ${diff>0?'+':''}${diff}% gegenüber davor`});
+    if(Math.abs(diff)>15) insights.push({icon:'',text:`<strong>Trendveränderung:</strong> Letzte Hälfte ${diff>0?'+':''}${diff}% gegenüber davor`});
   }
-  if(!insights.length) insights.push({icon:'📊',text:'Mehr Bestellhistorie sammeln für tiefere Erkenntnisse.'});
+  if(!insights.length) insights.push({icon:'',text:'Mehr Bestellhistorie sammeln für tiefere Erkenntnisse.'});
   document.getElementById('insights-content').innerHTML=insights.map(i=>`
     <div class="insight-item"><span class="insight-icon">${i.icon}</span><span class="insight-text">${i.text}</span></div>`).join('');
 }
@@ -5145,9 +5387,9 @@ function renderForecastChart(orders){
   const lastVal = vals[vals.length-1]||0;
   const avgVal  = yMean;
   const chips = [];
-  chips.push({cls:'', txt:`📦 Nächste Bestellung: ca. <strong>${nextVal}</strong> Einheiten`});
-  if(slope > 0.3) chips.push({cls:'', txt:`📈 Steigender Trend (+${slope.toFixed(1)}/Bestellung)`});
-  else if(slope < -0.3) chips.push({cls:'down', txt:`📉 Sinkender Trend (${slope.toFixed(1)}/Bestellung)`});
+  chips.push({cls:'', txt:`Nächste Bestellung: ca. <strong>${nextVal}</strong> Einheiten`});
+  if(slope > 0.3) chips.push({cls:'', txt:`Steigender Trend (+${slope.toFixed(1)}/Bestellung)`});
+  else if(slope < -0.3) chips.push({cls:'down', txt:`Sinkender Trend (${slope.toFixed(1)}/Bestellung)`});
   else chips.push({cls:'', txt:`→ Stabiler Bedarf (Ø ${avgVal.toFixed(1)})`});
   const variance = vals.map(v=>(v-avgVal)**2).reduce((a,b)=>a+b,0)/n;
   const std = Math.sqrt(variance);
@@ -5244,7 +5486,7 @@ function printEinkaufszettel() {
 
   // Einmalige Artikel als eigener Abschnitt
   if (hasOnetime) {
-    body += `<div class="sup-title" style="color:#555;border-color:#aaa">➕ Einmalige Artikel</div>`;
+    body += `<div class="sup-title" style="color:#555;border-color:#aaa">Einmalige Artikel</div>`;
     onetimeItems.forEach(it => {
       body += `<div class="row">
         <div class="check"></div>
@@ -5368,19 +5610,19 @@ async function shareList(mode) {
       });
     });
     if (onetimeItems.length) {
-      text += `\n➕ Einmalige Artikel\n`;
+      text += `\nEinmalige Artikel\n`;
       onetimeItems.forEach(it => { text += `  • ${it.name}: ${it.qty}×\n`; });
     }
     if (generalNote) {
       text += `\n${'─'.repeat(32)}\n📝 Notizen:\n${generalNote}\n`;
     }
-    text += `\n${'─'.repeat(32)}\n📦 ${allItems.length + onetimeItems.length} Artikel gesamt`;
+    text += `\n${'─'.repeat(32)}\n${allItems.length + onetimeItems.length} Artikel gesamt`;
 
     if (navigator.share) {
       await navigator.share({ title: 'Einkaufsliste Großmarkt', text });
     } else {
       await navigator.clipboard.writeText(text);
-      showToast('📋 In Zwischenablage kopiert!');
+      showToast('In Zwischenablage kopiert');
     }
   } else {
     const exportData = {
@@ -5403,7 +5645,7 @@ async function shareList(mode) {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    showToast(`💾 "${filename}" gespeichert – dann mit 📥 wieder importieren`);
+    showToast(`"${filename}" gespeichert – dann mit wieder importieren`);
   }
 }
 
@@ -5440,8 +5682,8 @@ function importBestand(input) {
       updateSummary();
       scheduleAutosave();
       const msg = notFound > 0
-        ? `✅ ${loaded} Bestände geladen · ${notFound} Artikel nicht gefunden`
-        : `✅ ${loaded} Bestände geladen`;
+        ? `${loaded} Bestände geladen · ${notFound} Artikel nicht gefunden`
+        : `${loaded} Bestände geladen`;
       showToast(msg);
       switchTab('bestellen');
     } catch(err) {
@@ -5549,7 +5791,7 @@ function doAutosave() {
     const ind = document.getElementById('autosave-indicator');
     if(items.length > 0 || snap.generalNote || snap.oneTimeItems.length > 0) {
       const t = new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
-      if(ind) ind.textContent = `💾 Autosave ${t} – ${items.length} Artikel`;
+      if(ind) ind.textContent = `Autosave ${t} – ${items.length} Artikel`;
       // Conn-Label kurz auf Autosave-Status setzen
       const lbl = document.getElementById('conn-label');
       if(lbl) {
@@ -5627,7 +5869,7 @@ function openTemplateModal() {
     const ts = dt.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
     const bestCount = (o.items||[]).filter(x => x.bestellen > 0).length;
     return `<button class="template-item" data-real-idx="${realIdx}" onclick="selectTemplate(this,${realIdx})">
-      <div class="template-item-day">${o.weekday ? '📅 ' + o.weekday : '📦 Kein Tag'}</div>
+      <div class="template-item-day">${o.weekday || 'Kein Tag'}</div>
       <div class="template-item-meta">${ds}, ${ts} · ${bestCount} Bestell-Artikel</div>
     </button>`;
   }).join('');
