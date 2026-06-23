@@ -3857,12 +3857,18 @@ function fetchWithTimeout(url, opts, ms) {
 }
 
 async function apiGet(params) {
-  setConnDot('connecting', 'Google Sheets …');
+  // Nur beim allerersten Verbindungsaufbau (oder nach einem Fehler) "Verbinde …"
+  // zeigen. Wenn wir schon erfolgreich verbunden sind, soll ein einzelner
+  // Hintergrund-Request (z.B. Historie nachladen) den Status nicht jedes Mal
+  // kurz auf "Verbinde …" umschalten lassen — das wirkte wie ständige
+  // Neuverbindungen, obwohl die Verbindung die ganze Zeit stand.
+  if (!sheetsOnline) setConnDot('connecting', 'Google Sheets …');
   try {
     const url = SCRIPT_URL + '?' + new URLSearchParams(params).toString() + '&t=' + Date.now();
     const res  = await fetchWithTimeout(url, {cache:'no-cache', redirect:'follow'}, BACKEND_TIMEOUT);
     const data = JSON.parse(await res.text());
-    activeBackend = 'sheets'; sheetsFailedAt = null; sheetsOnline = true;
+    activeBackend = 'sheets'; sheetsFailedAt = null;
+    if (!sheetsOnline) { sheetsOnline = true; setConnDot('online'); }
     updateBackendIndicator();
     return data;
   } catch(e) {
@@ -3876,10 +3882,11 @@ async function apiGet(params) {
 async function apiPost(payload) {
   const action = (payload.action||'').toLowerCase();
   const syncActions = ['saveorder','updateorder','deleteorder'];
-  setConnDot('connecting', 'Google Sheets …');
+  if (!sheetsOnline) setConnDot('connecting', 'Google Sheets …');
   try {
     await fetchWithTimeout(SCRIPT_URL, {method:'POST', mode:'no-cors', body:JSON.stringify(payload)}, BACKEND_TIMEOUT);
-    activeBackend = 'sheets'; sheetsFailedAt = null; sheetsOnline = true;
+    activeBackend = 'sheets'; sheetsFailedAt = null;
+    if (!sheetsOnline) { sheetsOnline = true; setConnDot('online'); }
     updateBackendIndicator();
   } catch(e) {
     sheetsFailedAt = Date.now(); sheetsOnline = false;
