@@ -148,16 +148,22 @@ body {
   color: var(--label);
   min-height: 100dvh;
   padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px));
-  overflow-x: hidden;
-  overflow-y: auto;
+  box-shadow: inset 0 0 0 0 transparent;
+  transition: box-shadow .25s;
+}
+body.edit-active {
+  box-shadow: inset 0 0 0 3px var(--ios-blue-fill);
 }
 
 /* ══ HEADER ══════════════════════════════════════════ */
-header {
+.app-header-group {
   position: sticky;
   top: 0;
   z-index: 200;
-  padding: 10px 16px 10px 16px;
+}
+
+header {
+  padding: 10px 16px 14px 16px;
   padding-top: calc(10px + env(safe-area-inset-top, 0px));
   background: rgba(45,106,31,.82);
   -webkit-backdrop-filter: saturate(180%) blur(28px);
@@ -232,6 +238,7 @@ header h1 {
 #conn-label.state-online  { color: rgba(144,255,144,.9); }
 #conn-label.state-offline { color: rgba(255,130,120,.9); }
 #conn-label.state-connecting { color: rgba(255,220,80,.9); }
+#conn-label.state-autosave { color: rgba(144,255,144,.9); font-style: italic; }
 
 /* Search Row */
 .header-row2 {
@@ -362,8 +369,6 @@ header h1 {
 
 /* ══ TAB BAR — iOS Segmented Control style ══════════ */
 .tabs {
-  position: sticky;
-  top: 0;
   z-index: 190;
   background: rgba(242,242,247,.94);
   -webkit-backdrop-filter: saturate(180%) blur(24px);
@@ -382,8 +387,8 @@ header h1 {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
-  padding: 7px 4px 8px;
+  gap: 3px;
+  padding: 10px 4px 10px;
   border: none;
   background: transparent;
   color: var(--label-3);
@@ -447,6 +452,10 @@ header h1 {
   overflow: hidden;
   margin-bottom: 14px;
   box-shadow: var(--shadow-2);
+  transition: box-shadow .25s;
+}
+#day-banner.day-selected {
+  box-shadow: 0 0 0 2px var(--brand), var(--shadow-2);
 }
 
 #day-banner-pick-btn {
@@ -480,6 +489,32 @@ header h1 {
   letter-spacing: .006em;
 }
 
+#day-banner-weather {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: .8rem;
+  font-weight: 600;
+  color: var(--label-2);
+  background: var(--fill-3);
+  padding: 4px 10px;
+  border-radius: var(--r-pill);
+  white-space: nowrap;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: background .12s;
+  -webkit-tap-highlight-color: transparent;
+}
+#day-banner-weather:active { background: var(--fill-2); }
+#day-banner-weather.hidden { display: none; }
+#day-banner-weather:not(.hidden) { animation: dbwFadeIn .35s var(--ease-out) both; }
+@keyframes dbwFadeIn {
+  from { opacity: 0; transform: translateX(4px) scale(.92); }
+  to   { opacity: 1; transform: none; }
+}
+#day-banner-weather .dbw-icon { font-size: .95rem; line-height: 1; }
+#day-banner-weather .dbw-rain { color: var(--ios-blue); margin-left: 2px; }
+
 .btn-banner-change {
   background: var(--brand-tint);
   border: none;
@@ -495,7 +530,7 @@ header h1 {
 }
 .btn-banner-change:active { background: var(--brand-tint2); }
 
-#day-banner-template { padding: 0 12px 12px; }
+#day-banner-template { padding: 10px 12px 12px; }
 .btn-load-template {
   width: 100%;
   padding: 10px 14px;
@@ -537,6 +572,8 @@ header h1 {
 }
 .cat-header:active { background: var(--fill-4); }
 
+.cat-header-left { display: flex; align-items: center; gap: 11px; flex: 1; min-width: 0; }
+
 .cat-icon {
   font-size: 1.05rem;
   width: 32px;
@@ -547,16 +584,19 @@ header h1 {
   justify-content: center;
   flex-shrink: 0;
 }
-.cat-name { font-size: .96rem; font-weight: 600; flex: 1; letter-spacing: .006em; }
+.cat-name { font-size: .96rem; font-weight: 600; flex: 1; letter-spacing: .006em; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cat-count {
   font-size: .66rem;
   font-weight: 700;
   padding: 2px 8px;
   border-radius: var(--r-pill);
+  flex-shrink: 0;
 }
 .chevron {
   font-size: .62rem;
   transition: transform .24s var(--spring);
+  flex-shrink: 0;
+  margin-left: 8px;
 }
 .category.open .chevron { transform: rotate(180deg); }
 
@@ -738,14 +778,29 @@ header h1 {
   font-size: .68rem;
   color: var(--label-3);
   padding: 0 0 2px 34px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
 }
-.item-avg-hint span {
-  background: var(--ios-orange-fill);
+.item-avg-hint .hint-tag {
+  font-size: .6rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--label-3);
+  background: var(--fill-3);
+  border-radius: 4px;
+  padding: 1px 5px;
+}
+.item-avg-hint .hint-up, .item-avg-hint .hint-down, .item-avg-hint .hint-flat {
   border-radius: 5px;
   padding: 1px 6px;
-  font-weight: 600;
-  color: var(--ios-orange);
+  font-weight: 700;
 }
+.item-avg-hint .hint-up   { background: var(--ios-green-fill);  color: var(--ios-green); }
+.item-avg-hint .hint-down { background: var(--ios-red-fill);    color: var(--ios-red); }
+.item-avg-hint .hint-flat { background: var(--ios-orange-fill); color: var(--ios-orange); }
 
 /* Supplier row */
 .item-supplier-row {
@@ -1146,6 +1201,8 @@ header h1 {
 .wp-chart-label { font-size: .66rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; opacity: .5; margin: 14px 0 5px; }
 .wp-chart-wrap { background: rgba(255,255,255,.06); border-radius: 9px; padding: 8px 5px; }
 .weather-popup-loading { text-align: center; padding: 20px 0; }
+.weather-popup-content { animation: iosReveal .25s var(--ease-out) both; }
+.weather-popup-content.hidden { display: none; }
 
 /* ══ SUMMARY / OVERVIEW ══════════════════════════════ */
 .uebersichten { display: flex; flex-direction: column; gap: 12px; margin-bottom: 14px; }
@@ -1486,6 +1543,7 @@ header h1 {
   color: #fff;
   transform: scale(1.05);
 }
+.day-chip.all-chip { font-weight: 700; }
 
 /* ══ HISTORY LIST ════════════════════════════════════ */
 #history-list { display: flex; flex-direction: column; gap: 10px; }
@@ -1698,8 +1756,10 @@ header h1 {
   border-radius: var(--r-card);
   padding: 14px;
   box-shadow: var(--shadow-2);
+  position: relative;
 }
-.kpi-label { font-size: .66rem; font-weight: 700; color: var(--label-3); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 6px; }
+.kpi-icon { font-size: 1rem; position: absolute; top: 12px; right: 12px; opacity: .55; }
+.kpi-label { font-size: .66rem; font-weight: 700; color: var(--label-3); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 6px; padding-right: 20px; }
 .kpi-value { font-size: 1.5rem; font-weight: 700; color: var(--brand); letter-spacing: -.02em; }
 .kpi-sub   { font-size: .7rem; color: var(--label-3); margin-top: 3px; }
 
@@ -1727,6 +1787,49 @@ header h1 {
 .chart-legend    { font-size: .74rem; color: var(--label-3); margin-top: 2px; width: 100%; }
 .chart-container { padding: 14px 12px 10px; position: relative; }
 .chart-container canvas { max-width: 100%; }
+
+/* ── Lieferanten-Auswertung: Detail-Liste unter dem Chart ── */
+.supplier-detail-list { padding: 4px 16px 14px; display: flex; flex-direction: column; gap: 10px; }
+.supplier-detail-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.supplier-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.supplier-name {
+  font-size: .85rem;
+  font-weight: 500;
+  color: var(--label);
+  min-width: 84px;
+  max-width: 120px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.supplier-bar-wrap {
+  flex: 1;
+  height: 8px;
+  background: var(--fill-3);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.supplier-bar-inner {
+  height: 100%;
+  border-radius: 4px;
+  transition: width .45s var(--ease-out);
+}
+.supplier-pct {
+  font-size: .8rem;
+  font-weight: 700;
+  color: var(--label-2);
+  min-width: 38px;
+  text-align: right;
+  flex-shrink: 0;
+}
 .chart-body { padding: 14px; }
 
 .insights-panel { border-radius: var(--r-card); overflow: hidden; box-shadow: var(--shadow-2); margin-bottom: 12px; }
@@ -1738,14 +1841,20 @@ header h1 {
 .insight-text { font-size: .86rem; line-height: 1.55; color: var(--label); }
 .insight-text strong { color: var(--brand); font-weight: 700; }
 
-.top-product-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 0.33px solid var(--sep); }
+.top-product-item { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 0.33px solid var(--sep); }
+.top-products-list { padding: 4px 16px 14px; }
+.top-products-list .tab-empty { padding: 24px 8px; }
 .top-product-item:last-child { border-bottom: none; }
-.top-product-rank  { font-weight: 700; font-size: .78rem; color: var(--label-3); min-width: 18px; }
-.top-product-name  { flex: 1; font-size: .88rem; }
-.top-product-bar-wrap { width: 66px; height: 5px; background: var(--fill-3); border-radius: 3px; overflow: hidden; }
-.top-product-bar  { height: 100%; background: var(--brand); border-radius: 3px; transition: width .45s var(--ease-out); }
-.top-product-value{ font-size: .78rem; font-weight: 700; color: var(--brand); min-width: 30px; text-align: right; }
-.top-product-meta { font-size: .68rem; color: var(--label-3); }
+.top-product-rank  { font-weight: 700; font-size: .84rem; color: var(--label-3); min-width: 22px; flex-shrink: 0; text-align: center; }
+.top-product-rank.rank-1 { color: #FFCC00; font-size: .95rem; }
+.top-product-rank.rank-2 { color: #C0C0C8; font-size: .9rem; }
+.top-product-rank.rank-3 { color: #CD7F32; font-size: .88rem; }
+.top-product-name  { font-size: .88rem; font-weight: 500; color: var(--label); }
+.top-product-cat   { font-size: .7rem; color: var(--label-3); margin-top: 1px; }
+.top-product-bar   { width: 100%; height: 5px; background: var(--fill-3); border-radius: 3px; overflow: hidden; }
+.top-product-bar-fill { height: 100%; background: var(--brand); border-radius: 3px; transition: width .45s var(--ease-out); }
+.top-product-value{ font-size: .85rem; font-weight: 700; color: var(--brand); }
+.top-product-meta { font-size: .68rem; color: var(--label-3); margin-top: 1px; }
 
 .sparkline-item { background: var(--fill-4); border-radius: var(--r-control); padding: 10px; border: 0.5px solid var(--sep); }
 .sparkline-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
@@ -1767,6 +1876,14 @@ header h1 {
 .avg-n   { font-size: .68rem; color: var(--label-3); }
 
 .product-picker, .weekday-picker { background: var(--fill-4); border-radius: var(--r-control); padding: 10px; margin-bottom: 8px; border: 0.5px solid var(--sep); }
+.product-picker-label, .seasonal-filter-label {
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--label-3);
+  margin-bottom: 6px;
+}
 .product-picker-search {
   width: 100%;
   padding: 8px 11px;
@@ -1779,6 +1896,17 @@ header h1 {
   outline: none;
   margin-bottom: 8px;
 }
+.product-picker-chips { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 8px; min-height: 0; }
+.product-picker-chips:empty { margin-bottom: 0; }
+.product-picker-results {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  max-height: 150px;
+  overflow-y: auto;
+}
+.product-hint { font-size: .78rem; color: var(--label-3); font-style: italic; padding: 4px 2px; }
+
 .product-pick-chip, .weekday-pick-chip {
   display: inline-block;
   padding: 4px 11px;
@@ -1794,6 +1922,7 @@ header h1 {
   -webkit-tap-highlight-color: transparent;
 }
 .product-pick-chip.active, .weekday-pick-chip.active { background: var(--brand); border-color: var(--brand); color: #fff; transform: scale(1.04); }
+.product-pick-chip.selected { color: #fff; border-color: transparent; font-weight: 600; }
 
 .seasonal-filter select {
   padding: 7px 28px 7px 11px;
@@ -1810,6 +1939,40 @@ header h1 {
   background-position: right 7px center;
   background-size: 14px;
 }
+
+/* ── Prognose-Filter & Chips ── */
+.forecast-filter { padding: 4px 16px 12px; }
+.forecast-filter select {
+  width: 100%;
+  padding: 9px 12px;
+  border: 0.5px solid var(--sep);
+  border-radius: var(--r-control);
+  font-family: inherit;
+  font-size: .86rem;
+  background: var(--fill-3);
+  color: var(--label);
+  outline: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 14px;
+  padding-right: 32px;
+}
+.forecast-insights { display: flex; flex-wrap: wrap; gap: 6px; padding: 4px 16px 14px; }
+.forecast-chip {
+  display: inline-block;
+  font-size: .78rem;
+  font-weight: 500;
+  line-height: 1.4;
+  padding: 6px 12px;
+  border-radius: var(--r-pill);
+  background: var(--brand-tint);
+  color: var(--brand);
+}
+.forecast-chip.warn { background: var(--ios-orange-fill); color: var(--ios-orange); }
+.forecast-chip.down { background: var(--ios-red-fill); color: var(--ios-red); }
+.forecast-chip strong { font-weight: 700; }
 
 /* ══ ONE-TIME ITEMS ══════════════════════════════════ */
 .onetime-section {
@@ -1983,7 +2146,26 @@ header h1 {
   background: var(--fill-3);
   color: var(--label);
   outline: none;
+  transition: border-color .15s, background .15s;
 }
+.kiemle-row select.mapped, .kiemle-row select.merz-mapped {
+  border-color: var(--ios-purple);
+  background: var(--ios-purple-fill);
+  color: var(--ios-purple);
+  font-weight: 600;
+}
+.kiemle-group { margin-bottom: 4px; }
+.kiemle-group-header {
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--brand);
+  padding: 14px 0 4px;
+  border-top: 0.33px solid var(--sep);
+}
+.kiemle-group:first-child .kiemle-group-header { border-top: none; padding-top: 0; }
+.kiemle-row-name { flex: 1; min-width: 100px; font-size: .86rem; color: var(--label); }
 .kiemle-footer { display: flex; gap: 10px; padding-top: 14px; }
 .btn-kiemle-save { flex: 1; background: var(--ios-purple); color: #fff; border: none; border-radius: var(--r-control); padding: 13px; font-family: inherit; font-size: .92rem; font-weight: 600; cursor: pointer; }
 .btn-kiemle-save:active { opacity: .8; }
@@ -2032,6 +2214,33 @@ header h1 {
   margin-left: 10px;
   vertical-align: middle;
 }
+
+/* ══ SAISONALE AKZENTE (beim Öffnen, 5s, dezent) ═══════ */
+#seasonal-fx {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+  overflow: hidden;
+  opacity: 1;
+  transition: opacity 1.2s ease-out;
+}
+#seasonal-fx.fade-out { opacity: 0; }
+.sfx-particle {
+  position: absolute;
+  top: -24px;
+  will-change: transform, opacity;
+  opacity: 0;
+  animation-fill-mode: forwards;
+  animation-timing-function: linear;
+}
+@keyframes sfxFall {
+  0%   { opacity: 0; transform: translateY(0) translateX(0) rotate(0deg); }
+  8%   { opacity: .55; }
+  92%  { opacity: .5; }
+  100% { opacity: 0; transform: translateY(110vh) translateX(var(--sfx-drift, 20px)) rotate(var(--sfx-rot, 180deg)); }
+}
+.sfx-particle { animation-name: sfxFall; }
 
 /* ══ SCROLL-TO-TOP ════════════════════════════════════ */
 #scroll-top-btn {
@@ -2157,6 +2366,154 @@ header h1 {
 .no-results-sub { font-size: .8rem; color: var(--label-3); }
 .tab-empty  { text-align: center; padding: 40px 20px; color: var(--label-3); font-size: .88rem; line-height: 1.8; }
 
+/* ── Zentrale Produktverwaltung — Trigger-Button ── */
+.btn-manage-products {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 6px;
+  padding: 13px 16px;
+  background: var(--fill-3);
+  border: 0.5px solid var(--sep);
+  border-radius: var(--r-card);
+  font-family: inherit;
+  font-size: .86rem;
+  font-weight: 600;
+  color: var(--label-2);
+  cursor: pointer;
+  transition: background .12s, transform .1s;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-manage-products:active { background: var(--fill-2); transform: scale(.98); }
+.btn-manage-products .bmp-icon { font-size: .9rem; opacity: .8; }
+
+/* ── Produktverwaltung Panel ── */
+.pm-sheet { max-height: 86dvh; display: flex; flex-direction: column; }
+.pm-search-row { padding: 0 20px 10px; }
+.pm-search-row input {
+  width: 100%;
+  padding: 9px 12px;
+  border: 0.5px solid var(--sep);
+  border-radius: var(--r-control);
+  font-family: inherit;
+  font-size: .86rem;
+  background: var(--fill-3);
+  color: var(--label);
+  outline: none;
+}
+.pm-search-row input:focus { border-color: var(--brand); }
+.pm-body { flex: 1; overflow-y: auto; padding: 0 20px; }
+.pm-cat-group { margin-bottom: 6px; }
+.pm-cat-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 4px 6px;
+  font-size: .76rem;
+  font-weight: 700;
+  letter-spacing: .03em;
+}
+.pm-cat-icon { font-size: .95rem; }
+
+.pm-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 4px;
+  border-bottom: 0.33px solid var(--sep);
+}
+.pm-row:last-child { border-bottom: none; }
+.pm-row-plu {
+  width: 52px;
+  flex-shrink: 0;
+  padding: 7px 6px;
+  border: 0.5px solid var(--sep);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: .78rem;
+  text-align: center;
+  background: var(--fill-3);
+  color: var(--label);
+  outline: none;
+}
+.pm-row-plu:focus { border-color: var(--brand); }
+.pm-row-name {
+  flex: 1;
+  min-width: 0;
+  padding: 7px 10px;
+  border: 0.5px solid var(--sep);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: .85rem;
+  background: var(--fill-3);
+  color: var(--label);
+  outline: none;
+}
+.pm-row-name:focus { border-color: var(--brand); }
+.pm-row-name.pm-dirty, .pm-row-plu.pm-dirty { border-color: var(--ios-orange); background: var(--ios-orange-fill); }
+.pm-row-save {
+  width: 30px; height: 30px;
+  flex-shrink: 0;
+  border: none;
+  border-radius: 8px;
+  background: var(--ios-green-fill);
+  color: var(--ios-green);
+  font-size: .85rem;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+}
+.pm-row-save.show { display: flex; }
+.pm-row-save:active { background: var(--ios-green); color: #fff; }
+.pm-row-del {
+  width: 30px; height: 30px;
+  flex-shrink: 0;
+  border: none;
+  border-radius: 8px;
+  background: var(--ios-red-fill);
+  color: var(--ios-red);
+  font-size: .85rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+  transition: background .12s;
+}
+.pm-row-del:active { background: var(--ios-red); color: #fff; }
+
+.pm-add-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 4px 14px;
+}
+.pm-add-row input { font-style: normal; }
+.pm-add-row .pm-row-name::placeholder, .pm-add-row .pm-row-plu::placeholder { font-style: italic; color: var(--placeholder); }
+.pm-row-add {
+  width: 30px; height: 30px;
+  flex-shrink: 0;
+  border: none;
+  border-radius: 8px;
+  background: var(--brand-tint);
+  color: var(--brand);
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+  transition: background .12s;
+}
+.pm-row-add:active { background: var(--brand); color: #fff; }
+.pm-empty { text-align: center; padding: 30px 10px; color: var(--label-3); font-size: .86rem; }
+.pm-footer { padding-top: 4px; }
+
 /* ══ KEYFRAMES ════════════════════════════════════════ */
 @keyframes sheetUp {
   from { opacity: 0; transform: translateY(24px); }
@@ -2170,6 +2527,19 @@ header h1 {
   from { opacity: 0; transform: scale(.92); }
   to   { opacity: 1; transform: scale(1); }
 }
+@keyframes qtyPop {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+.qty-input.qty-pop { animation: qtyPop .25s var(--spring) both; }
+
+@keyframes btnPulse {
+  0%   { transform: scale(1); }
+  35%  { transform: scale(1.08); box-shadow: 0 0 0 6px rgba(255,255,255,.18); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255,255,255,0); }
+}
+.btn-primary.pulse { animation: btnPulse .35s var(--spring) both; }
 
 /* ══ RESPONSIVE ═══════════════════════════════════════ */
 @media (max-width: 380px) {
@@ -2496,6 +2866,7 @@ header h1 { font-size: 1.3rem; letter-spacing: -.02em; }
   </div>
 </div>
 <div id="toast"></div>
+<div id="seasonal-fx" aria-hidden="true"></div>
 <button id="scroll-top-btn" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Nach oben">↑</button>
 
 <!-- WETTER-POPUP -->
@@ -2581,6 +2952,7 @@ header h1 { font-size: 1.3rem; letter-spacing: -.02em; }
   </div>
 </div>
 
+<div class="app-header-group">
 <header>
   <div class="header-title-row">
     <h1>Hofmarkt Bestellplan</h1>
@@ -2610,6 +2982,7 @@ header h1 { font-size: 1.3rem; letter-spacing: -.02em; }
   <button class="tab-btn" onclick="switchTab('historie')"><span class="tab-icon">🕐</span><span class="tab-label">Historie</span></button>
   <button class="tab-btn" onclick="switchTab('durchschnitt')"><span class="tab-icon">📈</span><span class="tab-label">Analyse</span></button>
 </div>
+</div><!-- /.app-header-group -->
 
 <div id="tab-bestellen" class="tab-panel active">
   <div id="day-banner">
@@ -2623,6 +2996,7 @@ header h1 { font-size: 1.3rem; letter-spacing: -.02em; }
     </button>
     <div id="day-banner-selected">
       <span id="day-banner-date-text"></span>
+      <span id="day-banner-weather" class="hidden"></span>
       <button class="btn-banner-change" onclick="openDateDayModal()">Ändern</button>
     </div>
     <div id="day-banner-template">
@@ -2673,6 +3047,11 @@ header h1 { font-size: 1.3rem; letter-spacing: -.02em; }
     <div class="no-results-title">Keine Artikel gefunden</div>
     <div class="no-results-sub">Versuch's mit einem anderen Suchbegriff.</div>
   </div>
+
+  <button class="btn-manage-products" onclick="openProductManager()">
+    <span class="bmp-icon">✎</span>
+    <span>Produkte bearbeiten</span>
+  </button>
 </div>
 
 <div id="tab-uebersicht" class="tab-panel">
@@ -2707,6 +3086,21 @@ header h1 { font-size: 1.3rem; letter-spacing: -.02em; }
     <div class="kiemle-footer">
       <button class="btn-kiemle-save" onclick="saveKiemleMapping()">Speichern</button>
       <button class="btn-kiemle-cancel" onclick="closeKiemleMapping()">Abbrechen</button>
+    </div>
+  </div>
+</div>
+
+<!-- PRODUKTVERWALTUNG BOTTOM SHEET -->
+<div id="product-manager-overlay" class="bestellmenu-overlay hidden" onclick="closeProductManagerOutside(event)">
+  <div class="bestellmenu-sheet pm-sheet">
+    <div class="bestellmenu-handle"></div>
+    <div class="bestellmenu-title">Produkte bearbeiten</div>
+    <div class="pm-search-row">
+      <input type="text" id="pm-search" placeholder="Produkt suchen …" oninput="renderProductManager(this.value)">
+    </div>
+    <div id="pm-body" class="pm-body"></div>
+    <div class="pm-footer">
+      <button class="bestellmenu-row" style="justify-content:center;color:var(--label-2);font-size:.88rem;font-weight:500;" onclick="closeProductManager()">Fertig</button>
     </div>
   </div>
 </div>
@@ -3088,7 +3482,7 @@ header h1 { font-size: 1.3rem; letter-spacing: -.02em; }
 </div>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzfvLuRPKOgcllUzZcZEMieokYXt_ulyALlqnp4USlHmgJxmO-xlXsrjfPfkk21TvA7/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz8IAU6M9bXnGLE76JmM6Z901x5oiUD6wb31KbgPpknj6JBLsWtmoVoSdCfvmds5auZ/exec";
 
 const CATEGORIES = [
   {id:"aepfel", name:"Äpfel & Birnen", icon:"🍎", color:"#3A7D11", products:[
@@ -3287,6 +3681,29 @@ let selectedDay   = '';
 let histDayFilter = '';
 let avgDayFilter  = '';
 
+// Produktverwaltung: Standard-Produkte (aus CATEGORIES) können nicht aus dem
+// Code entfernt werden, deshalb werden "gelöschte" Standard-Produkte hier als
+// versteckt markiert, und bearbeitete (Name/PLU geändert) hier überschrieben.
+// Beides lokal + im Offline-Cache gespeichert, key = catid + '|' + originalName
+let hiddenStandardProducts  = {}; // { 'aepfel|Äpfel': true }
+let editedStandardProducts  = {}; // { 'aepfel|Äpfel': {name:'Äpfel neu', plu:'12'} }
+
+const HIDDEN_PRODUCTS_KEY = 'hofmarkt_hidden_products';
+const EDITED_PRODUCTS_KEY = 'hofmarkt_edited_products';
+
+function loadProductOverridesFromStorage() {
+  try { hiddenStandardProducts = JSON.parse(localStorage.getItem(HIDDEN_PRODUCTS_KEY) || '{}'); } catch(e) { hiddenStandardProducts = {}; }
+  try { editedStandardProducts = JSON.parse(localStorage.getItem(EDITED_PRODUCTS_KEY) || '{}'); } catch(e) { editedStandardProducts = {}; }
+}
+function saveProductOverridesToStorage() {
+  try {
+    localStorage.setItem(HIDDEN_PRODUCTS_KEY, JSON.stringify(hiddenStandardProducts));
+    localStorage.setItem(EDITED_PRODUCTS_KEY, JSON.stringify(editedStandardProducts));
+  } catch(e) {}
+  saveOfflineCache();
+}
+loadProductOverridesFromStorage();
+
 // Edit-Mode-State
 let editMode       = false;
 let editIndex      = null;
@@ -3314,6 +3731,68 @@ function allSuppliers() {
   return [...DEFAULT_SUPPLIERS, ...customSuppliers.filter(s => !DEFAULT_SUPPLIERS.includes(s))];
 }
 
+// ═══════════════════════════════════════════
+//  OFFLINE-FÄHIGKEIT
+//  1) App-Daten (Produkte, Historie, Mappings) werden bei jedem
+//     erfolgreichen Laden in localStorage gespiegelt.
+//  2) Beim Start: wenn keine Verbindung da ist, wird aus dem
+//     Cache geladen, statt mit leeren Daten zu starten.
+//  3) Schreibende Aktionen (Bestellung speichern/ändern/löschen)
+//     landen bei Verbindungsausfall in einer Warteschlange und
+//     werden automatisch synchronisiert, sobald die Verbindung
+//     zurückkommt (online-Event + periodischer Check).
+// ═══════════════════════════════════════════
+const OFFLINE_CACHE_KEY = 'hofmarkt_offline_cache';
+
+function saveOfflineCache() {
+  try {
+    const snapshot = {
+      userProducts, rawHistory, customSuppliers, supplierChoices,
+      kiemleMapping, merzMapping,
+      hiddenStandardProducts, editedStandardProducts,
+      cachedAt: new Date().toISOString()
+    };
+    localStorage.setItem(OFFLINE_CACHE_KEY, JSON.stringify(snapshot));
+  } catch(e) { console.warn('[Offline] Cache konnte nicht gespeichert werden:', e); }
+}
+
+function loadOfflineCache() {
+  try {
+    const raw = localStorage.getItem(OFFLINE_CACHE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch(e) { return null; }
+}
+
+function applyOfflineCache(snap) {
+  if (!snap) return false;
+  userProducts    = snap.userProducts    || {};
+  rawHistory      = snap.rawHistory      || [];
+  customSuppliers = snap.customSuppliers || [];
+  supplierChoices = snap.supplierChoices || {};
+  hiddenStandardProducts = snap.hiddenStandardProducts || {};
+  editedStandardProducts = snap.editedStandardProducts || {};
+  if (snap.kiemleMapping && Object.keys(snap.kiemleMapping).length) kiemleMapping = snap.kiemleMapping;
+  if (snap.merzMapping   && Object.keys(snap.merzMapping).length)   merzMapping   = snap.merzMapping;
+  return true;
+}
+
+function offlineCacheAge() {
+  const snap = loadOfflineCache();
+  if (!snap || !snap.cachedAt) return null;
+  return Date.now() - new Date(snap.cachedAt).getTime();
+}
+
+function formatCacheAge(ms) {
+  if (ms == null) return '';
+  const min = Math.round(ms / 60000);
+  if (min < 1) return 'gerade eben';
+  if (min < 60) return `vor ${min} Min.`;
+  const h = Math.round(min / 60);
+  if (h < 24) return `vor ${h} Std.`;
+  return `vor ${Math.round(h / 24)} Tag(en)`;
+}
+
 // Offline-Sync-Queue
 const SYNC_QUEUE_KEY = 'hofmarkt_sync_queue';
 function getSyncQueue() {
@@ -3321,12 +3800,21 @@ function getSyncQueue() {
 }
 function saveSyncQueue(q) {
   try { localStorage.setItem(SYNC_QUEUE_KEY, JSON.stringify(q)); } catch(e) {}
+  updatePendingSyncBadge();
 }
 function enqueueSyncAction(payload) {
   const q = getSyncQueue();
   if (q.length >= 20) q.shift();
   q.push({...payload, _queuedAt: new Date().toISOString()});
   saveSyncQueue(q);
+}
+function updatePendingSyncBadge() {
+  const n = getSyncQueue().length;
+  const label = document.getElementById('conn-label');
+  if (!label) return;
+  if (n > 0 && !sheetsOnline) {
+    label.textContent = `Offline · ${n} ausstehend`;
+  }
 }
 async function flushSyncQueue() {
   const q = getSyncQueue();
@@ -3337,8 +3825,25 @@ async function flushSyncQueue() {
   const failed = q.filter((_, i) => results[i].status === 'rejected');
   saveSyncQueue(failed);
   const synced = q.length - failed.length;
-  if (synced > 0) showToast(`☁️ ${synced} offline-Aktion(en) synchronisiert.`);
+  if (synced > 0) showToast(`${synced} offline-Aktion(en) synchronisiert.`);
 }
+
+// Automatischer Sync-Versuch, sobald der Browser wieder online geht
+window.addEventListener('online', () => {
+  showToast('Verbindung wiederhergestellt – synchronisiere …');
+  setTimeout(() => { flushSyncQueue().catch(()=>{}); }, 600);
+});
+window.addEventListener('offline', () => {
+  setConnDot('offline');
+  updatePendingSyncBadge();
+});
+// Sanftes Polling als Backup, falls online/offline-Events vom Browser
+// nicht zuverlässig feuern (z.B. in manchen WebViews)
+setInterval(() => {
+  if (navigator.onLine && getSyncQueue().length > 0) {
+    flushSyncQueue().catch(()=>{});
+  }
+}, 30000);
 
 // ═══════════════════════════════════════════
 //  API
@@ -3435,15 +3940,38 @@ async function init() {
       merzMapping = d.merzMapping;
       localStorage.setItem('hofmarkt_merz_mapping', JSON.stringify(merzMapping));
     }
+    // Server-Stand für Produkt-Overrides mit lokalem Stand mergen (Server gewinnt bei
+    // Konflikten, da er der gemeinsame Stand über alle Geräte ist; rein lokale, noch
+    // nicht synchronisierte Änderungen bleiben aber erhalten, falls sie der Server
+    // noch nicht kennt — z.B. weil sie offline gemacht und noch nicht gesynct wurden).
+    if (d.hiddenStandardProducts) {
+      hiddenStandardProducts = {...hiddenStandardProducts, ...d.hiddenStandardProducts};
+    }
+    if (d.editedStandardProducts) {
+      editedStandardProducts = {...editedStandardProducts, ...d.editedStandardProducts};
+    }
+    saveProductOverridesToStorage();
     sheetsOnline = true;
     setConnDot('online');
+    saveOfflineCache();
     // UI mit frischen Daten aktualisieren (Durchschnitte etc.)
     buildUI();
     try { await flushSyncQueue(); } catch(e) {}
   } catch(e) {
     sheetsOnline = false;
-    setConnDot('offline');
     console.error('[Hofmarkt] Verbindung zu Google Sheets fehlgeschlagen:', e);
+    // ── Offline-Fallback: aus lokalem Cache laden statt mit leeren Daten zu starten ──
+    const cache = loadOfflineCache();
+    if (cache && applyOfflineCache(cache)) {
+      const age = formatCacheAge(offlineCacheAge());
+      const pending = getSyncQueue().length;
+      setConnDot('offline', pending > 0 ? `Offline · ${pending} ausstehend` : `Offline · Daten von ${age}`);
+      showToast(`Offline-Modus – Stand ${age}`);
+      buildUI();
+    } else {
+      setConnDot('offline');
+      showToast('Keine Verbindung und kein Offline-Stand vorhanden.', true);
+    }
   }
 }
 
@@ -3808,13 +4336,15 @@ async function confirmSave() {
       editedAt: new Date().toISOString()
     };
     rawHistory[editIndex] = updatedOrder;
+    saveOfflineCache();
     try {
       await apiPost({action:'updateOrder', index: editIndex, order: updatedOrder});
       showToast(`Eintrag aktualisiert (${updatedOrder.weekday})!`);
       fireConfetti();
       clearDirty();
     } catch(e) {
-      showToast('⚠️ Lokal aktualisiert – Sheets offline', true);
+      showToast(`Offline aktualisiert (${updatedOrder.weekday}) – wird synchronisiert.`);
+      clearDirty();
     }
     editMode  = false;
     editIndex = null;
@@ -3848,6 +4378,7 @@ async function confirmSave() {
       oneTimeItems
     };
     rawHistory.unshift(order);
+    saveOfflineCache();
     try {
       await apiPost({action:'saveOrder', order});
       showToast(`Gespeichert für ${day}!`);
@@ -3856,7 +4387,13 @@ async function confirmSave() {
       localStorage.removeItem(AUTOSAVE_KEY);
       localStorage.removeItem('hofmarkt_autosave_dismissed');
     } catch(e) {
-      showToast('⚠️ Lokal gespeichert – Sheets offline', true);
+      // apiPost hat die Aktion bereits in die Sync-Queue eingereiht (siehe enqueueSyncAction).
+      // Die Bestellung ist lokal sicher und wird automatisch übertragen, sobald wieder
+      // eine Verbindung besteht — kein Datenverlust, daher keine Warnung, sondern Bestätigung.
+      showToast(`Offline gespeichert für ${day} – wird automatisch synchronisiert.`);
+      clearDirty();
+      localStorage.removeItem(AUTOSAVE_KEY);
+      localStorage.removeItem('hofmarkt_autosave_dismissed');
     }
   }
 
@@ -3904,6 +4441,7 @@ async function deleteHistoryEntry(histIdx) {
 }
 
 async function _commitDelete({histIdx, order}) {
+  saveOfflineCache();
   try { await apiPost({action:'deleteOrder', savedAt: order.savedAt}); } catch(e) {}
 }
 
@@ -4212,29 +4750,93 @@ async function checkHolidaysAndVacations(isoDate) {
   } catch(e) {}
 }
 
+// Nutzt exakt dieselbe Trend-Logik wie der Produkt-Prognose-Chart im Analyse-Tab
+// (lineare Regression per kleinster Quadrate + gleitender Durchschnitt), aber
+// begrenzt auf die letzten 10 Markttage des jeweiligen Wochentags — wie gewünscht.
+function forecastNextValue(day, catid, name) {
+  let pool = day ? rawHistory.filter(o => !o.deleted && o.weekday === day) : rawHistory.filter(o => !o.deleted);
+  pool = pool.slice(0, 10); // letzte 10 Märkte dieses Wochentags
+  if (pool.length < 2) return null;
+
+  const sorted = pool.slice().reverse(); // älteste zuerst, wie im Forecast-Chart
+  const vals = sorted.map(o => {
+    const it = (o.items || []).find(x => x.catid === catid && x.name === name);
+    return it ? (it.bestellen || 0) : 0;
+  });
+  if (vals.filter(v => v > 0).length < 2) return null;
+
+  const n = vals.length;
+  const xMean = (n - 1) / 2;
+  const yMean = vals.reduce((a, b) => a + b, 0) / n;
+  let num = 0, den = 0;
+  vals.forEach((y, x) => { num += (x - xMean) * (y - yMean); den += (x - xMean) ** 2; });
+  const slope = den ? num / den : 0;
+  const intercept = yMean - slope * xMean;
+
+  // Nächster Punkt (x = n) linear fortgeschrieben, mit gleitendem Durchschnitt (letzte 3) geglättet
+  const trendNext = Math.max(0, intercept + slope * n);
+  const last3 = vals.slice(-3);
+  const movingAvg = last3.reduce((a, b) => a + b, 0) / last3.length;
+  const blended = Math.round((trendNext * 0.6 + movingAvg * 0.4));
+
+  let dir = 'flat';
+  if (slope > 0.15) dir = 'up';
+  else if (slope < -0.15) dir = 'down';
+
+  return { value: Math.max(0, blended), dir, slope, n };
+}
+
+// Durchschnittlicher Lagerbestand (Bestand-Spalte) über die letzten 10 Märkte
+// des gewählten Wochentags — bewusst separat von der Bestellempfehlung, da
+// Bestand eine Lagerkennzahl ist und kein Trendwert.
+function avgBestandLast10(day, catid, name) {
+  let pool = day ? rawHistory.filter(o => !o.deleted && o.weekday === day) : rawHistory.filter(o => !o.deleted);
+  pool = pool.slice(0, 10);
+  if (!pool.length) return 0;
+  let sum = 0, count = 0;
+  pool.forEach(o => {
+    const it = (o.items || []).find(x => x.catid === catid && x.name === name);
+    if (it && it.bestand > 0) { sum += it.bestand; count++; }
+  });
+  return count ? sum / count : 0;
+}
+
 function updateAvgHints() {
-  const avgMap = buildAvgMap(orderDay);
   document.querySelectorAll('#main .item').forEach(itemEl => {
     const catid = itemEl.dataset.catid;
     const name  = itemEl.dataset.name;
-    const k = catid + '|' + name;
-    const a = avgMap[k];
+    const forecast = forecastNextValue(orderDay, catid, name);
+    const avgBst    = avgBestandLast10(orderDay, catid, name);
     let hintEl = itemEl.querySelector('.item-avg-hint');
-    if (a && a.avgGesamt > 0) {
-      const fmt = v => v%1===0 ? String(v) : v.toFixed(1);
-      const parts = [];
-      if (a.avgBestand   > 0) parts.push(`Bst. Ø ${fmt(a.avgBestand)}`);
-      if (a.avgBestellen > 0) parts.push(`Best. Ø ${fmt(a.avgBestellen)}`);
-      const lbl = orderDay ? `letzten 4 ${orderDay}-Bestellungen` : 'letzten 4 Bestellungen';
-      const html = `${lbl}: <span>${parts.join(' · ')}</span>`;
-      if (hintEl) { hintEl.innerHTML = html; }
-      else {
-        hintEl = document.createElement('div');
-        hintEl.className = 'item-avg-hint';
-        hintEl.innerHTML = html;
-        itemEl.appendChild(hintEl);
-      }
-    } else if (hintEl) { hintEl.remove(); }
+
+    if (!forecast && avgBst <= 0) {
+      if (hintEl) hintEl.remove();
+      return;
+    }
+
+    const fmt = v => v % 1 === 0 ? String(v) : v.toFixed(1);
+    const parts = [];
+    if (avgBst > 0) parts.push(`Bestand Ø ${fmt(avgBst)}`);
+
+    let html;
+    if (forecast && forecast.value > 0) {
+      const arrow = forecast.dir === 'up' ? ' ↑' : forecast.dir === 'down' ? ' ↓' : '';
+      html = `<span class="hint-tag">Empfehlung</span> <span class="hint-${forecast.dir}">${forecast.value} Stk.${arrow}</span>`
+           + (parts.length ? ` · ${parts.join(' · ')}` : '');
+    } else if (parts.length) {
+      html = parts.join(' · ');
+    } else {
+      if (hintEl) hintEl.remove();
+      return;
+    }
+
+    if (hintEl) { hintEl.innerHTML = html; }
+    else {
+      hintEl = document.createElement('div');
+      hintEl.className = 'item-avg-hint';
+      hintEl.innerHTML = html;
+      itemEl.appendChild(hintEl);
+    }
   });
 }
 
@@ -4257,6 +4859,7 @@ function toggleDayChip(btn, scope) {
 // ═══════════════════════════════════════════
 //  DURCHSCHNITT-MAP
 // ═══════════════════════════════════════════
+
 function buildAvgMap(day) {
   let pool = day ? rawHistory.filter(o => !o.deleted && o.weekday===day) : rawHistory.filter(o => !o.deleted);
   pool = pool.slice(0, 4);
@@ -4347,12 +4950,18 @@ function hideSkeleton() {
 // ═══════════════════════════════════════════
 function buildUI() {
   const container = document.getElementById('main');
-  const avgMap = buildAvgMap(orderDay);
   const frag = document.createDocumentFragment();
 
   CATEGORIES.forEach(cat => {
+    // Standard-Produkte: versteckte (gelöschte) raus, bearbeitete mit Override-Werten
+    const visibleStandard = cat.products
+      .filter(p => !hiddenStandardProducts[cat.id + '|' + p.name])
+      .map(p => {
+        const override = editedStandardProducts[cat.id + '|' + p.name];
+        return override ? {...p, name: override.name, plu: override.plu} : p;
+      });
     const extra = (userProducts[cat.id]||[]).filter(p => p.userAdded);
-    const allP  = [...cat.products, ...extra.map(p=>({...p, infoOnly:false}))];
+    const allP  = [...visibleStandard, ...extra.map(p=>({...p, infoOnly:false}))];
     const orderCount = allP.filter(p => !p.infoOnly).length;
 
     const el = document.createElement('div');
@@ -4377,7 +4986,7 @@ function buildUI() {
           <span class="ch-notiz">Notiz</span>
           <span class="ch-actions"></span>
         </div>`}
-        ${allP.map(p => itemHTML(p, cat, avgMap)).join('')}
+        ${allP.map(p => itemHTML(p, cat)).join('')}
         ${cat.noOrder ? '' : addFormHTML(cat.id)}
       </div>`;
 
@@ -4388,9 +4997,10 @@ function buildUI() {
   container.appendChild(frag);
   updateSummary();
   updateNoDayOverlay();
+  updateAvgHints();
 }
 
-function itemHTML(p, cat, avgMap) {
+function itemHTML(p, cat) {
   const n = esc(p.name);
 
   if (cat.noOrder || p.infoOnly) {
@@ -4401,19 +5011,9 @@ function itemHTML(p, cat, avgMap) {
     </div>`;
   }
 
-  let avgHint = '';
-  if (avgMap) {
-    const k = cat.id+'|'+p.name;
-    const a = avgMap[k];
-    if (a && a.avgGesamt > 0) {
-      const fmt = v => v%1===0 ? String(v) : v.toFixed(1);
-      const parts = [];
-      if (a.avgBestand   > 0) parts.push(`Bst. Ø ${fmt(a.avgBestand)}`);
-      if (a.avgBestellen > 0) parts.push(`Best. Ø ${fmt(a.avgBestellen)}`);
-      const lbl = orderDay ? `letzten 4 ${orderDay}-Bestellungen` : 'letzten 4 Bestellungen';
-      avgHint = `<div class="item-avg-hint">${lbl}: <span>${parts.join(' · ')}</span></div>`;
-    }
-  }
+  // Hinweis-Zeile (Empfehlung/Bestand) wird ausschließlich von updateAvgHints() erzeugt,
+  // das nach buildUI() läuft und immer die aktuelle Trend-Empfehlung zeigt.
+  const avgHint = '';
 
   const supKey = cat.id+'|'+p.name;
   const lastSup = supplierChoices[supKey] || '';
@@ -4427,12 +5027,8 @@ function itemHTML(p, cat, avgMap) {
       <div class="item-main">
         <span class="plu-num">${p.plu}</span>
         <span class="plu-name">${n}</span>
-        ${p.userAdded ? '<span class="user-badge">eigenes Produkt</span>' : ''}
-        <div class="item-actions">
-          ${p.userAdded ? `<button class="btn-del" onclick="deleteProduct('${cat.id}','${esc(p.plu)}','${n}')" title="Löschen">✕</button>` : ''}
-        </div>
-        <input class="qty-input" type="number" min="0" placeholder="0" title="Bestand"   inputmode="numeric" pattern="[0-9]*" oninput="onQty(this,false)" onkeydown="onQtyKeydown(event,this)">
-        <input class="qty-input" type="number" min="0" placeholder="0" title="Bestellen" inputmode="numeric" pattern="[0-9]*" oninput="onQty(this,true)"  onkeydown="onQtyKeydown(event,this)">
+        <input class="qty-input" type="text" placeholder="0" title="Bestand"   inputmode="numeric" pattern="[0-9]*" autocomplete="off" oninput="onQty(this,false)" onkeydown="onQtyKeydown(event,this)" onpaste="setTimeout(()=>onQty(this,false),0)">
+        <input class="qty-input" type="text" placeholder="0" title="Bestellen" inputmode="numeric" pattern="[0-9]*" autocomplete="off" oninput="onQty(this,true)"  onkeydown="onQtyKeydown(event,this)" onpaste="setTimeout(()=>onQty(this,true),0)">
       </div>
       <div class="item-supplier-row">
         <select class="supplier-select${lastSup?' has-value':''}"
@@ -4517,6 +5113,21 @@ function getItemSupplier(itemEl) {
   return itemEl.querySelector('.supplier-select')?.value || '';
 }
 
+// Bereinigt Mengeneingaben: nur nicht-negative Ganzzahlen, max 4-stellig.
+// Schreibt den korrigierten Wert zurück ins Feld, damit nie ein ungültiger
+// Zustand (negativ, Dezimalstellen, Buchstaben, mehrfache Punkte) sichtbar bleibt.
+function sanitizeQtyInput(inp) {
+  let raw = inp.value;
+  // Nur Ziffern behalten (entfernt Minus, Buchstaben, Punkte, Kommas, e/E aus Exponentialschreibweise)
+  let digits = raw.replace(/[^\d]/g, '');
+  // Führende Nullen kappen (außer der Wert ist exakt "0")
+  digits = digits.replace(/^0+(?=\d)/, '');
+  // Realistische Obergrenze gegen Tippfehler (max. 9999 Stück)
+  if (digits.length > 4) digits = digits.slice(0, 4);
+  if (raw !== digits) inp.value = digits;
+  return digits === '' ? 0 : parseInt(digits, 10);
+}
+
 function onQty(inp, isBestell) {
   // Kein Tag gewählt → Modal öffnen, Eingabe zurücksetzen
   if (!orderDay) {
@@ -4525,7 +5136,7 @@ function onQty(inp, isBestell) {
     return;
   }
   haptic(18);
-  const val = parseFloat(inp.value) || 0;
+  const val = sanitizeQtyInput(inp);
   const hadFilled = inp.classList.contains('filled') || inp.classList.contains('filled-bestand');
   if (isBestell) inp.classList.toggle('filled', val > 0);
   else inp.classList.toggle('filled-bestand', val > 0);
@@ -4560,10 +5171,50 @@ function updateNoDayOverlay() {
     } else {
       dateText.textContent = orderDay;
     }
+    loadMiniWeather(orderDay, orderDate);
   } else {
     pickBtn.style.display = '';
     selected.classList.remove('visible');
     banner.classList.remove('day-selected');
+    const chip = document.getElementById('day-banner-weather');
+    if (chip) chip.classList.add('hidden');
+  }
+}
+
+// Kleiner, unaufdringlicher Wetter-Chip im Day-Banner. Zeigt nur Icon + Temperatur,
+// ein Tap öffnet das ausführliche Wetter-Popup mit Charts (loadWeatherAndHolidays).
+let _miniWeatherReqId = 0;
+async function loadMiniWeather(day, isoDate) {
+  const chip = document.getElementById('day-banner-weather');
+  if (!chip) return;
+  if (!isoDate) { chip.classList.add('hidden'); return; }
+
+  const reqId = ++_miniWeatherReqId;
+  const loc = DAY_LOCATIONS[day] || DAY_LOCATIONS['Montag'];
+
+  try {
+    const url = `https://api.open-meteo.com/v1/forecast`
+      + `?latitude=${loc.lat}&longitude=${loc.lon}`
+      + `&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_sum`
+      + `&timezone=Europe%2FBerlin&forecast_days=14`;
+    const resp = await fetch(url);
+    const data = await resp.json();
+    if (reqId !== _miniWeatherReqId) return; // veraltete Anfrage (Tag wurde inzwischen gewechselt)
+
+    const dayIdx = data.daily.time.indexOf(isoDate);
+    if (dayIdx === -1) { chip.classList.add('hidden'); return; }
+
+    const code  = data.daily.weathercode[dayIdx];
+    const tmax  = data.daily.temperature_2m_max[dayIdx];
+    const rain  = data.daily.precipitation_sum[dayIdx];
+    const descFull = WMO_CODES[code] || '';
+    const icon  = descFull.split(' ')[0] || '🌤️';
+
+    chip.innerHTML = `<span class="dbw-icon">${icon}</span>${Math.round(tmax)}°${rain > 0 ? `<span class="dbw-rain">· ${rain.toFixed(1)}mm</span>` : ''}`;
+    chip.classList.remove('hidden');
+    chip.onclick = () => loadWeatherAndHolidays(day, isoDate);
+  } catch(e) {
+    chip.classList.add('hidden');
   }
 }
 
@@ -4603,6 +5254,156 @@ async function deleteProduct(catId,plu,name){
   userProducts[catId].splice(idx,1);
   try{await apiPost({action:'deleteProduct',catId,plu,name})}catch(e){}
   buildUI();showToast('🗑 Produkt gelöscht.');
+}
+
+// ═══════════════════════════════════════════
+//  PRODUKTVERWALTUNG (zentrales Bearbeiten-Panel)
+//  Zeigt Standard- + eigene Produkte jeder Kategorie.
+//  Standard-Produkte: editierbar via Overrides, "löschen" = ausblenden
+//  (der Code in CATEGORIES bleibt unberührt, nur eine Ausblend-Liste wächst).
+//  Eigene Produkte: direkt editierbar/löschbar wie bisher, nur jetzt zentral.
+// ═══════════════════════════════════════════
+function openProductManager() {
+  document.getElementById('product-manager-overlay').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+  document.getElementById('pm-search').value = '';
+  renderProductManager('');
+}
+function closeProductManager() {
+  document.getElementById('product-manager-overlay').classList.add('hidden');
+  document.body.style.overflow = '';
+}
+function closeProductManagerOutside(e) {
+  if (e.target === document.getElementById('product-manager-overlay')) closeProductManager();
+}
+
+function renderProductManager(query) {
+  const body = document.getElementById('pm-body');
+  const q = (query || '').toLowerCase().trim();
+  let html = '';
+  let anyMatch = false;
+
+  CATEGORIES.forEach(cat => {
+    const standard = cat.products
+      .filter(p => !hiddenStandardProducts[cat.id + '|' + p.name])
+      .map(p => {
+        const ov = editedStandardProducts[cat.id + '|' + p.name];
+        return { plu: ov ? ov.plu : p.plu, name: ov ? ov.name : p.name, origName: p.name, isStandard: true };
+      });
+    const custom = (userProducts[cat.id] || []).filter(p => p.userAdded)
+      .map(p => ({ plu: p.plu, name: p.name, origName: p.name, isStandard: false }));
+    const all = [...standard, ...custom];
+
+    const filtered = q ? all.filter(p => p.name.toLowerCase().includes(q) || String(p.plu).toLowerCase().includes(q)) : all;
+    if (q && !filtered.length) return;
+    anyMatch = true;
+
+    const safeCat = cat.id.replace(/[^a-zA-Z0-9]/g, '_');
+    html += `<div class="pm-cat-group">
+      <div class="pm-cat-header" style="color:${cat.color}">
+        <span class="pm-cat-icon">${cat.icon}</span><span>${cat.name}</span>
+      </div>`;
+
+    filtered.forEach((p, i) => {
+      const rowId = `pm-${safeCat}-${i}`;
+      const delAction = p.isStandard
+        ? `hideStandardProduct('${cat.id}','${esc(p.origName)}')`
+        : `deleteProductFromManager('${cat.id}','${esc(p.plu)}','${esc(p.origName)}')`;
+      html += `
+        <div class="pm-row" data-catid="${cat.id}" data-orig="${esc(p.origName)}" data-standard="${p.isStandard}">
+          <input class="pm-row-plu"  id="${rowId}-plu"  value="${esc(p.plu)}"  oninput="markPmDirty('${rowId}')" placeholder="PLU">
+          <input class="pm-row-name" id="${rowId}-name" value="${esc(p.name)}" oninput="markPmDirty('${rowId}')" placeholder="Name">
+          <button class="pm-row-save" id="${rowId}-save" onclick="savePmRow('${rowId}','${cat.id}','${esc(p.origName)}',${p.isStandard})" title="Speichern">✓</button>
+          <button class="pm-row-del" onclick="if(confirm('&quot;${esc(p.name)}&quot; wirklich löschen?')) ${delAction}" title="Löschen">✕</button>
+        </div>`;
+    });
+
+    html += `
+      <div class="pm-add-row">
+        <input class="pm-row-plu"  id="pm-new-${safeCat}-plu"  placeholder="PLU">
+        <input class="pm-row-name" id="pm-new-${safeCat}-name" placeholder="Neues Produkt …" onkeydown="if(event.key==='Enter') addProductFromManager('${cat.id}')">
+        <button class="pm-row-add" onclick="addProductFromManager('${cat.id}')" title="Hinzufügen">+</button>
+      </div>
+    </div>`;
+  });
+
+  if (!anyMatch) {
+    html = `<div class="pm-empty">Keine Produkte gefunden${q ? ` für "${esc(query)}"` : ''}.</div>`;
+  }
+  body.innerHTML = html;
+}
+
+function markPmDirty(rowId) {
+  document.getElementById(rowId + '-plu').classList.add('pm-dirty');
+  document.getElementById(rowId + '-name').classList.add('pm-dirty');
+  document.getElementById(rowId + '-save').classList.add('show');
+}
+
+async function savePmRow(rowId, catId, origName, isStandard) {
+  const plu  = document.getElementById(rowId + '-plu').value.trim() || '–';
+  const name = document.getElementById(rowId + '-name').value.trim();
+  if (!name) { showToast('Name darf nicht leer sein.', true); return; }
+
+  if (isStandard === 'true' || isStandard === true) {
+    editedStandardProducts[catId + '|' + origName] = { name, plu };
+    saveProductOverridesToStorage();
+    try { await apiPost({action:'saveProduct', catId, product:{plu, name, overrideOf:origName}}); } catch(e) {}
+  } else {
+    const list = userProducts[catId] || [];
+    const item = list.find(p => p.userAdded && p.name === origName);
+    if (item) {
+      const oldPlu = item.plu;
+      item.plu = plu;
+      item.name = name;
+      try {
+        await apiPost({action:'deleteProduct', catId, plu: oldPlu, name: origName});
+        await apiPost({action:'saveProduct', catId, product: item});
+      } catch(e) {}
+    }
+  }
+  showToast('Gespeichert.');
+  buildUI();
+  renderProductManager(document.getElementById('pm-search').value);
+}
+
+async function hideStandardProduct(catId, name) {
+  hiddenStandardProducts[catId + '|' + name] = true;
+  delete editedStandardProducts[catId + '|' + name];
+  saveProductOverridesToStorage();
+  try { await apiPost({action:'hideStandardProduct', catId, name}); } catch(e) {}
+  buildUI();
+  renderProductManager(document.getElementById('pm-search').value);
+  showToast('Produkt entfernt.');
+}
+
+async function deleteProductFromManager(catId, plu, name) {
+  if (!userProducts[catId]) return;
+  const idx = userProducts[catId].findIndex(p => p.userAdded && p.name === name);
+  if (idx === -1) return;
+  userProducts[catId].splice(idx, 1);
+  try { await apiPost({action:'deleteProduct', catId, plu, name}); } catch(e) {}
+  buildUI();
+  renderProductManager(document.getElementById('pm-search').value);
+  showToast('Produkt gelöscht.');
+}
+
+async function addProductFromManager(catId) {
+  const safeCat = catId.replace(/[^a-zA-Z0-9]/g, '_');
+  const nameEl = document.getElementById(`pm-new-${safeCat}-name`);
+  const pluEl  = document.getElementById(`pm-new-${safeCat}-plu`);
+  const name = nameEl.value.trim();
+  const plu  = pluEl.value.trim() || '–';
+  if (!name) { nameEl.focus(); return; }
+
+  const prod = { plu, name, userAdded: true, addedAt: new Date().toISOString() };
+  if (!userProducts[catId]) userProducts[catId] = [];
+  userProducts[catId].push(prod);
+  try { await apiPost({action:'saveProduct', catId, product: prod}); } catch(e) {}
+
+  nameEl.value = ''; pluEl.value = '';
+  buildUI();
+  renderProductManager(document.getElementById('pm-search').value);
+  showToast('Produkt hinzugefügt.');
 }
 
 // ═══════════════════════════════════════════
@@ -7011,6 +7812,60 @@ async function confirmBauerDate() {
   showToast('Gärtnerei Bauer Bestellung heruntergeladen ✓');
 }
 
+// ═══════════════════════════════════════════
+//  SAISONALE AKZENTE
+//  Ganz dezente Partikel passend zur Jahreszeit, nur beim Öffnen
+//  der App sichtbar, blenden nach 5 Sekunden sanft aus.
+// ═══════════════════════════════════════════
+function seasonalFxConfig() {
+  const month = new Date().getMonth(); // 0=Jan … 11=Dez
+  if (month === 11 || month === 0 || month === 1) {
+    // Winter: Schneeflocken
+    return { emojis: ['❄️','❅','❆'], count: 14, minSize: 10, maxSize: 18, minDur: 7, maxDur: 13 };
+  }
+  if (month >= 2 && month <= 4) {
+    // Frühling: Blütenblätter
+    return { emojis: ['🌸','🌼'], count: 10, minSize: 12, maxSize: 18, minDur: 8, maxDur: 14 };
+  }
+  if (month >= 5 && month <= 7) {
+    // Sommer: leichtes Glitzern
+    return { emojis: ['✨','☀️'], count: 8, minSize: 8, maxSize: 14, minDur: 9, maxDur: 15 };
+  }
+  // Herbst: fallende Blätter
+  return { emojis: ['🍂','🍁'], count: 12, minSize: 12, maxSize: 18, minDur: 7, maxDur: 12 };
+}
+
+function runSeasonalFx() {
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const container = document.getElementById('seasonal-fx');
+  if (!container) return;
+
+  const cfg = seasonalFxConfig();
+  const vw = window.innerWidth;
+
+  for (let i = 0; i < cfg.count; i++) {
+    const el = document.createElement('span');
+    el.className = 'sfx-particle';
+    el.textContent = cfg.emojis[Math.floor(Math.random() * cfg.emojis.length)];
+    const size  = cfg.minSize + Math.random() * (cfg.maxSize - cfg.minSize);
+    const dur   = cfg.minDur  + Math.random() * (cfg.maxDur  - cfg.minDur);
+    const delay = Math.random() * 1.8;
+    const left  = Math.random() * vw;
+    const drift = (Math.random() - 0.5) * 80;
+    const rot   = 120 + Math.random() * 240;
+    el.style.left = left + 'px';
+    el.style.fontSize = size + 'px';
+    el.style.setProperty('--sfx-drift', drift + 'px');
+    el.style.setProperty('--sfx-rot', rot + 'deg');
+    el.style.animationDuration = dur + 's';
+    el.style.animationDelay = delay + 's';
+    container.appendChild(el);
+  }
+
+  setTimeout(() => container.classList.add('fade-out'), 5000);
+  setTimeout(() => { container.innerHTML = ''; container.classList.remove('fade-out'); }, 6300);
+}
+
 // ═══════════════════════
 //  SERVICE WORKER – deaktiviert
 //  Blob-URL wird von Browsern blockiert.
@@ -7020,6 +7875,7 @@ if ('serviceWorker' in navigator) {
 }
 
 init();
+runSeasonalFx();
 
 // Scroll-to-Top Button
 (function() {
@@ -7043,34 +7899,9 @@ init();
   }, {passive: true});
 })();
 
-// Dynamic sticky offset: keeps tab bar directly under header,
-// regardless of safe-area-inset, status-bar, autosave-indicator, or edit-mode-banner height
-(function(){
-  const tabs = document.querySelector('.tabs');
-  const header = document.querySelector('header');
-  if(!tabs || !header) return;
+// Tab-Bar-Position wird jetzt rein strukturell durch .app-header-group
+// (position: sticky um Header + Tabs gemeinsam) gelöst — kein JS-Offset mehr nötig.
 
-  function syncTabsOffset(){
-    let offset = header.getBoundingClientRect().height;
-    const statusBar = document.getElementById('status-bar');
-    if(statusBar && statusBar.offsetParent !== null) offset += statusBar.getBoundingClientRect().height;
-    const autosave = document.getElementById('autosave-indicator');
-    if(autosave && autosave.offsetParent !== null) offset += autosave.getBoundingClientRect().height;
-    const editBanner = document.getElementById('edit-mode-banner');
-    if(editBanner && editBanner.classList.contains('visible')) offset += editBanner.getBoundingClientRect().height;
-    tabs.style.top = Math.round(offset) + 'px';
-  }
-
-  syncTabsOffset();
-  window.addEventListener('resize', syncTabsOffset);
-  window.addEventListener('orientationchange', syncTabsOffset);
-  // Re-check after fonts/layout settle and whenever edit-mode banner toggles
-  const ro = new ResizeObserver(syncTabsOffset);
-  ro.observe(header);
-  const editBanner = document.getElementById('edit-mode-banner');
-  if(editBanner) ro.observe(editBanner);
-  setTimeout(syncTabsOffset, 300);
-})();
 </script>
 </body>
 </html>
