@@ -9,9 +9,14 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
 <style>
+/* ─────────────────────────────────────────────────────
+   HOFMARKT — iOS 18 / Apple Design Language
+   SF Pro Display · Vibrancy · Material · Spring Motion
+───────────────────────────────────────────────────── */
 
 /* ══ DESIGN TOKENS ══════════════════════════════════ */
 :root {
+  /* iOS System Colors — Light Mode */
   --ios-green:        #34C759;
   --ios-green-fill:   rgba(52,199,89,.14);
   --ios-orange:       #FF9500;
@@ -109,7 +114,7 @@
     --fill-2:          rgba(140,140,150,.24);
     --fill-3:          rgba(140,140,150,.18);
     --fill-4:          rgba(140,140,150,.10);
-    --card-border:     rgba(255,255,255,.08);
+    --card-border:     rgba(255,255,255,.14);
 
     --shadow-1:  0 1px 0 rgba(0,0,0,.3);
     --shadow-2:  0 1px 2px rgba(0,0,0,.4), 0 0 0 1px var(--card-border);
@@ -549,50 +554,58 @@ header h1 {
   background: var(--bg-grouped2);
   border-radius: var(--r-card);
   overflow: hidden;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
   box-shadow: var(--shadow-2);
+  border: 0.5px solid var(--card-border, var(--sep));
+  transition: box-shadow .18s;
 }
+.category.open { box-shadow: var(--shadow-3); }
 
 .cat-header {
   display: flex;
   align-items: center;
-  gap: 11px;
-  padding: 12px 16px 12px 14px;
+  gap: 12px;
+  padding: 14px 14px 14px 16px;
   cursor: pointer;
-  background: transparent;
   -webkit-tap-highlight-color: transparent;
-  transition: background .12s;
   user-select: none;
-  border-left: 3px solid var(--cat-color, var(--brand));
+  transition: filter .12s;
 }
-.cat-header:active { background: var(--fill-4); }
+.cat-header:active { filter: brightness(.85); }
 
-.cat-header-left { display: flex; align-items: center; gap: 11px; flex: 1; min-width: 0; }
+.cat-header-left { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
 
 .cat-icon {
-  font-size: 1.05rem;
-  width: 32px;
-  height: 32px;
-  border-radius: 10px;
+  font-size: 1.3rem;
+  width: 42px;
+  height: 42px;
+  border-radius: 13px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
 }
-.cat-name { font-size: .96rem; font-weight: 600; flex: 1; letter-spacing: .006em; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cat-name { font-size: .97rem; font-weight: 700; flex: 1; letter-spacing: .004em; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cat-count {
-  font-size: .66rem;
+  font-size: .68rem;
   font-weight: 700;
-  padding: 2px 8px;
+  padding: 3px 10px;
   border-radius: var(--r-pill);
   flex-shrink: 0;
 }
 .chevron {
-  font-size: .62rem;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(0,0,0,.10);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .6rem;
   transition: transform .24s var(--spring);
   flex-shrink: 0;
-  margin-left: 8px;
 }
+@media (prefers-color-scheme: dark) { .chevron { background: rgba(255,255,255,.10); } }
 .category.open .chevron { transform: rotate(180deg); }
 
 .cat-items {
@@ -2576,8 +2589,6 @@ header h1 {
 .pick-arrow { font-size: 1.3rem; opacity: .55; margin-left: 8px; }
 
 /* Categories — tighter, more air inside */
-.cat-header { padding: 14px 18px; }
-.cat-name   { font-size: .94rem; letter-spacing: .004em; }
 .item       { padding: 9px 18px; gap: 4px; }
 .item-main  { gap: 8px; }
 .plu-num    { min-width: 30px; font-size: .72rem; }
@@ -2737,9 +2748,6 @@ header h1 { font-size: 1.3rem; letter-spacing: -.02em; }
 
 /* Picker label gap when no icon */
 .pick-label { flex: 1; }
-
-/* Category count badge */
-.cat-count { padding: 2px 9px; font-size: .64rem; }
 
 /* Template items */
 .template-item { border-radius: 12px; }
@@ -4971,13 +4979,13 @@ function buildUI() {
     Object.assign(el.dataset, {catid:cat.id, catname:cat.name, catcolor:cat.color});
 
     el.innerHTML = `
-      <div class="cat-header" onclick="toggleCat(this)" style="--cat-color:${cat.color}">
+      <div class="cat-header" onclick="toggleCat(this)" style="--cat-color:${cat.color}; background:linear-gradient(135deg, ${cat.color}28 0%, transparent 65%)">
         <div class="cat-header-left">
-          <span class="cat-icon" style="background:${cat.color}1a;color:${cat.color}">${cat.icon}</span>
+          <span class="cat-icon" style="background:${cat.color}35;color:${cat.color}">${cat.icon}</span>
           <span class="cat-name" style="color:${cat.color}">${cat.name}</span>
-          <span class="cat-count" style="background:${cat.color}1f;color:${cat.color}">${orderCount}</span>
+          <span class="cat-count" style="background:${cat.color}28;color:${cat.color}">${orderCount}</span>
         </div>
-        <span class="chevron" style="color:${cat.color}99">▼</span>
+        <span class="chevron" style="color:${cat.color}">▼</span>
       </div>
       <div class="cat-items">
         ${cat.noOrder ? '' : `
