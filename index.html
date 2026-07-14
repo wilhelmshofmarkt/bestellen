@@ -3914,7 +3914,6 @@ async function init() {
   hideSkeleton();
   updateNoDayOverlay();
 
-  // Autosave-Entwurf prüfen
   try {
     const snap = restoreAutosave();
     if(snap && snap.items && snap.items.length > 0) {
@@ -3964,7 +3963,6 @@ async function init() {
     sheetsOnline = true;
     setConnDot('online');
     saveOfflineCache();
-    // UI mit frischen Daten aktualisieren (Durchschnitte etc.)
     buildUI();
     try { await flushSyncQueue(); } catch(e) {}
   } catch(e) {
@@ -4096,7 +4094,6 @@ function enterEditMode(histIdx) {
     document.querySelectorAll('.day-btn').forEach(b =>
       b.classList.toggle('selected', b.dataset.day === orderDay));
     document.getElementById('modal-ok-btn').disabled = false;
-    // Wetter für das Datum der bearbeiteten Bestellung laden
     const editDateISO = new Date(order.savedAt).toISOString().slice(0,10);
     orderDate = editDateISO;
     loadWeatherAndHolidays(orderDay, editDateISO);
@@ -4134,7 +4131,6 @@ function enterEditMode(histIdx) {
       itemEl.closest('.category')?.classList.add('open');
   });
 
-  // Notizen & einmalige Artikel wiederherstellen
   setGeneralNote(order.generalNote || '');
   onetimeItems = (order.oneTimeItems || []).map(it => ({...it}));
   renderOnetimeList();
@@ -4156,12 +4152,10 @@ function cancelEditMode() {
   setGeneralNote('');
   onetimeItems = [];
   renderOnetimeList();
-  // Tag zurücksetzen
   orderDay = ''; orderDate = '';
   updateNoDayOverlay();
   buildUI();
   showToast('Bearbeitung abgebrochen.');
-  // Modal öffnen damit neuer Tag gewählt wird
   setTimeout(() => openDateDayModal(), 300);
 }
 
@@ -4288,7 +4282,6 @@ async function confirmSave() {
       if(it.bestand > 0 || it.bestellen > 0)
         itemEl.closest('.category')?.classList.add('open');
     });
-    // Notizen & einmalige Artikel aus Vorlage übernehmen
     setGeneralNote(order.generalNote || '');
     onetimeItems = (order.oneTimeItems || []).map(it => ({...it}));
     renderOnetimeList();
@@ -4407,7 +4400,6 @@ async function confirmSave() {
     }
   }
 
-  // Reset neue Felder
   setGeneralNote('');
   onetimeItems = [];
   renderOnetimeList();
@@ -4483,14 +4475,12 @@ const WMO_CODES = {
 let orderDate = ''; // ISO yyyy-mm-dd
 
 function openDateDayModal() {
-  // Heutiges Datum vorausfüllen
   const today = new Date();
   const iso = today.toISOString().slice(0,10);
   document.getElementById('date-day-input').value = iso;
   onDateDayInputChange(); // Preview sofort zeigen
   document.getElementById('date-day-modal').classList.remove('hidden');
   document.body.style.overflow = 'hidden';
-  // Fokus auf Datum-Input
   setTimeout(() => document.getElementById('date-day-input').focus(), 100);
 }
 
@@ -4530,7 +4520,6 @@ function confirmDateDay() {
 }
 
 function selectOrderDay(btn) {
-  // Datum-Modal öffnen – Wochentag wird aus Datum erkannt
   openDateDayModal();
 }
 
@@ -4543,7 +4532,6 @@ function _applyOrderDay(day) {
   updateNoDayOverlay();
   updateAvgHints();
   updateSummary();
-  // Save-Button kurz pulsen lassen
   const btn = document.getElementById('btn-save');
   btn.classList.remove('pulse');
   void btn.offsetWidth;
@@ -4594,7 +4582,6 @@ async function loadWeatherAndHolidays(day, isoDate) {
       document.getElementById('wp-desc').textContent = 'Kein Wetter verfügbar (> 14 Tage im Voraus)';
       ['wp-rain','wp-wind','wp-humidity'].forEach(id => document.getElementById(id).textContent = '');
     } else {
-      // Tages-Header
       const code  = data.daily.weathercode[dayIdx];
       const tmax  = data.daily.temperature_2m_max[dayIdx];
       const tmin  = data.daily.temperature_2m_min[dayIdx];
@@ -4628,7 +4615,6 @@ async function loadWeatherAndHolidays(day, isoDate) {
         document.getElementById('wp-humidity').textContent = '';
       }
 
-      // Stündlicher Temperatur-Chart
       if (wpCharts.temp) wpCharts.temp.destroy();
       wpCharts.temp = new Chart(
         document.getElementById('wp-temp-chart').getContext('2d'), {
@@ -4659,7 +4645,6 @@ async function loadWeatherAndHolidays(day, isoDate) {
         }
       });
 
-      // Stündlicher Regen-Chart
       if (wpCharts.rain) wpCharts.rain.destroy();
       const maxRain = Math.max(...hourRain, 1);
       wpCharts.rain = new Chart(
@@ -5150,7 +5135,6 @@ function onQty(inp, isBestell) {
   const hadFilled = inp.classList.contains('filled') || inp.classList.contains('filled-bestand');
   if (isBestell) inp.classList.toggle('filled', val > 0);
   else inp.classList.toggle('filled-bestand', val > 0);
-  // Mini-Pop-Animation wenn Wert frisch gesetzt
   if (val > 0 && !hadFilled) {
     inp.classList.remove('qty-pop');
     void inp.offsetWidth;
@@ -5173,7 +5157,6 @@ function updateNoDayOverlay() {
     pickBtn.style.display = 'none';
     selected.classList.add('visible');
     banner.classList.add('day-selected');
-    // Datum-Text zusammenstellen
     if (orderDate) {
       const d = new Date(orderDate + 'T12:00:00');
       const ds = d.toLocaleDateString('de-DE', {weekday:'long', day:'2-digit', month:'long', year:'numeric'});
@@ -5432,7 +5415,6 @@ function updateSummary(){
       if(bestand>0) {if(!sM[catid])sM[catid]={name:catname,color:catcolor,items:[]};sM[catid].items.push({plu,name,catid,qty:bestand,notiz});st++;}
     });
   });
-  // einmalige Artikel auch mitzählen
   bt += onetimeItems.length;
   document.getElementById('bestell-count').textContent=bt;
   document.getElementById('gesamt-count').textContent=st;
@@ -5477,7 +5459,6 @@ function renderSumList(id, map, type, extAvg){
       }).join('')}
     </div>`).join('');
 
-  // Einmalige Artikel in der Übersicht
   if (type === 'order' && onetimeItems.length) {
     html += `<div class="summary-cat">
       <div class="summary-cat-label" style="background:#555">Einmalige Artikel</div>
@@ -5583,7 +5564,6 @@ function renderHistory(orders){
     if (bestandCount > 0) metaParts.push(`${bestandCount} Bestand`);
     if ((o.oneTimeItems||[]).length > 0) metaParts.push(`${o.oneTimeItems.length} einmalige Artikel`);
 
-    // Einmalige Artikel in der Historie anzeigen
     const onetimeHistHTML = (o.oneTimeItems||[]).length > 0 ? `
       <div class="hist-cat-label" style="background:#555">Einmalige Artikel</div>
       ${(o.oneTimeItems||[]).map(it => `
@@ -5594,7 +5574,6 @@ function renderHistory(orders){
         </div>`).join('')}
     ` : '';
 
-    // Allgemeine Notiz in der Historie anzeigen
     const noteHistHTML = o.generalNote ? `
       <div style="padding:6px 13px 8px;font-size:.8rem;background:#fffbf0;border-top:1px solid rgba(0,0,0,.05)">
         <strong>📝 Notiz:</strong> ${esc(o.generalNote)}
@@ -5677,7 +5656,6 @@ function getISOWeek(date) {
 function renderAnalysis(){
   const orders = getAnalysisOrders();
 
-  // Ladebalken
   let prog = document.getElementById('analysis-progress');
   if (!prog) {
     prog = document.createElement('div');
@@ -5793,7 +5771,6 @@ function renderLastYearChart(orders){
   const ctx  = document.getElementById('lastyear-chart').getContext('2d');
   if(analysisCharts.lastyear) analysisCharts.lastyear.destroy();
 
-  // Aktuelle KW bestimmen
   const now = new Date();
   const { week: currentKW, year: currentYear } = getISOWeek(now);
 
@@ -5831,7 +5808,6 @@ function renderLastYearChart(orders){
   document.getElementById('lastyear-legend').textContent =
     `KW ${currentKW-2}–${currentKW+2} · ${currentYear} vs. ${targetYear}`;
 
-  // Produkt-Mengen aggregieren
   const sumItems = (orderList) => {
     const acc = {};
     orderList.forEach(o => (o.items||[]).filter(x=>x.bestellen>0).forEach(it => {
@@ -5869,7 +5845,6 @@ function renderLastYearChart(orders){
     }
   });
 
-  // Insights
   const insEl = document.getElementById('lastyear-insights');
   const currTotal = Object.values(currMap).reduce((a,b)=>a+b,0);
   const lastTotal = Object.values(lastMap).reduce((a,b)=>a+b,0);
@@ -5982,14 +5957,11 @@ function buildProductPicker(orders){
     if(!phist[k]) phist[k]={name:it.name,catname:it.catname,count:0};
     phist[k].count++;
   }));
-  // top products by frequency
   window._allPickableProducts = Object.entries(phist)
     .sort((a,b)=>b[1].count-a[1].count)
     .map(([k,v])=>({key:k,name:v.name,catname:v.catname,count:v.count}));
 
-  // remove invalid selected products
   selectedProducts = selectedProducts.filter(k=>phist[k]);
-  // if nothing selected, preselect top 2
   if(selectedProducts.length===0){
     selectedProducts = window._allPickableProducts.slice(0,2).map(p=>p.key);
   }
@@ -6001,7 +5973,6 @@ function renderProductPickerUI(filter=''){
   const fl  = filter.toLowerCase();
   const visible = fl ? all.filter(p=>p.name.toLowerCase().includes(fl)||p.catname.toLowerCase().includes(fl)) : all;
 
-  // Selected chips
   const selChips = document.getElementById('product-selected-chips');
   selChips.innerHTML = selectedProducts.map((k,i)=>{
     const p = all.find(x=>x.key===k)||{name:k.split('|')[1]||k};
@@ -6009,7 +5980,6 @@ function renderProductPickerUI(filter=''){
     return `<span class="product-pick-chip selected" style="background:${col}" data-key="${k}" onclick="removeProductSelection('${k}')">${p.name} ✕</span>`;
   }).join('');
 
-  // Result list
   const res = document.getElementById('product-picker-results');
   const notSelected = visible.filter(p=>!selectedProducts.includes(p.key));
   if(!notSelected.length){
@@ -6304,7 +6274,6 @@ function renderSupplierChart(orders){
     }
   });
 
-  // Detail-Liste unterhalb
   if(detailEl){
     detailEl.innerHTML = top.map(([name,val],i)=>{
       const pct = ((val/total)*100).toFixed(1);
@@ -6323,7 +6292,6 @@ function renderSupplierChart(orders){
 function populateForecastSelect(orders){
   const sel = document.getElementById('forecast-product');
   const prev = sel.value;
-  // Häufigste Produkte sammeln
   const pc = {};
   orders.forEach(o=>(o.items||[]).filter(x=>x.bestellen>0).forEach(it=>{
     const k = it.catid+'|'+it.name;
@@ -6335,7 +6303,6 @@ function populateForecastSelect(orders){
         const name = k.split('|')[1]||k;
         return `<option value="${k}"${k===prev?' selected':''}>${name}</option>`;
       }).join('');
-  // Bestes Produkt vorauswählen wenn nichts gewählt
   if(!prev && sorted.length) sel.value = sorted[0][0];
   renderForecastChart(orders);
 }
@@ -6349,7 +6316,6 @@ function renderForecastChart(orders){
   if(!key){ insightsEl.innerHTML=''; return; }
 
   const [catid, pname] = key.split('|');
-  // Bestelldaten für dieses Produkt (älteste zuerst)
   const sorted = orders.slice().reverse();
   const vals = sorted.map(o=>{
     const it = (o.items||[]).find(x=>x.catid===catid&&x.name===pname&&x.bestellen>0);
@@ -6383,7 +6349,6 @@ function renderForecastChart(orders){
     return slice.reduce((a,b)=>a+b,0)/maWindow;
   });
 
-  // Prognose für 4 weitere Punkte
   const forecastCount = 4;
   const forecastVals = [];
   for(let i=0; i<forecastCount; i++){
@@ -6449,7 +6414,6 @@ function renderForecastChart(orders){
     }
   });
 
-  // Insights
   const nextVal = forecastVals[0];
   const lastVal = vals[vals.length-1]||0;
   const avgVal  = yMean;
@@ -6536,7 +6500,6 @@ function printEinkaufszettel() {
 
   let body = '';
 
-  // Reguläre Artikel nach Lieferant
   sortedSup.forEach((sup, idx) => {
     const color = supColors[idx % supColors.length];
     const items = bySupplier[sup].sort((a,b) => a.name.localeCompare(b.name,'de'));
@@ -6551,7 +6514,6 @@ function printEinkaufszettel() {
     });
   });
 
-  // Einmalige Artikel als eigener Abschnitt
   if (hasOnetime) {
     body += `<div class="sup-title" style="color:#555;border-color:#aaa">Einmalige Artikel</div>`;
     onetimeItems.forEach(it => {
@@ -6563,7 +6525,6 @@ function printEinkaufszettel() {
     });
   }
 
-  // Allgemeine Notiz als Block am Ende
   const noteBlock = generalNote ? `
     <div class="note-block">
       <div class="note-block-label">📝 Notizen</div>
@@ -6577,7 +6538,8 @@ function printEinkaufszettel() {
 <title>Einkaufsliste – ${ds}</title>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:'Helvetica Neue',Arial,sans-serif;font-size:12px;color:#111;padding:12mm 14mm;max-width:210mm}
+  body{font-family:'Helvetica Neue',Arial,'Segoe UI Emoji','Noto Color Emoji','Apple Color Emoji',sans-serif;font-size:12px;color:#111;padding:12mm 14mm;max-width:210mm;background:#fff}
+  h1,.sup-title,.notiz,.note-block-label{background:transparent}
   h1{font-size:18px;font-weight:800;margin-bottom:2px}
   .meta{font-size:10px;color:#666;margin-bottom:10px}
   hr{border:none;border-top:2px solid #2D5016;margin:8px 0 12px}
@@ -6698,7 +6660,8 @@ function printHistoryOrder(histIdx) {
 <title>Einkaufsliste – ${ds}</title>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:'Helvetica Neue',Arial,sans-serif;font-size:12px;color:#111;padding:5mm;max-width:210mm}
+  body{font-family:'Helvetica Neue',Arial,'Segoe UI Emoji','Noto Color Emoji','Apple Color Emoji',sans-serif;font-size:12px;color:#111;padding:5mm;max-width:210mm;background:#fff}
+  h1,.sup-title,.notiz,.note-block-label{background:transparent}
   h1{font-size:18px;font-weight:800;margin-bottom:2px}
   .meta{font-size:10px;color:#666;margin-bottom:10px}
   hr{border:none;border-top:2px solid #2D5016;margin:8px 0 12px}
@@ -7034,7 +6997,6 @@ function doAutosave() {
     if(items.length > 0 || snap.generalNote || snap.oneTimeItems.length > 0) {
       const t = new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
       if(ind) ind.textContent = `Autosave ${t} – ${items.length} Artikel`;
-      // Conn-Label kurz auf Autosave-Status setzen
       const lbl = document.getElementById('conn-label');
       if(lbl) {
         const prev = lbl.textContent;
@@ -7081,7 +7043,6 @@ function applySnapshot(snap) {
     if(it.bestand > 0 || it.bestellen > 0 || it.notiz)
       itemEl.closest('.category')?.classList.add('open');
   });
-  // Neue Felder aus Snapshot
   if(snap.generalNote) setGeneralNote(snap.generalNote);
   if(snap.oneTimeItems && snap.oneTimeItems.length) {
     onetimeItems = snap.oneTimeItems.map(it => ({...it}));
@@ -7394,7 +7355,6 @@ document.addEventListener('click', e => {
 
 function downloadKiemleXLS() {
   const inp = document.getElementById('kiemle-date-input');
-  // orderDate vorausfüllen falls vorhanden
   inp.value = orderDate || new Date().toISOString().slice(0,10);
   document.getElementById('kiemle-date-modal').classList.remove('hidden');
 }
@@ -7660,7 +7620,6 @@ function downloadMerzPDF() {
   if(rCheck) rCheck.checked = false;
   if(lCheck) lCheck.checked = false;
   updateMerzCheckStyle();
-  // orderDate vorausfüllen falls vorhanden
   const base = orderDate || new Date().toISOString().slice(0,10);
   document.getElementById('merz-date-input').value = base;
   document.getElementById('merz-date-modal').classList.remove('hidden');
@@ -7758,7 +7717,6 @@ async function confirmMerzDate() {
     const black = rgb(0,0,0);
     const FONT_SIZE = 12;
 
-    // Datum eintragen
     if(dateStr) {
       page.drawText(dateStr, { x: DATUM_X, y: DATUM_Y, size: FONT_SIZE, font, color: black });
     }
@@ -7770,7 +7728,6 @@ async function confirmMerzDate() {
       page.drawText('X', { x: 177.8, y: CB_LIEFERSCHEIN_Y - 2, size: 12, font, color: black });
     }
 
-    // Mengen eintragen (zentriert in Menge-Spalte)
     for(const [hofName, qty] of Object.entries(orderQtys)) {
       const merzName = merzMapping[hofName]; if(!merzName) continue;
       const posY = MERZ_POS[merzName]; if(!posY) continue;
@@ -7950,8 +7907,7 @@ async function confirmBauerDate() {
 //  Fällt bei Fehlern/keinem Netz auf eine dezente Saison-Optik zurück.
 // ═══════════════════════════════════════════
 function seasonalFxFallback() {
-  // Fallback, falls das Wetter nicht geladen werden kann: sanfte Saison-Optik
-  const month = new Date().getMonth(); // 0=Jan … 11=Dez
+  const month = new Date().getMonth();
   if (month === 11 || month === 0 || month === 1) {
     return { emojis: ['❄️','❅','❆'], count: 14, minSize: 10, maxSize: 18, minDur: 7, maxDur: 13 };
   }
@@ -7964,33 +7920,31 @@ function seasonalFxFallback() {
   return { emojis: ['🍂','🍁'], count: 12, minSize: 12, maxSize: 18, minDur: 7, maxDur: 12 };
 }
 
-// Ordnet einen WMO-Wettercode (siehe WMO_CODES) einer passenden Partikel-Optik zu
 function weatherFxByCode(code) {
   if (code === 0 || code === 1) {
-    return { emojis: ['☀️','✨'], count: 8, minSize: 8, maxSize: 14, minDur: 9, maxDur: 15 };            // Klar
+    return { emojis: ['☀️','✨'], count: 8, minSize: 8, maxSize: 14, minDur: 9, maxDur: 15 };
   }
   if (code === 2) {
-    return { emojis: ['⛅'], count: 9, minSize: 12, maxSize: 18, minDur: 9, maxDur: 15 };                 // Teilweise bewölkt
+    return { emojis: ['⛅'], count: 9, minSize: 12, maxSize: 18, minDur: 9, maxDur: 15 };
   }
   if (code === 3) {
-    return { emojis: ['☁️'], count: 10, minSize: 14, maxSize: 20, minDur: 9, maxDur: 15 };                // Bedeckt
+    return { emojis: ['☁️'], count: 10, minSize: 14, maxSize: 20, minDur: 9, maxDur: 15 };
   }
   if (code === 45 || code === 48) {
-    return { emojis: ['🌫️'], count: 9, minSize: 16, maxSize: 22, minDur: 10, maxDur: 16 };                // Nebel
+    return { emojis: ['🌫️'], count: 9, minSize: 16, maxSize: 22, minDur: 10, maxDur: 16 };
   }
   if ([51,53,55,61,63,65,80,81,82].includes(code)) {
-    return { emojis: ['🌧️','💧'], count: 16, minSize: 9, maxSize: 15, minDur: 5, maxDur: 9 };             // Regen/Schauer
+    return { emojis: ['🌧️','💧'], count: 16, minSize: 9, maxSize: 15, minDur: 5, maxDur: 9 };
   }
   if ([71,73,75].includes(code)) {
-    return { emojis: ['❄️','❅','❆'], count: 14, minSize: 10, maxSize: 18, minDur: 7, maxDur: 13 };        // Schnee
+    return { emojis: ['❄️','❅','❆'], count: 14, minSize: 10, maxSize: 18, minDur: 7, maxDur: 13 };
   }
   if ([95,96,99].includes(code)) {
-    return { emojis: ['⛈️','🌩️'], count: 10, minSize: 14, maxSize: 20, minDur: 6, maxDur: 10 };           // Gewitter
+    return { emojis: ['⛈️','🌩️'], count: 10, minSize: 14, maxSize: 20, minDur: 6, maxDur: 10 };
   }
   return seasonalFxFallback();
 }
 
-// Holt den Wettercode für MORGEN am Standort des morgigen Liefertags
 async function weatherFxConfigForTomorrow() {
   try {
     const days = ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
@@ -8055,7 +8009,7 @@ if ('serviceWorker' in navigator) {
 init();
 runSeasonalFx();
 
-// Scroll-to-Top Button
+// Scroll-to-Top Button + heutigen Tag markieren
 (function() {
   const scrollBtn = document.getElementById('scroll-top-btn');
   if (scrollBtn) {
@@ -8063,18 +8017,8 @@ runSeasonalFx();
       scrollBtn.classList.toggle('visible', window.scrollY > 300);
     }, { passive: true });
   }
-  // Heutigen Tag markieren
   const _todayName = ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'][new Date().getDay()];
   document.querySelectorAll('.day-btn').forEach(b => b.classList.toggle('today-btn', b.dataset.day === _todayName));
-})();
-
-// iOS-style scroll-to-top button
-(function(){
-  const btn = document.getElementById('scroll-top-btn');
-  if(!btn) return;
-  window.addEventListener('scroll', function(){
-    btn.classList.toggle('visible', window.scrollY > 300);
-  }, {passive: true});
 })();
 
 // Tab-Bar-Position wird jetzt rein strukturell durch .app-header-group
