@@ -1685,7 +1685,7 @@ header h1 {
   gap: 8px;
   padding: 12px 16px 14px;
 }
-.btn-hist-edit, .btn-hist-duplicate, .btn-hist-delete {
+.btn-hist-edit, .btn-hist-print, .btn-hist-delete {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1700,7 +1700,7 @@ header h1 {
   -webkit-tap-highlight-color: transparent;
   transition: transform .1s, background .12s, opacity .12s;
 }
-.btn-hist-edit:active, .btn-hist-duplicate:active, .btn-hist-delete:active {
+.btn-hist-edit:active, .btn-hist-print:active, .btn-hist-delete:active {
   transform: scale(.96);
 }
 .btn-hist-edit {
@@ -1708,11 +1708,11 @@ header h1 {
   color: var(--ios-blue);
 }
 .btn-hist-edit:active { background: var(--ios-blue); color: #fff; }
-.btn-hist-duplicate {
+.btn-hist-print {
   background: var(--fill-3);
   color: var(--label-2);
 }
-.btn-hist-duplicate:active { background: var(--fill-2); }
+.btn-hist-print:active { background: var(--fill-2); }
 .btn-hist-delete {
   grid-column: 1 / -1;
   background: transparent;
@@ -2685,7 +2685,7 @@ header h1 {
 /* History */
 .hist-item        { padding: 15px 18px; }
 .hist-item-day    { font-size: .96rem; }
-.btn-hist-edit, .btn-hist-duplicate, .btn-hist-delete {
+.btn-hist-edit, .btn-hist-print, .btn-hist-delete {
   border-radius: 10px;
   padding: 7px 14px;
   font-size: .78rem;
@@ -5627,7 +5627,7 @@ function renderHistory(orders){
         ${noteHistHTML}
         <div class="hist-actions">
           <button class="btn-hist-edit" onclick="enterEditMode(${histIdx})">Bearbeiten</button>
-          <button class="btn-hist-duplicate" onclick="loadOrderAsTemplate(${histIdx})">Duplizieren</button>
+          <button class="btn-hist-print" onclick="printHistoryOrder(${histIdx})">🖨️ Drucken</button>
           <button class="btn-hist-delete" onclick="deleteHistoryEntry(${histIdx})">🗑 Löschen</button>
         </div>
       </div>
@@ -6598,6 +6598,126 @@ function printEinkaufszettel() {
   @media print{
     html,body{height:auto!important;overflow:visible!important}
     body{padding:10mm 12mm}
+    .note-block{break-inside:avoid}
+  }
+</style></head><body>
+<h1>🌿 Einkaufsliste Großmarkt</h1>
+<div class="meta">${ds}, ${ts} Uhr${dayLine} · ${totalCount} Artikel</div>
+<hr>
+${body}
+${noteBlock}
+<script>
+window.onload = function() {
+  setTimeout(function(){ window.print(); }, 120);
+};
+<\/script>
+</body></html>`;
+
+  const win = window.open('', '_blank');
+  if (!win) { showToast('Popup blockiert – bitte Popups erlauben', true); return; }
+  win.document.write(html);
+  win.document.close();
+}
+
+// ═══════════════════════════════════════════
+//  HISTORIE-EINTRAG DRUCKEN
+//  Druckt eine gespeicherte Bestellung aus der Historie, unabhängig
+//  vom aktuellen Formular-Zustand. Rand: 5mm (Drucker kann nicht randlos).
+// ═══════════════════════════════════════════
+function printHistoryOrder(histIdx) {
+  const o = rawHistory[histIdx];
+  if (!o) { showToast('Bestellung nicht gefunden', true); return; }
+
+  const allItems = (o.items || []).filter(it => it.bestellen > 0).map(it => ({
+    plu: it.plu, name: it.name, catname: it.catname,
+    qty: it.bestellen, notiz: it.notiz || '',
+    supplier: it.supplier || '— Kein Lieferant —'
+  }));
+  const onetime     = o.oneTimeItems || [];
+  const generalNote = (o.generalNote || '').trim();
+
+  if (!allItems.length && !onetime.length && !generalNote) {
+    showToast('Diese Bestellung enthält keine Bestellmengen oder Notizen!', true); return;
+  }
+
+  const bySupplier = {};
+  allItems.forEach(it => {
+    if (!bySupplier[it.supplier]) bySupplier[it.supplier] = [];
+    bySupplier[it.supplier].push(it);
+  });
+  const knownOrder = allSuppliers();
+  const sortedSup = Object.keys(bySupplier).sort((a, b) => {
+    const ia = knownOrder.indexOf(a), ib = knownOrder.indexOf(b);
+    if (ia === -1 && ib === -1) return a.localeCompare(b, 'de');
+    if (ia === -1) return 1; if (ib === -1) return -1;
+    return ia - ib;
+  });
+
+  const dt  = new Date(o.savedAt);
+  const ds  = dt.toLocaleDateString('de-DE', {weekday:'long', day:'2-digit', month:'2-digit', year:'numeric'});
+  const ts  = dt.toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'});
+  const dayLine = o.weekday ? ` · Liefertag: <strong>${esc(o.weekday)}</strong>` : '';
+  const supColors = ['#2D5016','#C0392B','#1A6BA0','#7B3FA0','#D4830A','#1E6F3E','#8B6914','#555','#903060'];
+
+  let body = '';
+  sortedSup.forEach((sup, idx) => {
+    const color = supColors[idx % supColors.length];
+    const items = bySupplier[sup].sort((a, b) => a.name.localeCompare(b.name, 'de'));
+    body += `<div class="sup-title" style="color:${color};border-color:${color}">🏪 ${esc(sup)}</div>`;
+    items.forEach(it => {
+      body += `<div class="row">
+        <div class="check"></div>
+        <span class="name">${esc(it.name)}${it.plu && it.plu !== '–' ? ` <small>PLU ${esc(it.plu)}</small>` : ''} <small class="cat">${esc(it.catname || '')}</small></span>
+        <span class="qty">${it.qty}&thinsp;×</span>
+      </div>`;
+      if (it.notiz) body += `<div class="notiz">💬 ${esc(it.notiz)}</div>`;
+    });
+  });
+
+  if (onetime.length) {
+    body += `<div class="sup-title" style="color:#555;border-color:#aaa">Einmalige Artikel</div>`;
+    onetime.forEach(it => {
+      body += `<div class="row">
+        <div class="check"></div>
+        <span class="name">${esc(it.name)}</span>
+        <span class="qty">${it.qty}&thinsp;×</span>
+      </div>`;
+    });
+  }
+
+  const noteBlock = generalNote ? `
+    <div class="note-block">
+      <div class="note-block-label">📝 Notizen</div>
+      <div class="note-block-text">${esc(generalNote).replace(/\n/g,'<br>')}</div>
+    </div>
+  ` : '';
+
+  const totalCount = allItems.length + onetime.length;
+
+  const html = `<!DOCTYPE html><html lang="de"><head><meta charset="UTF-8">
+<title>Einkaufsliste – ${ds}</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Helvetica Neue',Arial,sans-serif;font-size:12px;color:#111;padding:5mm;max-width:210mm}
+  h1{font-size:18px;font-weight:800;margin-bottom:2px}
+  .meta{font-size:10px;color:#666;margin-bottom:10px}
+  hr{border:none;border-top:2px solid #2D5016;margin:8px 0 12px}
+  .sup-title{font-size:13px;font-weight:700;border-bottom:2px solid;padding-bottom:3px;margin:14px 0 6px}
+  .sup-title:first-of-type{margin-top:0}
+  .row{display:flex;align-items:baseline;gap:6px;padding:3px 0;border-bottom:1px dotted #ddd}
+  .check{width:14px;height:14px;border:1.5px solid #aaa;border-radius:3px;flex-shrink:0;margin-top:1px}
+  .name{flex:1;font-size:11.5px}
+  .name small{color:#999;font-size:9.5px}
+  .cat{color:#aaa!important}
+  .qty{font-weight:700;font-size:12px;white-space:nowrap}
+  .notiz{font-size:10px;color:#555;padding:1px 0 3px 22px;font-style:italic}
+  .note-block{margin-top:18px;border:2px solid #D4830A;border-radius:6px;padding:10px 12px;background:#fffbf0}
+  .note-block-label{font-weight:700;font-size:11px;color:#D4830A;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+  .note-block-text{font-size:11.5px;color:#333;line-height:1.6;white-space:pre-wrap}
+  @page{size:A4 portrait;margin:5mm;-webkit-print-color-adjust:exact;duplex:simplex}
+  @media print{
+    html,body{height:auto!important;overflow:visible!important}
+    body{padding:5mm}
     .note-block{break-inside:avoid}
   }
 </style></head><body>
@@ -7823,34 +7943,82 @@ async function confirmBauerDate() {
 }
 
 // ═══════════════════════════════════════════
-//  SAISONALE AKZENTE
-//  Ganz dezente Partikel passend zur Jahreszeit, nur beim Öffnen
-//  der App sichtbar, blenden nach 5 Sekunden sanft aus.
+//  WETTER-AKZENTE
+//  Ganz dezente Partikel passend zum ECHTEN Wetter von morgen
+//  (am Standort des morgigen Liefertags), nur beim Öffnen der
+//  App sichtbar, blenden nach 5 Sekunden sanft aus.
+//  Fällt bei Fehlern/keinem Netz auf eine dezente Saison-Optik zurück.
 // ═══════════════════════════════════════════
-function seasonalFxConfig() {
+function seasonalFxFallback() {
+  // Fallback, falls das Wetter nicht geladen werden kann: sanfte Saison-Optik
   const month = new Date().getMonth(); // 0=Jan … 11=Dez
   if (month === 11 || month === 0 || month === 1) {
-    // Winter: Schneeflocken
     return { emojis: ['❄️','❅','❆'], count: 14, minSize: 10, maxSize: 18, minDur: 7, maxDur: 13 };
   }
   if (month >= 2 && month <= 4) {
-    // Frühling: Blütenblätter
     return { emojis: ['🌸','🌼'], count: 10, minSize: 12, maxSize: 18, minDur: 8, maxDur: 14 };
   }
   if (month >= 5 && month <= 7) {
-    // Sommer: leichtes Glitzern
     return { emojis: ['✨','☀️'], count: 8, minSize: 8, maxSize: 14, minDur: 9, maxDur: 15 };
   }
-  // Herbst: fallende Blätter
   return { emojis: ['🍂','🍁'], count: 12, minSize: 12, maxSize: 18, minDur: 7, maxDur: 12 };
 }
 
-function runSeasonalFx() {
+// Ordnet einen WMO-Wettercode (siehe WMO_CODES) einer passenden Partikel-Optik zu
+function weatherFxByCode(code) {
+  if (code === 0 || code === 1) {
+    return { emojis: ['☀️','✨'], count: 8, minSize: 8, maxSize: 14, minDur: 9, maxDur: 15 };            // Klar
+  }
+  if (code === 2) {
+    return { emojis: ['⛅'], count: 9, minSize: 12, maxSize: 18, minDur: 9, maxDur: 15 };                 // Teilweise bewölkt
+  }
+  if (code === 3) {
+    return { emojis: ['☁️'], count: 10, minSize: 14, maxSize: 20, minDur: 9, maxDur: 15 };                // Bedeckt
+  }
+  if (code === 45 || code === 48) {
+    return { emojis: ['🌫️'], count: 9, minSize: 16, maxSize: 22, minDur: 10, maxDur: 16 };                // Nebel
+  }
+  if ([51,53,55,61,63,65,80,81,82].includes(code)) {
+    return { emojis: ['🌧️','💧'], count: 16, minSize: 9, maxSize: 15, minDur: 5, maxDur: 9 };             // Regen/Schauer
+  }
+  if ([71,73,75].includes(code)) {
+    return { emojis: ['❄️','❅','❆'], count: 14, minSize: 10, maxSize: 18, minDur: 7, maxDur: 13 };        // Schnee
+  }
+  if ([95,96,99].includes(code)) {
+    return { emojis: ['⛈️','🌩️'], count: 10, minSize: 14, maxSize: 20, minDur: 6, maxDur: 10 };           // Gewitter
+  }
+  return seasonalFxFallback();
+}
+
+// Holt den Wettercode für MORGEN am Standort des morgigen Liefertags
+async function weatherFxConfigForTomorrow() {
+  try {
+    const days = ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const dayName = days[tomorrow.getDay()];
+    const loc = DAY_LOCATIONS[dayName];
+    if (!loc) return seasonalFxFallback();
+    const iso = tomorrow.toISOString().slice(0, 10);
+
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${loc.lat}&longitude=${loc.lon}`
+      + `&daily=weathercode&timezone=Europe%2FBerlin&start_date=${iso}&end_date=${iso}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    const code = data?.daily?.weathercode?.[0];
+    if (typeof code !== 'number') return seasonalFxFallback();
+    return weatherFxByCode(code);
+  } catch (e) {
+    return seasonalFxFallback();
+  }
+}
+
+async function runSeasonalFx() {
   if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   const container = document.getElementById('seasonal-fx');
   if (!container) return;
 
-  const cfg = seasonalFxConfig();
+  const cfg = await weatherFxConfigForTomorrow();
   const vw = window.innerWidth;
 
   for (let i = 0; i < cfg.count; i++) {
